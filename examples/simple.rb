@@ -14,15 +14,11 @@ class MyApp
   
 end
 
-Fiveruns::Dash.configure :app => 'foo-bar-baz' do |metrics|
+Fiveruns::Dash.start :app => 'foo-bar-baz' do |metrics|
   metrics.counter :foos, "BAR!" do
     MyApp.foos_last_minute
   end
   metrics.time 'MyApp#do_something'
-end
-
-Thread.new do
-  Fiveruns::Dash.start
 end
 
 app = MyApp.new

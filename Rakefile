@@ -12,4 +12,9 @@ Echoe.new 'fiveruns_dash' do |p|
   p.url = "http://dash.fiveruns.com"
   p.include_rakefile = true
   p.runtime_dependencies = %w(instrument)
+  p.rcov_options = '--exclude gems --sort coverage --text-summary --html -o coverage'
+end
+
+task :coverage do
+  system "open coverage/index.html" if PLATFORM['darwin']
 end

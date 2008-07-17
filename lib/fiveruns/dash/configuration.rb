@@ -6,6 +6,7 @@ module Fiveruns
       
       delegate :each, :to => :metrics
       
+      attr_reader :options
       def initialize(options = {})
         @options = options
       end

@@ -7,16 +7,20 @@ require 'dash/version'
 require 'dash/configuration'
 require 'dash/metric'
 require 'dash/session'
+require 'dash/reporter'
+
 
 module Fiveruns
   
   module Dash
   
     def self.configure(options = {})
-      yield configuration
+      configuration.options.update(options)
+      yield configuration if block_given?
     end
     
-    def self.start
+    def self.start(options = {}, &block)
+      configure(options, &block) if block_given?
       session.start
     end
     
