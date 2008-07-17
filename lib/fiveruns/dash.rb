@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'activesupport'
+require 'instrument'
 
 $:.unshift(File.dirname(__FILE__))
 require 'dash/version'

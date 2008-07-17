@@ -13,19 +13,27 @@ module Fiveruns
       end
       
       attr_reader :name, :description
-      def initialize(name, description = name.to_s.titleize, &block)
+      def initialize(name, description = name.to_s, &block)
         @name = name
         @description = description
         @operation = block
       end
       
-      def current_value
-        @operation.call
+      def info
+        {name => {:type => self.class.metric_type, :description => description}}
+      end
+      
+      def data
+        {name => current_value}
       end
 
       #######
       private
       #######
+      
+      def current_value
+        @operation.call
+      end
       
       def self.metric_type
         @metric_type ||= name.demodulize.underscore.sub(/_metric$/, '').to_sym
@@ -35,8 +43,31 @@ module Fiveruns
     
     class TimeMetric < Metric
       
-      def initialize(name, description)
-        raise NotImplementedError, 'TODO'
+      def initialize(*args)
+        super(*args)
+        reset
+        install_hook
+      end
+      
+      #######
+      private
+      #######
+      
+      def current_value
+        returning(:time => @time, :invoked => @invoked) do |value|
+          reset
+        end
+      end
+      
+      def reset
+        @invoked = @time = 0
+      end
+
+      def install_hook
+        instrument name do |obj, time, *args|
+          @invoked += 1
+          @time += time
+        end
       end
       
     end
