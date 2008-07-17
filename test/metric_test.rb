@@ -2,8 +2,6 @@ require File.dirname(__FILE__) << "/test_helper"
 
 class MetricTest < Test::Unit::TestCase
   
-  include Fiveruns::Dash
-  
   attr_reader :metric
   
   def self.time_me

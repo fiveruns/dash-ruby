@@ -14,32 +14,31 @@ module Fiveruns
         @interval = interval
       end
       
-      def started?
-        @started
-      end
-      
-      def foreground?
-        @background == false
-      end
-      
-      def background?
-        @background
-      end
-      
       def revive!
         return if !started? || foreground?
         start if !@thread || !@thread.alive?
       end
       
-      def start(background = true)
+      def start(run_in_background = true)
         restarted = @started ? true : false
-        @started = true
-        @background = background
-        if background
+        setup_for run_in_background
+        if @background
           @thread = Thread.new { run(restarted) }
         else
           run(restarted)
         end
+      end
+      
+      def started?
+        @started
+      end
+      
+      def foreground?
+        started? && !@background
+      end
+      
+      def background?
+        started? && @background
       end
       
       #######
@@ -53,6 +52,11 @@ module Fiveruns
           sleep @interval
           p @session.data
         end
+      end
+      
+      def setup_for(run_in_background = true)
+        @started = true
+        @background = run_in_background
       end
             
     end

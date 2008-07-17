@@ -9,6 +9,7 @@ module Fiveruns
       attr_reader :options
       def initialize(options = {})
         @options = options
+        yield self if block_given?
       end
       
       def metrics
