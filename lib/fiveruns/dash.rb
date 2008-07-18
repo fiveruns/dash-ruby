@@ -17,7 +17,7 @@ module Fiveruns
   module Dash
     
     def self.logger
-      @logger ||= Logger.new(STDOUT)
+      @logger ||= Logger.new($stdout)
     end
   
     def self.configure(options = {})

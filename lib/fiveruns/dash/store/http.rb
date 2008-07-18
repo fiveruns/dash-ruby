@@ -4,10 +4,11 @@ module Fiveruns::Dash::Store
     
     def store_http(*uris)
       if (uri = uris.detect { |u| transmit_to u })
-        Dash.logger.info "Sent to #{uri}"
-        return true
+        Fiveruns::Dash.logger.info "Sent to #{uri}"
+        uri
       else
-        Dash.logger.warn "Could not send data for this interval"
+        Fiveruns::Dash.logger.warn "Could not send data for this interval"
+        false
       end
     end
 
@@ -25,7 +26,7 @@ module Fiveruns::Dash::Store
     def safely
       yield
     rescue Exception => e
-      Dash.logger.error "Could not access service: #{e.message} (#{e.backtrace[0,4].join(' | ')})"
+      Fiveruns::Dash.logger.error "Could not access service: #{e.message} (#{e.backtrace[0,4].join(' | ')})"
       false
     end
     
@@ -34,10 +35,10 @@ module Fiveruns::Dash::Store
       when 201
         true
       when 403
-        @allowed = false
-        Dash.logger.warn "Not authorized to access the FiveRuns Dash service"
+        Fiveruns::Dash.logger.warn "Not authorized to access the FiveRuns Dash service"
+        false
       else
-        Dash.logger.debug "Received bad response from service (#{resp.inspect})"
+        Fiveruns::Dash.logger.debug "Received bad response from service (#{resp.inspect})"
         false
       end
     end

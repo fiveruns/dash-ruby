@@ -3,6 +3,9 @@ require 'rubygems'
 require 'Shoulda'
 require 'flexmock/test_unit'
 
+require 'rubygems'
+require 'fake_web'
+
 $:.unshift(File.dirname(__FILE__) << '/../lib')
 # Require library files
 require 'fiveruns/dash'
@@ -46,4 +49,16 @@ class Test::Unit::TestCase
     end
   end
   
+  def mock_streams!
+    @original_stdout = $stdout
+    $stdout = StringIO.new
+    @original_stderr = $stderr
+    $stderr = StringIO.new
+  end
+  
+  def restore_streams!
+    $stdout = @original_stdout
+    $stderr = @original_stderr
+  end
+    
 end
