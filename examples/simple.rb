@@ -1,3 +1,5 @@
+require File.dirname(__FILE__) << "/example_helper"
+
 $:.unshift(File.dirname(__FILE__) << "/../lib")
 
 require 'fiveruns/dash'

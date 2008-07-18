@@ -10,7 +10,7 @@ module Fiveruns::Dash::Store
     end
     
     def write_to(filename)
-      ::File.open(filename, 'w') { |f| f.write payload.to_yaml }
+      ::File.open(filename, 'w') { |f| f.write @payload.to_yaml }
     end
     
   end

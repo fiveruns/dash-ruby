@@ -12,14 +12,14 @@ module Fiveruns
       include Store::HTTP
       include Store::File
       
-      def initialize(data, configuration)
-        @payload = Payload.new(data)
+      def initialize(purpose, data, configuration)
+        @payload = Payload.new(purpose, data)
         @configuration = configuration
       end
       
       def store(*urls)
         uris_by_scheme(urls).each do |scheme, uris|
-          __send__("store_#{storage_method_for(scheme)}", uris)
+          __send__("store_#{storage_method_for(scheme)}", *uris)
         end
       end
       
@@ -36,19 +36,23 @@ module Fiveruns
       end
       
       def uris_by_scheme(urls)
-        urls.map { |url| URI.parse(url) }.group_by(&:scheme)
+        urls.map { |url| safe_parse(url) }.group_by(&:scheme)
       end
       
       def storage_method_for(scheme)
         scheme =~ /^http/ ? :http : :file
       end
       
+      def safe_parse(url)
+        url.respond_to?(:scheme) ? url : URI.parse(url)
+      end
+      
     end
 
     class Payload
 
-      attr_reader :info
-      def initialize(data)
+      def initialize(purpose, data)
+        @purpose = purpose
         @data = data
       end      
 

@@ -5,7 +5,7 @@ class UpdateTest < Test::Unit::TestCase
   context "Update" do
 
     setup do
-      @update = Update.new({}, nil)
+      @update = Update.new(:test, {}, nil)
     end
     
     context "an instance" do
