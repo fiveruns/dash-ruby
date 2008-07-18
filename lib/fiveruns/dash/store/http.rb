@@ -42,6 +42,7 @@ module Fiveruns::Dash::Store
       end
     end
     
+    # TODO: Hostname, MAC, etc
     def params
       {
         :token => configuration.options[:app]
