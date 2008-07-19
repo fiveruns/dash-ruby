@@ -1,3 +1,5 @@
+require 'net/https'
+
 module Fiveruns::Dash::Store
   
   module HTTP
@@ -38,7 +40,8 @@ module Fiveruns::Dash::Store
         Fiveruns::Dash.logger.warn "Not authorized to access the FiveRuns Dash service"
         false
       else
-        Fiveruns::Dash.logger.debug "Received bad response from service (#{resp.inspect})"
+        Fiveruns::Dash.logger.debug "Received bad response from service (#{response.inspect})"
+        Fiveruns::Dash.logger.debug response.body
         false
       end
     end

@@ -12,6 +12,7 @@ module Fiveruns
       include Store::HTTP
       include Store::File
       
+      attr_reader :payload, :configuration
       def initialize(purpose, data, configuration)
         @payload = Payload.new(purpose, data)
         @configuration = configuration
