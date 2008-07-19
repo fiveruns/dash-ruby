@@ -7,7 +7,7 @@ class HTTPStoreTest < Test::Unit::TestCase
     setup do
       @urls = %w(http://metrics.foo.com http://metrics02.bar.com http://metrics03.bar.com)
       @klass = Class.new { include Store::HTTP }
-      @payload = Payload.new(:test, {:foo => 'bar'})
+      @payload = DataPayload.new({:foo => 'bar'})
       @params = {:this_is_a_param => 'value'}
       @configuration = flexmock(:config) do |mock|
         mock.should_receive(:options).and_return(:app => '123')

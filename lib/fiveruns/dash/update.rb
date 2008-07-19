@@ -11,8 +11,8 @@ module Fiveruns::Dash
     include Store::File
     
     attr_reader :payload, :configuration
-    def initialize(purpose, data, configuration)
-      @payload = Payload.new(purpose, data)
+    def initialize(payload, configuration)
+      @payload = payload
       @configuration = configuration
     end
     
@@ -50,8 +50,7 @@ module Fiveruns::Dash
 
   class Payload
 
-    def initialize(purpose, data)
-      @purpose = purpose
+    def initialize(data)
       @data = data
     end      
 
@@ -63,7 +62,7 @@ module Fiveruns::Dash
     end
 
     def to_yaml_type
-      '!dash.fiveruns.com,2008-07/payload'
+      raise NotImplementedError, "Abstract payload type"
     end
 
     #######
@@ -75,5 +74,18 @@ module Fiveruns::Dash
     end
 
   end
+  
+  class InfoPayload < Payload
+    def to_yaml_type
+      '!dash.fiveruns.com,2008-07/payload/info'
+    end
+  end
+  
+  class DataPayload < Payload
+    def to_yaml_type
+      '!dash.fiveruns.com,2008-07/payload/data'
+    end
+  end
+    
           
 end

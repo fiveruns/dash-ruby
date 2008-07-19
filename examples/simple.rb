@@ -18,6 +18,7 @@ end
 
 Fiveruns::Dash.start :app => 'foo-bar-baz' do |metrics|
   metrics.counter :foos, "BAR!" do
+    puts "Called"
     MyApp.foos_last_minute
   end
   metrics.time 'MyApp#do_something'

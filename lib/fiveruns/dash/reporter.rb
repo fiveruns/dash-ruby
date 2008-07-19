@@ -58,11 +58,13 @@ module Fiveruns::Dash
     end
     
     def send_info_update
-      Update.new(:info, @session.info, @session.configuration).store(*update_locations)
+      payload = InfoPayload.new(@session.info)
+      Update.new(payload, @session.configuration).store(*update_locations)
     end
     
     def send_data_update
-      Update.new(:data, @session.data, @session.configuration).store(*update_locations)
+      payload = DataPayload.new(@session.data)
+      Update.new(payload, @session.configuration).store(*update_locations)
     end
     
     def update_locations
