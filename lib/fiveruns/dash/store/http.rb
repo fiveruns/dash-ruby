@@ -3,7 +3,7 @@ module Fiveruns::Dash::Store
   module HTTP
     
     def store_http(*uris)
-      if (uri = uris.detect { |u| transmit_to u })
+      if (uri = uris.detect { |u| transmit_to(add_path_to(u)) })
         Fiveruns::Dash.logger.info "Sent to #{uri}"
         uri
       else
@@ -43,11 +43,25 @@ module Fiveruns::Dash::Store
       end
     end
     
+    def add_path_to(uri)
+      returning uri.dup do |new_uri|
+        new_uri.path = ::File.join('/apps', app_token, 'metrics.yml')
+      end
+    end
+    
+    def app_token
+      configuration.options[:app]
+    end
+    
     # TODO: Hostname, MAC, etc
     def params
-      {
-        :token => configuration.options[:app]
+      { 
+        :hostname => retrieve_hostname
       }
+    end
+    
+    def retrieve_hostname
+      `hostname`.strip
     end
 
     class Multipart

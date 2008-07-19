@@ -57,8 +57,10 @@ class Test::Unit::TestCase
   end
   
   def restore_streams!
-    $stdout = @original_stdout
-    $stderr = @original_stderr
+    if @original_stdout && @original_stderr
+      $stdout = @original_stdout
+      $stderr = @original_stderr
+    end
   end
     
 end
