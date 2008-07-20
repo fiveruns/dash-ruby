@@ -52,18 +52,18 @@ module Fiveruns::Dash
     #######
     
     def current_value
-      returning(:time => @time, :invoked => @invoked) do |value|
+      returning(:value => @time, :invocations => @invocations) do |value|
         reset
       end
     end
     
     def reset
-      @invoked = @time = 0
+      @invocations = @time = 0
     end
 
     def install_hook
       instrument name do |obj, time, *args|
-        @invoked += 1
+        @invocations += 1
         @time += time
       end
     end

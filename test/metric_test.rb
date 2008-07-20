@@ -57,7 +57,7 @@ class MetricTest < Test::Unit::TestCase
   end
   
   def current_invocations
-    metric.instance_eval { @invoked }
+    metric.instance_eval { @invocations }
   end
   
   def time_method
@@ -65,7 +65,7 @@ class MetricTest < Test::Unit::TestCase
   end
   
   def assert_invocations_reported(number = 1)
-    assert_equal number, metric.data[time_method][:invoked]
+    assert_equal number, metric.data[time_method][:invocations]
   end
 
   def invoke(number = 1)
