@@ -59,12 +59,9 @@ module Fiveruns::Dash::Store
     # TODO: Hostname, MAC, etc
     def params
       { 
-        :hostname => retrieve_hostname
+        :collected_at => Time.now.utc,
+        :ip => Fiveruns::Dash.host.ip_address
       }
-    end
-    
-    def retrieve_hostname
-      `hostname`.strip
     end
 
     class Multipart

@@ -11,6 +11,7 @@ require 'dash/metric'
 require 'dash/session'
 require 'dash/reporter'
 require 'dash/update'
+require 'dash/host'
 
 module Fiveruns
   
@@ -28,6 +29,10 @@ module Fiveruns
     def self.start(options = {}, &block)
       configure(options, &block) if block_given?
       session.start
+    end
+    
+    def self.host
+      @host ||= Host.new
     end
     
     #######

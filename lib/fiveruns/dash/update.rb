@@ -52,7 +52,7 @@ module Fiveruns::Dash
 
     def initialize(data)
       @data = data
-    end      
+    end
 
     def io
       returning StringIO.new do |io|
