@@ -54,6 +54,7 @@ module Fiveruns::Dash
     delegate :blank?, :to => :@data
 
     def initialize(data)
+      @version = Fiveruns::Dash::Version::STRING
       @data = data
     end
 
@@ -80,13 +81,13 @@ module Fiveruns::Dash
   
   class InfoPayload < Payload
     def to_yaml_type
-      "!dash.fiveruns.com,2008-07/v#{Version::STRING}/info"
+      "!dash.fiveruns.com,2008-07/info"
     end
   end
   
   class DataPayload < Payload
     def to_yaml_type
-      "!dash.fiveruns.com,2008-07/v#{Version::STRING}/data"
+      "!dash.fiveruns.com,2008-07/data"
     end
   end
     
