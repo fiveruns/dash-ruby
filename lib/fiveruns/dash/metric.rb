@@ -10,15 +10,20 @@ module Fiveruns::Dash
       @types ||= {}
     end
     
-    attr_reader :name, :description
-    def initialize(name, description = name.to_s, &block)
+    attr_reader :family, :name, :description
+    def initialize(family, name, description = name.to_s, &block)
+      @family = family
       @name = name
       @description = description
       @operation = block
     end
     
     def info
-      {name => {:type => self.class.metric_type, :description => description}}
+      if @family == :custom
+        {name => {:type => self.class.metric_type, :description => description}}
+      else
+        {}
+      end
     end
     
     def data

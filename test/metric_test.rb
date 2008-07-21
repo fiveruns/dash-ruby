@@ -12,7 +12,7 @@ class MetricTest < Test::Unit::TestCase
 
     context "using time" do
       setup do
-        @metric = TimeMetric.new(time_method)
+        @metric = TimeMetric.new(:custom, time_method)
       end
       teardown do
         # Hacked 'uninstrument' until 'instrument' gem supports it
