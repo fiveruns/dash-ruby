@@ -13,7 +13,7 @@ module Fiveruns::Dash
     attr_reader :family, :name, :description
     def initialize(family, name, description = name.to_s, &block)
       @family = family
-      @name = name
+      @name = name.to_s
       @description = description
       @operation = block
     end
