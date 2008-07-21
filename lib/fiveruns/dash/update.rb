@@ -80,13 +80,13 @@ module Fiveruns::Dash
   
   class InfoPayload < Payload
     def to_yaml_type
-      '!dash.fiveruns.com,2008-07/payload/info'
+      "!dash.fiveruns.com,2008-07/v#{Version::STRING}/info"
     end
   end
   
   class DataPayload < Payload
     def to_yaml_type
-      '!dash.fiveruns.com,2008-07/payload/data'
+      "!dash.fiveruns.com,2008-07/v#{Version::STRING}/data"
     end
   end
     
