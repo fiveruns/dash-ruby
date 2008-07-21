@@ -17,6 +17,7 @@ module Fiveruns::Dash
     end
     
     def store(*urls)
+      return nil if @payload.blank?
       uris_by_scheme(urls).each do |scheme, uris|
         __send__("store_#{storage_method_for(scheme)}", *uris)
       end
@@ -49,6 +50,8 @@ module Fiveruns::Dash
   end
 
   class Payload
+    
+    delegate :blank?, :to => :@data
 
     def initialize(data)
       @data = data
