@@ -36,7 +36,7 @@ class SessionTest < Test::Unit::TestCase
       end
       should "have right metrics" do
         @metrics.each do |metric|
-          assert session.data[metric.name]
+          assert session.data.detect { |m| m[:name] == metric.name }
         end
       end
     end

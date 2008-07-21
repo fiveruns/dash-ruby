@@ -13,23 +13,15 @@ module Fiveruns::Dash
     end
     
     def info
-      rollup :info
-    end
-    
-    def data
-      rollup :data
-    end
-    
-    #######
-    private
-    #######
-
-    def rollup(field)
       configuration.metrics.inject({}) do |metrics, metric|
-        metrics.merge(metric.__send__(field))
+        metrics.update(metric.info)
       end
     end
     
+    def data
+      configuration.metrics.map { |metric| metric.data }.flatten
+    end
+        
   end
       
 end

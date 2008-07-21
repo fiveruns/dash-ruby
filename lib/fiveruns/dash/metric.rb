@@ -27,17 +27,17 @@ module Fiveruns::Dash
     end
     
     def data
-      {name => current_value}
+      add_value_to(:family => @family, :name => @name)
     end
 
     #######
     private
     #######
     
-    def current_value
-      @operation.call
+    def add_value_to(hash)
+      hash.update(:value => @operation.call)
     end
-    
+        
     def self.metric_type
       @metric_type ||= name.demodulize.underscore.sub(/_metric$/, '').to_sym
     end
@@ -56,8 +56,8 @@ module Fiveruns::Dash
     private
     #######
     
-    def current_value
-      returning(:value => @time, :invocations => @invocations) do |value|
+    def add_value_to(hash)
+      returning hash.update(:value => @time, :invocations => @invocations) do
         reset
       end
     end
