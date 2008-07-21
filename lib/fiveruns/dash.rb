@@ -35,6 +35,10 @@ module Fiveruns
       @host ||= Host.new
     end
     
+    class << self
+      attr_accessor :process_id
+    end
+    
     #######
     private
     #######    

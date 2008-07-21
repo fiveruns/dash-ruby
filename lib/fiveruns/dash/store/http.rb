@@ -15,14 +15,15 @@ module Fiveruns::Dash::Store
     end
 
     def transmit_to(uri)
+      response = nil
       safely do
         http = Net::HTTP.new(uri.host, uri.port)
         http.use_ssl = true if uri.scheme == 'https'
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-        resp = nil
-        multipart = Multipart.new(payload.io, params)
-        check_response_of http.post(uri.request_uri, multipart.to_s, "Content-Type" => multipart.content_type)
+        multipart = Multipart.new(payload.io, payload.params)
+        response = http.post(uri.request_uri, multipart.to_s, "Content-Type" => multipart.content_type)
       end
+      check_response_of response
     end
 
     def safely
@@ -33,8 +34,15 @@ module Fiveruns::Dash::Store
     end
     
     def check_response_of(response)
+      unless response
+        Fiveruns::Dash.logger.debug "Received no response from service"
+        return false
+      end
       case response.code.to_i
       when 201
+        if payload.is_a?(Fiveruns::Dash::InfoPayload)
+          Fiveruns::Dash.process_id = Integer(response.body)
+        end
         true
       when 403
         Fiveruns::Dash.logger.warn "Not authorized to access the FiveRuns Dash service"
@@ -62,14 +70,6 @@ module Fiveruns::Dash::Store
     
     def app_token
       configuration.options[:app]
-    end
-    
-    # TODO: Hostname, MAC, etc
-    def params
-      { 
-        :collected_at => Time.now.utc,
-        :ip => Fiveruns::Dash.host.ip_address
-      }
     end
 
     class Multipart

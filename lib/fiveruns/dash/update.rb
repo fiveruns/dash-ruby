@@ -68,6 +68,10 @@ module Fiveruns::Dash
     def to_yaml_type
       raise NotImplementedError, "Abstract payload type"
     end
+    
+    def params
+      {}
+    end
 
     #######
     private
@@ -83,11 +87,29 @@ module Fiveruns::Dash
     def to_yaml_type
       "!dash.fiveruns.com,2008-07/info"
     end
+    def params
+      { 
+        :ip => Fiveruns::Dash.host.ip_address,
+        :mac => Fiveruns::Dash.host.mac_address,
+        :hostname => Fiveruns::Dash.host.hostname,
+        :pid => Process.pid,
+        :os_name => Fiveruns::Dash.host.os_name,
+        :os_version => Fiveruns::Dash.host.os_version,
+        :arch => Fiveruns::Dash.host.architecture,
+        :dash_version => Fiveruns::Dash::Version::STRING
+      }
+    end
   end
   
   class DataPayload < Payload
     def to_yaml_type
       "!dash.fiveruns.com,2008-07/data"
+    end
+    def params
+      { 
+        :collected_at => Time.now.utc,
+        :process_id => Fiveruns::Dash.process_id,
+      }
     end
   end
     
