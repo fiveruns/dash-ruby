@@ -48,7 +48,15 @@ module Fiveruns::Dash::Store
     
     def add_path_to(uri)
       returning uri.dup do |new_uri|
-        new_uri.path = ::File.join('/apps', app_token, 'metrics.yml')
+        component = case payload
+        when Fiveruns::Dash::InfoPayload
+          :processes
+        when Fiveruns::Dash::DataPayload
+          :metrics
+        else
+          raise ArgumentError, 'Unknown payload type: #{payload.class}'
+        end
+        new_uri.path = ::File.join('/apps', app_token, "#{component}.yml")
       end
     end
     
