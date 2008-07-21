@@ -27,7 +27,8 @@ module Fiveruns::Dash
     end
     
     def data
-      add_value_to(:family => @family, :name => @name)
+      # TODO: Migrate :type being passed on every request to an Info lookup
+      add_value_to(:type => self.class.metric_type, :family => @family, :name => @name)
     end
 
     #######
