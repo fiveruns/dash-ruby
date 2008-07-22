@@ -12,6 +12,7 @@ require 'dash/session'
 require 'dash/reporter'
 require 'dash/update'
 require 'dash/host'
+require 'dash/scm'
 
 module Fiveruns
   
@@ -35,14 +36,20 @@ module Fiveruns
       @host ||= Host.new
     end
     
+    def self.scm
+      @scm ||= unless configuration.options[:scm] == false
+        SCM.matching(configuration.options[:scm_repo])
+      end
+    end
+    
     class << self
       attr_accessor :process_id
     end
-    
+        
     #######
     private
-    #######    
-    
+    #######
+        
     def self.session
       @session ||= Session.new(configuration)
     end

@@ -90,7 +90,7 @@ module Fiveruns::Dash
       "!dash.fiveruns.com,2008-07/info"
     end
     def params
-      { 
+      params = { 
         :ip => Fiveruns::Dash.host.ip_address,
         :mac => Fiveruns::Dash.host.mac_address,
         :hostname => Fiveruns::Dash.host.hostname,
@@ -101,6 +101,15 @@ module Fiveruns::Dash
         :dash_version => Fiveruns::Dash::Version::STRING,
         :ruby_version => RUBY_VERSION
       }
+      if (scm = Fiveruns::Dash.scm)
+        params.update(
+          :scm_revision => scm.revision,
+          :scm_time => scm.time,
+          :scm_type => scm.class.scm_type,
+          :scm_url => scm.url
+        )
+      end
+      params
     end
   end
   

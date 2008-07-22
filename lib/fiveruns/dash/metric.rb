@@ -1,14 +1,9 @@
+require 'dash/typable'
+
 module Fiveruns::Dash
-    
+      
   class Metric
-          
-    def self.inherited(klass)
-      types[klass.metric_type] = klass
-    end
-    
-    def self.types
-      @types ||= {}
-    end
+    include Typable
     
     attr_reader :family, :name, :description
     def initialize(family, name, description = name.to_s, &block)
@@ -37,10 +32,6 @@ module Fiveruns::Dash
     
     def add_value_to(hash)
       hash.update(:value => @operation.call)
-    end
-        
-    def self.metric_type
-      @metric_type ||= name.demodulize.underscore.sub(/_metric$/, '').to_sym
     end
     
   end

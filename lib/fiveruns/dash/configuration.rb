@@ -4,9 +4,13 @@ module Fiveruns::Dash
     
     delegate :each, :to => :metrics
     
+    def self.default_options
+      {:scm_repo => Dir.pwd}
+    end
+    
     attr_reader :options
     def initialize(options = {})
-      @options = options
+      @options = self.class.default_options.merge(options)
       @families = [:custom]
       yield self if block_given?
     end
