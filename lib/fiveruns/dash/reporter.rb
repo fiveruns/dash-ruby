@@ -23,6 +23,7 @@ module Fiveruns::Dash
       if @background
         @thread = Thread.new { run(restarted) }
       else
+        # Will it be run in foreground?
         run(restarted)
       end
     end

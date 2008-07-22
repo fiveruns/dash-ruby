@@ -41,7 +41,7 @@ module Fiveruns
         SCM.matching(configuration.options[:scm_repo])
       end
     end
-    
+        
     class << self
       attr_accessor :process_id
     end
