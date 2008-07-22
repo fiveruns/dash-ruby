@@ -96,7 +96,8 @@ module Fiveruns::Dash
         :os_name => Fiveruns::Dash.host.os_name,
         :os_version => Fiveruns::Dash.host.os_version,
         :arch => Fiveruns::Dash.host.architecture,
-        :dash_version => Fiveruns::Dash::Version::STRING
+        :dash_version => Fiveruns::Dash::Version::STRING,
+        :ruby_version => RUBY_VERSION
       }
     end
   end
