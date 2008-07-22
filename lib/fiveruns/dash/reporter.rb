@@ -43,10 +43,9 @@ module Fiveruns::Dash
     private
     #######
 
-    # FIXME
     def run(restarted)
-      send_info_update
       loop do
+        send_info_update
         sleep @interval
         send_data_update
       end
@@ -58,13 +57,21 @@ module Fiveruns::Dash
     end
     
     def send_info_update
-      payload = InfoPayload.new(@session.info)
-      Update.new(payload, @session.configuration).store(*update_locations)
+      @info_update_sent ||= begin
+        payload = InfoPayload.new(@session.info)
+        Update.new(payload, @session.configuration).store(*update_locations)
+      end
     end
     
     def send_data_update
-      payload = DataPayload.new(@session.data)
-      Update.new(payload, @session.configuration).store(*update_locations)
+      if @info_update_sent
+        payload = DataPayload.new(@session.data)
+        Update.new(payload, @session.configuration).store(*update_locations)
+      else
+        # Discard data
+        @session.data
+        Fiveruns::Dash.logger.warn "Discarding interval data"
+      end
     end
     
     def update_locations

@@ -5,11 +5,12 @@ module Fiveruns::Dash::Store
   module HTTP
     
     def store_http(*uris)
+      Fiveruns::Dash.logger.info "Attempting to send #{payload.class}"
       if (uri = uris.detect { |u| transmit_to(add_path_to(u)) })
-        Fiveruns::Dash.logger.info "Sent to #{uri}"
+        Fiveruns::Dash.logger.info "Sent #{payload.class} to #{uri}"
         uri
       else
-        Fiveruns::Dash.logger.warn "Could not send data for this interval"
+        Fiveruns::Dash.logger.warn "Could not send #{payload.class}"
         false
       end
     end
@@ -29,7 +30,7 @@ module Fiveruns::Dash::Store
     def safely
       yield
     rescue Exception => e
-      Fiveruns::Dash.logger.error "Could not access service: #{e.message} (#{e.backtrace[0,4].join(' | ')})"
+      Fiveruns::Dash.logger.error "Could not access service: #{e.message}"
       false
     end
     

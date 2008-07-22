@@ -19,8 +19,10 @@ module Fiveruns::Dash
     def store(*urls)
       return nil if @payload.blank?
       uris_by_scheme(urls).each do |scheme, uris|
-        __send__("store_#{storage_method_for(scheme)}", *uris)
+        value = __send__("store_#{storage_method_for(scheme)}", *uris)
+        return value if value
       end
+      return false
     end
     
     def guid
