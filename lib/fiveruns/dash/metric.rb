@@ -5,25 +5,20 @@ module Fiveruns::Dash
   class Metric
     include Typable
     
-    attr_reader :family, :name, :description
-    def initialize(family, name, description = name.to_s, &block)
-      @family = family
+    attr_reader :name, :description
+    def initialize(name, description = name.to_s, &block)
       @name = name.to_s
       @description = description
       @operation = block
     end
     
     def info
-      if @family == :custom
-        {name => {:type => self.class.metric_type, :description => description}}
-      else
-        {}
-      end
+      {name => {:data_type => self.class.metric_type, :description => description}}
     end
     
     def data
       # TODO: Migrate :type being passed on every request to an Info lookup
-      add_value_to(:type => self.class.metric_type, :family => @family, :name => @name)
+      add_value_to(:data_type => self.class.metric_type, :name => @name)
     end
 
     #######

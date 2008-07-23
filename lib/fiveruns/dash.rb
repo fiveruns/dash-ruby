@@ -13,6 +13,8 @@ require 'dash/reporter'
 require 'dash/update'
 require 'dash/host'
 require 'dash/scm'
+require 'dash/exception_recorder'
+
 
 module Fiveruns
   

@@ -11,14 +11,7 @@ module Fiveruns::Dash
     attr_reader :options
     def initialize(options = {})
       @options = self.class.default_options.merge(options)
-      @families = [:custom]
       yield self if block_given?
-    end
-    
-    def family(name)
-      @families << name
-      yield
-      @families.pop
     end
     
     def metrics
@@ -31,7 +24,7 @@ module Fiveruns::Dash
     
     def method_missing(meth, *args, &block)
       if (klass = Metric.types[meth])
-        metrics << klass.new(@families.last, *args, &block)
+        metrics << klass.new(*args, &block)
       else
         super
       end

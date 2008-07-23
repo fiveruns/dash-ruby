@@ -5,19 +5,18 @@ module Fiveruns::Dash
     attr_reader :configuration, :reporter
     def initialize(configuration)
       @configuration = configuration
-      @reporter = Reporter.new(self)
     end
     
     def start(background = true, &block)
-      @reporter.start(background, &block)
+      reporter.start(background, &block)
     end
     
     def exceptions
       @exceptions ||= []
     end
     
-    def add_exception(e)
-      exceptions << extract_data_from_exception(e)
+    def add_exception(exception)
+      exception_recorder.record(exception)
     end
     
     def info
@@ -27,20 +26,18 @@ module Fiveruns::Dash
     end
     
     def data
-      result = {
-        :exceptions => exceptions.dup,
+      {
+        :exceptions => exception_recorder.data,
         :metrics => configuration.metrics.map { |metric| metric.data }.flatten
       }
-      exceptions.clear
-      result
     end
     
-    def extract_data_from_exception(e)
-      {
-        :name => e.class.name,
-        :message => e.message,
-        :backtrace => e.backtrace
-      }
+    def exception_recorder
+      @exception_recorder ||= ExceptionRecorder.new(self)
+    end
+    
+    def reporter
+      @reporter ||= Reporter.new(self)
     end
     
   end
