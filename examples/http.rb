@@ -13,6 +13,7 @@ class MyApp
 end
 
 dash do |metrics|
+  metrics.recipe :ruby
   metrics.counter :foos, "BAR!" do
     MyApp.foos_last_minute
   end
@@ -24,16 +25,4 @@ app = MyApp.new
 loop do
   sleep rand(3)
   app.do_something
-  begin
-    klasses = [ArgumentError, StandardError, RuntimeError]
-    messages = ['foo did bar', 'bar did baz', 'baz did quux']
-    if rand(6) == 3
-      klass = klasses[rand(klasses.size)]
-      message = messages[rand(messages.size)]
-      puts "EXCEPTION! #{klass} #{message}"
-      raise klass, message
-    end
-  rescue Exception => e
-    Fiveruns::Dash.session.add_exception e
-  end
 end

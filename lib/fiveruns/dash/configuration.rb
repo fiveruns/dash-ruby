@@ -18,6 +18,16 @@ module Fiveruns::Dash
       @metrics ||= {}
     end
     
+    def recipe(name)
+      if Fiveruns::Dash.recipes[name]
+        Fiveruns::Dash.recipes[name].each do |recipe|
+          recipe.call(self)
+        end
+      else
+        raise ArgumentError, "No such recipe: #{name}"
+      end
+    end
+    
     #######
     private
     #######

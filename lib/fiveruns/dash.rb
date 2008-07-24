@@ -14,10 +14,13 @@ require 'dash/update'
 require 'dash/host'
 require 'dash/scm'
 require 'dash/exception_recorder'
+require 'dash/recipes'
 
 module Fiveruns
   
   module Dash
+    
+    include Recipes
     
     def self.logger
       @logger ||= Logger.new($stdout)
@@ -56,7 +59,10 @@ module Fiveruns
     end
     
     def self.configuration
-      @configuration ||= Configuration.new
+      @configuration ||= begin
+        load_recipes
+        Configuration.new
+      end
     end
     
   end
