@@ -15,7 +15,6 @@ require 'dash/host'
 require 'dash/scm'
 require 'dash/exception_recorder'
 
-
 module Fiveruns
   
   module Dash

@@ -43,7 +43,6 @@ module Fiveruns::Dash::Store
       when 201
         if payload.is_a?(Fiveruns::Dash::InfoPayload)
           data = YAML.load(response.body)
-          p data
           Fiveruns::Dash.process_id = data['process_id']
           data['metric_infos'].each do |name, info_id|
             configuration.metrics[name].info_id = info_id

@@ -12,14 +12,12 @@ class MyApp
   
 end
 
-Fiveruns::Dash.configure :app => ENV['DASH_APP'] do |metrics|
+dash do |metrics|
   metrics.counter :foos, "BAR!" do
     MyApp.foos_last_minute
   end
   metrics.time 'MyApp#do_something'
 end
-Fiveruns::Dash.session.reporter.interval = 10
-Fiveruns::Dash.session.start
 
 app = MyApp.new
 

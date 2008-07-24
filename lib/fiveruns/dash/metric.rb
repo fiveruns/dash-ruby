@@ -21,7 +21,7 @@ module Fiveruns::Dash
       if info_id
         value_hash.update(:metric_info_id => info_id)
       else
-        raise NotImplementedError, "No info_id assigned"
+        raise NotImplementedError, "No info_id assigned for #{self.inspect}"
       end
     end
 
