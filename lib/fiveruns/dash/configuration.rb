@@ -15,7 +15,7 @@ module Fiveruns::Dash
     end
     
     def metrics
-      @metrics ||= []
+      @metrics ||= {}
     end
     
     #######
@@ -24,7 +24,8 @@ module Fiveruns::Dash
     
     def method_missing(meth, *args, &block)
       if (klass = Metric.types[meth])
-        metrics << klass.new(*args, &block)
+        metric = klass.new(*args, &block)
+        metrics[metric.name] = metric
       else
         super
       end

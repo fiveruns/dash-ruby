@@ -6,6 +6,7 @@ module Fiveruns::Dash
     include Typable
     
     attr_reader :name, :description
+    attr_accessor :info_id
     def initialize(name, description = name.to_s, &block)
       @name = name.to_s
       @description = description
@@ -17,16 +18,19 @@ module Fiveruns::Dash
     end
     
     def data
-      # TODO: Migrate :type being passed on every request to an Info lookup
-      add_value_to(:data_type => self.class.metric_type, :name => @name)
+      if info_id
+        value_hash.update(:metric_info_id => info_id)
+      else
+        raise NotImplementedError, "No info_id assigned"
+      end
     end
 
     #######
     private
     #######
     
-    def add_value_to(hash)
-      hash.update(:value => @operation.call)
+    def value_hash
+      {:value => @operation.call}
     end
     
   end
@@ -43,8 +47,8 @@ module Fiveruns::Dash
     private
     #######
     
-    def add_value_to(hash)
-      returning hash.update(:value => @time, :invocations => @invocations) do
+    def value_hash
+      returning(:value => @time, :invocations => @invocations) do
         reset
       end
     end

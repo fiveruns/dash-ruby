@@ -20,7 +20,7 @@ module Fiveruns::Dash
     end
     
     def info
-      configuration.metrics.inject({}) do |metrics, metric|
+      configuration.metrics.inject({}) do |metrics, (name, metric)|
         metrics.update(metric.info)
       end
     end
@@ -28,7 +28,7 @@ module Fiveruns::Dash
     def data
       {
         :exceptions => exception_recorder.data,
-        :metrics => configuration.metrics.map { |metric| metric.data }.flatten
+        :metrics => configuration.metrics.values.map { |metric| metric.data }.flatten
       }
     end
     

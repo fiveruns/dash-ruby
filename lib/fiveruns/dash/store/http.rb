@@ -42,7 +42,12 @@ module Fiveruns::Dash::Store
       case response.code.to_i
       when 201
         if payload.is_a?(Fiveruns::Dash::InfoPayload)
-          Fiveruns::Dash.process_id = Integer(response.body)
+          data = YAML.load(response.body)
+          p data
+          Fiveruns::Dash.process_id = data['process_id']
+          data['metric_infos'].each do |name, info_id|
+            configuration.metrics[name].info_id = info_id
+          end
         end
         true
       when 403
