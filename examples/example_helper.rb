@@ -1,5 +1,9 @@
-require 'fileutils'
+unless ENV['DASH_APP']
+  abort 'Need DASH_APP (token)'
+end
 
-directory = File.expand_path(File.dirname(__FILE__) << "/tmp")
-FileUtils.mkdir directory rescue nil
-ENV['DASH_UPDATE'] = "file://#{directory}"
+ENV['DASH_UPDATE'] = 'http://localhost:3000'
+
+$:.unshift(File.dirname(__FILE__) << "/../lib")
+
+require 'fiveruns/dash'
