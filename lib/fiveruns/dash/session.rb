@@ -16,7 +16,7 @@ module Fiveruns::Dash
     end
     
     def add_exception(exception)
-      exception_recorder.record(exception)
+      p exception_recorder.record(exception)
     end
     
     def info
