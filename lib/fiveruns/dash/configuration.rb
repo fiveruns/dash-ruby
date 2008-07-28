@@ -30,7 +30,7 @@ module Fiveruns::Dash
       source_version = ::Gem::Version.new(source.to_s)
       requirement = Array(requirement)
       requirement_version = ::Gem::Version.new(requirement.pop)
-      comparator = requirement.shift || :==
+      comparator = normalize_version_comparator(requirement.shift || :==)
       yield if source_version.__send__(comparator, requirement_version)
     end
     
@@ -54,6 +54,10 @@ module Fiveruns::Dash
     #######
     private
     #######
+    
+    def normalize_version_comparator(comparator)
+      comparator.to_s == '=' ? '==' : comparator
+    end
     
     def method_missing(meth, *args, &block)
       if (klass = Metric.types[meth])

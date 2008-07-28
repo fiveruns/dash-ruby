@@ -4,7 +4,12 @@ class ConfigurationTest < Test::Unit::TestCase
 
   context "Configuration" do
     
+    setup do
+      mock_streams!
+    end
+    
     teardown do
+      restore_streams!
       Fiveruns::Dash.class_eval { @configuration = nil }
     end
 
@@ -32,6 +37,33 @@ class ConfigurationTest < Test::Unit::TestCase
         assert_raises NoMethodError do
           @configuration.__send__(:bad_type, 'My Horrible Metric')
         end
+      end
+    end
+    
+    context "setting by version" do
+      setup do
+        @version = '0.1.6'
+        @config = Configuration.new do |config|
+          config.for_version @version, '0.1.6' do
+            config.counter :foo
+          end
+          config.for_version @version, ['=', '0.1.6'] do
+            config.counter :bar
+          end
+          config.for_version @version, ['==', '0.1.5'] do
+            config.counter :spam
+          end
+          config.for_version @version, ['>', '0.1.6'] do
+            config.counter :baz
+          end
+          config.for_version nil, ['>', '0.1.6'] do
+            config.counter :quux
+          end
+        end
+      end
+      should "execute if correct version" do
+        assert_equal 2, @config.metrics.size
+        assert_equal %w(bar foo), @config.metrics.keys.map(&:to_s).sort
       end
     end
 
