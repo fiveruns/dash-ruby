@@ -25,27 +25,12 @@ class ConfigurationTest < Test::Unit::TestCase
       end
       should "assign all metrics" do
         assert_equal 3, @configuration.metrics.size
-        types = @configuration.metrics.map { |metric| metric.class.metric_type }
-        assert_equal metric_types, types
-        assert_equal [:custom] * 3, @configuration.metrics.map { |metric| metric.family }
+        types = @configuration.metrics.values.map { |metric| metric.class.metric_type }
+        assert_equal metric_types.map(&:to_s).sort, types.map(&:to_s).sort
       end
       should "not allow invalid types" do
         assert_raises NoMethodError do
           @configuration.__send__(:bad_type, 'My Horrible Metric')
-        end
-      end
-      context "with non-:custom family" do
-        setup do
-          @configuration.family :special do
-            @configuration.counter :foo do
-              3
-            end
-          end
-          @configuration.counter :bar
-        end
-        should "be definable" do
-          assert_equal 5, @configuration.metrics.size
-          assert_equal [:custom, :custom, :custom, :special, :custom], @configuration.metrics.map { |metric| metric.family }
         end
       end
     end

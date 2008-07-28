@@ -26,16 +26,19 @@ class Test::Unit::TestCase
   
   def mock_configuration!
     # Mock Configuration
-    @metrics = []
+    @metrics = {}
     @metric_class = Class.new(Metric) do
       def self.metric_type
         :test
       end
+      def info_id
+        1
+      end
     end
     3.times do |i|
-      @metrics << @metric_class.new(:custom, "Metric#{i}") { 1 }
+      @metrics["Metric#{i}"] = @metric_class.new("Metric#{i}") { 1 }
     end
-    @metrics << @metric_class.new(:non_custom, "NonCustomMetric") { 2 }
+    @metrics["NonCustomMetric"] = @metric_class.new("NonCustomMetric") { 2 }
     @configuration = flexmock(:configuration) do |mock|
       mock.should_receive(:metrics).and_return(@metrics)
     end

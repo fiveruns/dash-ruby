@@ -10,8 +10,12 @@ class HTTPStoreTest < Test::Unit::TestCase
       @urls = %w(http://metrics.foo.com http://metrics02.bar.com http://metrics03.bar.com)
       @klass = Class.new { include Store::HTTP }
       @params = {:this_is_a_param => 'value'}
+      @metric = flexmock(:metric) do |mock|
+        mock.should_receive(:info_id=)
+      end
       @configuration = flexmock(:config) do |mock|
         mock.should_receive(:options).and_return(:app => '123')
+        mock.should_receive(:metrics).and_return({'MetricTest.time_me' => @metric})
       end
       flexmock(@klass).new_instances do |mock|
         mock.should_receive(:configuration).and_return(@configuration)
@@ -38,7 +42,7 @@ class HTTPStoreTest < Test::Unit::TestCase
         setup do
           FakeWeb.register_uri full_urls(:processes).first, :string => 'FAIL!', :exception => Net::HTTPError
           full_urls(:processes)[1..-1].each do |url|
-            FakeWeb.register_uri url, :string => '1', :status => 201
+            FakeWeb.register_uri url, :string => "---\nprocess_id: 1\nmetric_infos:\n  'MetricTest.time_me': 1", :status => 201
           end
         end
         should "fallback to working URL" do

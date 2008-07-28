@@ -12,7 +12,8 @@ class MetricTest < Test::Unit::TestCase
 
     context "using time" do
       setup do
-        @metric = TimeMetric.new(:custom, time_method)
+        @metric = TimeMetric.new(time_method)
+        flexmock(@metric).should_receive(:info_id).and_return(1)
       end
       teardown do
         # Hacked 'uninstrument' until 'instrument' gem supports it

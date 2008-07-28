@@ -23,21 +23,9 @@ class SessionTest < Test::Unit::TestCase
       assert session.reporter.foreground?
     end
     
-    context "info" do
-      should "only include family=:custom metrics" do
-        custom_metrics = @metrics.select { |m| m.family == :custom}
-        assert_equal custom_metrics.size, session.info.size
-      end
-    end
-
     context "data" do
       should "have right number of metrics" do
-        assert_equal @metrics.size, session.data.size
-      end
-      should "have right metrics" do
-        @metrics.each do |metric|
-          assert session.data.detect { |m| m[:name] == metric.name }
-        end
+        assert_equal @metrics.size, session.data[:metrics].size
       end
     end
 
