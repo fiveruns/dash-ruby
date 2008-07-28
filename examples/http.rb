@@ -13,7 +13,7 @@ class MyApp
 end
 
 dash do |metrics|
-  metrics.recipe :ruby
+  metrics.include_recipe :ruby
   metrics.counter :foos, "BAR!" do
     MyApp.foos_last_minute
   end

@@ -21,7 +21,7 @@ end
 def start_dash_once
   @started_dash ||= begin
     dash do |metrics|
-      metrics.recipe :ruby
+      metrics.include_recipe :ruby
       metrics.counter :requests, "Number of Requests" do
         fetch :requests
       end
