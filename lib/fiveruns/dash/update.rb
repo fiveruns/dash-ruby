@@ -97,6 +97,7 @@ module Fiveruns::Dash
         :pid => Process.pid,
         :os_name => Fiveruns::Dash.host.os_name,
         :os_version => Fiveruns::Dash.host.os_version,
+        :pwd => Dir.pwd,
         :arch => Fiveruns::Dash.host.architecture,
         :dash_version => Fiveruns::Dash::Version::STRING,
         :ruby_version => RUBY_VERSION
