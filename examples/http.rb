@@ -20,7 +20,8 @@ dash do |metrics|
   metrics.counter :other, 'Other' do
     rand(80)
   end
-  metrics.time :do_somethings, :method => 'MyApp#do_something'
+  metrics.time :do_something_time, :method => 'MyApp#do_something'
+  metrics.counter :somethings, "Number of somethings", :incremented_by => 'MyApp#do_something'
 end
 
 app = MyApp.new

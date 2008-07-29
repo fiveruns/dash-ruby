@@ -121,7 +121,7 @@ module Fiveruns::Dash
     end
     
     def reset
-      @counter = 0
+      @invocations = 0
     end     
     
     def incrementing_methods
