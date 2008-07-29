@@ -5,11 +5,12 @@ module Fiveruns::Dash
   class Metric
     include Typable
     
-    attr_reader :name, :description
+    attr_reader :name, :description, :options
     attr_accessor :info_id
-    def initialize(name, description = name.to_s, &block)
+    def initialize(name, *args, &block)
       @name = name.to_s
-      @description = description
+      @options = args.extract_options!
+      @description = args.shift || @name.titleize
       @operation = block
     end
     
@@ -58,7 +59,10 @@ module Fiveruns::Dash
     end
 
     def install_hook
-      instrument name do |obj, time, *args|
+      unless @options[:on]
+        raise ArgumentError, "Must set :on option for `#{@name}` time metric"
+      end
+      instrument @options[:on] do |obj, time, *args|
         @invocations += 1
         @time += time
       end

@@ -12,7 +12,7 @@ class MetricTest < Test::Unit::TestCase
 
     context "using time" do
       setup do
-        @metric = TimeMetric.new(time_method)
+        @metric = TimeMetric.new(:time_mes, :on => time_method)
         flexmock(@metric).should_receive(:info_id).and_return(1)
       end
       teardown do
@@ -42,8 +42,8 @@ class MetricTest < Test::Unit::TestCase
         assert_equal 0, current_time_total
       end
       should "have correct info" do
-        assert_equal [time_method], metric.info.keys
-        assert_equal time_method, @metric.info[time_method][:description]
+        assert_equal ['time_mes'], metric.info.keys
+        assert_equal 'Time Mes', @metric.info['time_mes'][:description]
       end
     end
 
