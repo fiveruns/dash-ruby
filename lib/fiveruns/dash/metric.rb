@@ -59,13 +59,19 @@ module Fiveruns::Dash
     end
 
     def install_hook
-      unless @options[:on]
-        raise ArgumentError, "Must set :on option for `#{@name}` time metric"
+      if methods_to_instrument.blank?
+        raise ArgumentError, "Must set :method or :methods option for `#{@name}` time metric"
       end
-      instrument @options[:on] do |obj, time, *args|
-        @invocations += 1
-        @time += time
+      methods_to_instrument.each do |meth|
+        instrument meth do |obj, time, *args|
+          @invocations += 1
+          @time += time
+        end
       end
+    end
+    
+    def methods_to_instrument
+      @methods_to_instrument ||= Array(@options[:method]) + Array(@options[:methods])
     end
     
   end

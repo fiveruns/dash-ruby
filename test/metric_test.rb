@@ -12,7 +12,7 @@ class MetricTest < Test::Unit::TestCase
 
     context "using time" do
       setup do
-        @metric = TimeMetric.new(:time_mes, :on => time_method)
+        @metric = TimeMetric.new(:time_mes, :method => time_method)
         flexmock(@metric).should_receive(:info_id).and_return(1)
       end
       teardown do

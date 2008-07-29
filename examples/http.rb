@@ -14,13 +14,13 @@ end
 
 dash do |metrics|
   metrics.include_recipe :ruby
-  metrics.counter :foos, "BAR!" do
+  metrics.counter :foos, "Foos Rate" do
     MyApp.foos_last_minute
   end
   metrics.counter :other, 'Other' do
     rand(80)
   end
-  metrics.time 'MyApp#do_something'
+  metrics.time :do_somethings, :method => 'MyApp#do_something'
 end
 
 app = MyApp.new
