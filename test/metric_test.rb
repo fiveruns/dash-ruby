@@ -23,6 +23,11 @@ class MetricTest < Test::Unit::TestCase
           remove_method :time_me_without_instrument
         end
       end
+      should "raise exception without :on option" do
+        assert_raises ArgumentError do
+          TimeMetric.new(:time_mes, 'A Name')
+        end
+      end
       should "get correct number of invocations" do
         invoke 4
         assert_invocations_reported 4
