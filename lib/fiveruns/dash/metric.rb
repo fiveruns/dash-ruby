@@ -1,6 +1,16 @@
 require 'dash/typable'
 
 module Fiveruns::Dash
+  
+  module LockedUnit
+    
+    # Can't override unit
+    def unit_info
+      raise ArgumentError, "Can not set :unit for `#{@name}' #{self.class.metric_type} metric" if @options[:unit]
+      {}
+    end
+    
+  end
       
   class Metric
     include Typable
@@ -15,7 +25,7 @@ module Fiveruns::Dash
     end
     
     def info
-      {name => {:data_type => self.class.metric_type, :description => description}}
+      {name => {:data_type => self.class.metric_type, :description => description}.merge(unit_info)}
     end
     
     def data
@@ -30,6 +40,10 @@ module Fiveruns::Dash
     private
     #######
     
+    def unit_info
+       @options[:unit] ? {:unit => @options[:unit].to_s} : {}
+    end
+    
     def value_hash
       {:value => @operation.call}
     end
@@ -37,6 +51,7 @@ module Fiveruns::Dash
   end
   
   class TimeMetric < Metric
+    include LockedUnit
     
     def initialize(*args)
       super(*args)
@@ -80,6 +95,7 @@ module Fiveruns::Dash
   end
   
   class PercentageMetric < Metric
+    include LockedUnit
   end
   
   class AbsoluteMetric < Metric
