@@ -1,17 +1,15 @@
 require 'dash/typable'
 
 module Fiveruns::Dash
-  
+
+  # Can't override :unit option
   module LockedUnit
-    
-    # Can't override unit
     def unit_info
       raise ArgumentError, "Can not set :unit for `#{@name}' #{self.class.metric_type} metric" if @options[:unit]
       {}
     end
-    
   end
-      
+        
   class Metric
     include Typable
     
@@ -78,7 +76,7 @@ module Fiveruns::Dash
         raise ArgumentError, "Must set :method or :methods option for `#{@name}` time metric"
       end
       methods_to_instrument.each do |meth|
-        instrument meth do |obj, time, *args|
+        Instrument.add meth do |obj, time, *args|
           @invocations += 1
           @time += time
         end
@@ -92,6 +90,44 @@ module Fiveruns::Dash
   end
       
   class CounterMetric < Metric
+    
+    def initialize(*args)
+      super(*args)
+      if incrementing_methods.any?
+        reset
+        install_hook
+      end
+    end
+    
+    def value_hash
+      if incrementing_methods.any?
+        returning(:value => @invocations) do
+          reset
+        end
+      else
+        super
+      end
+    end
+    
+    def install_hook
+      if incrementing_methods.blank?
+        raise RuntimeError, "Bad configuration for `#{@name}` counter metric"
+      end
+      incrementing_methods.each do |meth|
+        Instrument.add meth do |*args|
+          @invocations += 1
+        end
+      end
+    end
+    
+    def reset
+      @counter = 0
+    end     
+    
+    def incrementing_methods
+      @incrementing_methods ||= Array(@options[:incremented_by])
+    end
+    
   end
   
   class PercentageMetric < Metric

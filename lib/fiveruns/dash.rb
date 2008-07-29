@@ -1,6 +1,5 @@
 require 'rubygems'
 require 'activesupport'
-require 'instrument'
 
 require 'logger'
 
@@ -15,6 +14,7 @@ require 'dash/host'
 require 'dash/scm'
 require 'dash/exception_recorder'
 require 'dash/recipes'
+require 'dash/instrument'
 
 module Fiveruns
   
