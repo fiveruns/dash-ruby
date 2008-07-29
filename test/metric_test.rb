@@ -16,12 +16,15 @@ class MetricTest < Test::Unit::TestCase
         flexmock(@metric).should_receive(:info_id).and_return(1)
       end
       teardown do
-        # Hacked 'uninstrument' until 'instrument' gem supports it
-        class << MetricTest
-          remove_method :time_me_with_instrument
-          alias_method :time_me, :time_me_without_instrument
-          remove_method :time_me_without_instrument
+        # Hacked 'uninstrument' until it's built-in
+        ::Fiveruns::Dash::Instrument.handlers.each do |handler|
+          (class << MetricTest; self; end).class_eval <<-EOCE
+            remove_method :time_me_with_instrument_#{handler.hash}
+            alias_method :time_me, :time_me_without_instrument_#{handler.hash}
+            remove_method :time_me_without_instrument_#{handler.hash}
+          EOCE
         end
+        ::Fiveruns::Dash::Instrument.handlers.clear
       end
       should "raise exception without :on option" do
         assert_raises ArgumentError do

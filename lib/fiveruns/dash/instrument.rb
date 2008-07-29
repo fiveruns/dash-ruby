@@ -35,7 +35,8 @@ module Fiveruns::Dash
     def self.instrument(obj, meth, &handler)
       handlers << handler unless handlers.include?(handler)
       offset = handlers.size - 1
-      code = wrapping meth, :instrument do |without|
+      identifier = "instrument_#{handler.hash}"
+      code = wrapping meth, identifier do |without|
         <<-CONTENTS
           # Invoke and time
           _start = Time.now
@@ -48,6 +49,7 @@ module Fiveruns::Dash
         CONTENTS
       end
       obj.module_eval code
+      identifier
     rescue => e
       raise Error, "Could not attach (#{e.message})"
     end
@@ -55,14 +57,10 @@ module Fiveruns::Dash
     def self.wrapping(meth, feature)
       format = meth =~ /^(.*?)(\?|!|=)$/ ? "#{$1}_%s_#{feature}#{$2}" : "#{meth}_%s_#{feature}" 
       <<-DYNAMIC
-        if instance_methods.include?("#{format % :without}")
-          # Skip instrumentation
-        else
-          def #{format % :with}(*args, &block)
-            #{yield(format % :without)}
-          end
-          alias_method_chain :#{meth}, :#{feature}
+        def #{format % :with}(*args, &block)
+          #{yield(format % :without)}
         end
+        alias_method_chain :#{meth}, :#{feature}
       DYNAMIC
     end
       
