@@ -125,7 +125,7 @@ module Fiveruns::Dash
     end
     
     def reset
-      @data = Hash.new {{ :invocations => 0, :time => 0 }}
+      @data = Hash.new {{ :invocations => 0, :value => 0 }}
     end
 
     def install_hook
@@ -134,7 +134,7 @@ module Fiveruns::Dash
         Instrument.add meth do |obj, time, *args|
           find_containers(obj, *args) do |container|
             container[:invocations] += 1
-            container[:time] += time
+            container[:value] += time
             container
           end
         end
