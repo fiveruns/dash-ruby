@@ -24,7 +24,9 @@ class ConfigurationTest < Test::Unit::TestCase
       setup do
         @configuration = Configuration.new do |config|
           metric_types.each do |type|
-            config.__send__(type, "Metric: #{type}")
+            config.__send__(type, "Metric: #{type}") do
+              # Empty block for metric types that require it
+            end
           end
         end
       end
@@ -45,19 +47,29 @@ class ConfigurationTest < Test::Unit::TestCase
         @version = '0.1.6'
         @config = Configuration.new do |config|
           config.for_version @version, '0.1.6' do
-            config.counter :foo
+            config.counter :foo do
+              1
+            end
           end
           config.for_version @version, ['=', '0.1.6'] do
-            config.counter :bar
+            config.counter :bar do
+              1
+            end
           end
           config.for_version @version, ['==', '0.1.5'] do
-            config.counter :spam
+            config.counter :spam do
+              1
+            end
           end
           config.for_version @version, ['>', '0.1.6'] do
-            config.counter :baz
+            config.counter :baz do
+              1
+            end
           end
           config.for_version nil, ['>', '0.1.6'] do
-            config.counter :quux
+            config.counter :quux do
+              1
+            end
           end
         end
       end
