@@ -51,6 +51,11 @@ module Fiveruns::Dash
       end
     end
     
+    # Optionally fired by recipes when included
+    def included
+      yield
+    end
+    
     #######
     private
     #######
