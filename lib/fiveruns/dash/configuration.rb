@@ -2,6 +2,8 @@ module Fiveruns::Dash
   
   class Configuration
     
+    class ConflictError < ::ArgumentError; end
+    
     delegate :each, :to => :metrics
     
     def self.default_options
@@ -67,6 +69,9 @@ module Fiveruns::Dash
     def method_missing(meth, *args, &block)
       if (klass = Metric.types[meth])
         metric = klass.new(*args, &block)
+        if metrics.key?(metric.name)
+          Fiveruns::Dash.logger.warn "Overriding previously defined metric `#{metric.name}'"
+        end
         metrics[metric.name] = metric
       else
         super

@@ -7,8 +7,13 @@ class RecipeTest < Test::Unit::TestCase
   context "Recipe" do
 
     setup do
+      mock_streams!
       Fiveruns::Dash.recipes.clear
       @config = Fiveruns::Dash::Configuration.new
+    end
+    
+    teardown do
+      restore_streams!
     end
         
     context "when registering" do
@@ -80,15 +85,21 @@ class RecipeTest < Test::Unit::TestCase
     context "when added" do
       setup do
         @fired = false
-        Fiveruns::Dash.register_recipe :test, :url => 'http://test.com' do |metrics|
-          metrics.included do
+        recipe :test, :url => 'http://test.com' do |recipe|
+          recipe.included do
             @fired = true
           end
+          recipe.counter(:countme) { }
         end
       end
       should "fire recipe hook" do
         config.add_recipe :test
         assert @fired
+      end
+      should "warn on metrics collision" do
+        config.counter(:countme) { }
+        config.add_recipe :test
+        assert_wrote 'countme', 'previously defined metric'
       end
     end
 

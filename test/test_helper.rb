@@ -58,12 +58,24 @@ class Test::Unit::TestCase
     $stdout = StringIO.new
     @original_stderr = $stderr
     $stderr = StringIO.new
+    @original_logdev = Fiveruns::Dash.logger.instance_eval { @logdev }
+    @logdev = Fiveruns::Dash.logger.instance_eval { @logdev = StringIO.new }
+  end
+  
+  def assert_wrote(*args)
+    stream = args.last.is_a?(StringIO) ? args.pop : @logdev
+    stream.rewind
+    content = stream.read.to_s.downcase
+    args.each do |word|
+      assert content.include?(word.downcase)
+    end
   end
   
   def restore_streams!
     if @original_stdout && @original_stderr
       $stdout = @original_stdout
       $stderr = @original_stderr
+      Fiveruns::Dash.logger.instance_eval { @logdev = @original_logdev }
     end
   end
     
