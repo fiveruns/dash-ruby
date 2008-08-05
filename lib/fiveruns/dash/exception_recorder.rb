@@ -1,32 +1,49 @@
-module Fiveruns::Dash
+require 'yaml'
+
+module Fiveruns
+  module Dash
   
   class ExceptionRecorder
     
-    def self.replacements
-      @replacements ||= begin
-        paths = `gem environment gempath`.strip.split(":")
-        gems_path_prefixes = paths.collect { |path| Pathname.new(path+"/gems").cleanpath.to_s }
+    class << self
+      def replacements
+        @replacements ||= begin
+          { 
+            :system => /^(#{esc(path_prefixes(system_paths))})/,
+            :gems   => /^(#{esc(path_prefixes(system_gempaths, '/gems'))})/
+          }
+        end
+      end
 
-        paths = `ruby -e 'puts $:.reject{|p|p=="."}.join(":")'`.strip.split(":")
-        system_path_prefixes = paths.collect { |path| Pathname.new(path).cleanpath.to_s }
-        { 
-          :gems   => /^(#{gems_path_prefixes.collect{|path|Regexp.escape(path)}.join('|')})/,
-          :system => /^(#{system_path_prefixes.collect{|path|Regexp.escape(path)}.join('|')})/
-        }
+      def system_gempaths
+        `gem environment gempath`
+      end
+    
+      def system_paths
+        `ruby -e 'puts $:.reject{|p|p=="."}.join(":")'`
+      end
+    
+      def path_prefixes( syspaths, suffix='')
+        syspaths.strip.split(":").collect { |path| Pathname.new(path+suffix).cleanpath.to_s }
+      end
+    
+      def esc( path_prefixes )
+        path_prefixes.collect{|path|Regexp.escape(path)}.join('|')
       end
     end
-    
+
     def initialize(session)
       @session = session
     end
     
-    def record(exception)
+    def record(exception, sample={})
       data = extract_data_from_exception(exception)
       if (matching = existing_exception_for(data))
         matching[:total] += 1
         matching
       else
         data[:total] = 1
+        data[:serialized_sample] = serialize( sample )
         exceptions << data
         data
       end
@@ -54,6 +71,10 @@ module Fiveruns::Dash
       }
     end
 
+    def serialize( sample )
+      YAML::dump(sample)
+    end
+    
     def exceptions
       @exceptions ||= []
     end
@@ -75,5 +96,5 @@ module Fiveruns::Dash
     end
     
   end
-  
+end
 end
