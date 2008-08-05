@@ -37,7 +37,7 @@ module Fiveruns::Dash
     end
     
     def metrics #:nodoc:
-      @metrics ||= {}
+      @metrics ||= []
     end
     
     # Merge in an existing recipe
@@ -69,11 +69,12 @@ module Fiveruns::Dash
     def method_missing(meth, *args, &block)
       if (klass = Metric.types[meth])
         metric = klass.new(*args, &block)
-        if metrics.key?(metric.name)
-          # TODO: Deal with uninstrumenting hook for previous metric
-          Fiveruns::Dash.logger.warn "Overriding previously defined metric `#{metric.name}'"
+        metric.recipe = Recipe.current
+        if metrics.include?(metric)
+          Fiveruns::Dash.logger.info "Skipping previously defined metric `#{metric.name}'"
+        else
+          metrics << metric
         end
-        metrics[metric.name] = metric
       else
         super
       end

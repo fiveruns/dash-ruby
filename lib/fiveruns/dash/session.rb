@@ -27,13 +27,13 @@ module Fiveruns::Dash
     
     def reset
       exception_recorder.reset
-      configuration.metrics.values.each(&:reset)
+      configuration.metrics.each(&:reset)
     end
     
     def data
       {
         :exceptions => exception_recorder.data,
-        :metrics => configuration.metrics.values.map { |metric| metric.data }.flatten
+        :metrics => configuration.metrics.map { |metric| metric.data }.flatten
       }
     end
     

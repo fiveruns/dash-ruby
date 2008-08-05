@@ -56,8 +56,7 @@ class RecipeTest < Test::Unit::TestCase
           config.add_recipe :test
         end
         should "description" do
-          assert_equal 1, config.metrics.size
-          assert_equal %w(test1), config.metrics.keys.map(&:to_s).sort
+          assert_metrics(*%w(test1))
         end
       end
       context "with multiple similiarly-named recipes" do
@@ -72,12 +71,12 @@ class RecipeTest < Test::Unit::TestCase
         should "load all by default" do
           config.add_recipe :test
           assert_equal 2, config.metrics.size
-          assert_equal %w(test1 test2), config.metrics.keys.map(&:to_s).sort
+          assert_metrics(*%w(test1 test2))
         end
         should "allow specific recipe to be loaded" do
           config.add_recipe :test, :url => 'http://test2.com'
           assert_equal 1, config.metrics.size
-          assert_equal %w(test2), config.metrics.keys.map(&:to_s).sort
+          assert_metrics(*%w(test2))
         end
       end
     end
@@ -96,10 +95,10 @@ class RecipeTest < Test::Unit::TestCase
         config.add_recipe :test
         assert @fired
       end
-      should "warn on metrics collision" do
+      should "allow metrics with same name and different recipes" do
         config.counter(:countme) { }
         config.add_recipe :test
-        assert_wrote 'countme', 'previously defined metric'
+        assert_metrics(*%w(countme countme))
       end
     end
 
@@ -108,6 +107,10 @@ class RecipeTest < Test::Unit::TestCase
   #######
   private
   #######
+  
+  def assert_metrics(*names)
+    assert_equal names.sort, config.metrics.map(&:name).map(&:to_s).sort
+  end
   
   def recipe(name = :test, options = {:url => 'http://test.com'}, &block)
     Fiveruns::Dash.register_recipe(name, options, &block)

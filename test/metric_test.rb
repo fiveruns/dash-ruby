@@ -50,8 +50,8 @@ class MetricTest < Test::Unit::TestCase
         assert_equal 0, current_time_total
       end
       should "have correct info" do
-        assert_equal ['time_mes'], metric.info.keys
-        assert_equal 'Time Mes', @metric.info['time_mes'][:description]
+        assert_equal 'time_mes', metric.info.keys.first[:name]
+        assert_equal 'Time Mes', @metric.info.values.first[:description]
       end
     end
 

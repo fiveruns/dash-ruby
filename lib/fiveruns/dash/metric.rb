@@ -6,7 +6,7 @@ module Fiveruns::Dash
     include Typable
     
     attr_reader :name, :description, :options
-    attr_accessor :info_id
+    attr_accessor :info_id, :recipe
     def initialize(name, *args, &block)
       @name = name.to_s
       @options = args.extract_options!
@@ -16,7 +16,7 @@ module Fiveruns::Dash
     end
     
     def info
-      {name => {:data_type => self.class.metric_type, :description => description}.merge(unit_info)}
+      {key => {:data_type => self.class.metric_type, :description => description}.merge(unit_info)}
     end
         
     def data
@@ -29,6 +29,18 @@ module Fiveruns::Dash
     
     def reset
       # Abstract
+    end
+    
+    def key
+      @key ||= {
+        :name => name,
+        :recipe_url => recipe ? recipe.url : nil,
+        :recipe_name => recipe ? recipe.name.to_s : nil
+      }
+    end
+    
+    def ==(other)
+      key == other.key
     end
 
     #######
