@@ -13,15 +13,13 @@ require 'dash/update'
 require 'dash/host'
 require 'dash/scm'
 require 'dash/exception_recorder'
-require 'dash/recipes'
+require 'dash/recipe'
 require 'dash/instrument'
 
 module Fiveruns
   
   module Dash
-    
-    include Recipes
-    
+        
     def self.logger
       @logger ||= Logger.new($stdout)
     end
@@ -49,6 +47,15 @@ module Fiveruns
     class << self
       attr_accessor :process_id
     end
+    
+    def self.register_recipe(name, options = {}, &block)
+      recipes[name] ||= []
+      recipes[name] << Recipe.new(name, options, &block)
+    end
+
+    def self.recipes
+      @recipes ||= {}
+    end
         
     #######
     private
@@ -62,6 +69,13 @@ module Fiveruns
       @configuration ||= begin
         load_recipes
         Configuration.new
+      end
+    end
+    
+    
+    def self.load_recipes
+      Dir[File.dirname(__FILE__) << "/../../recipes/*.rb"].each do |file|
+        require file
       end
     end
     

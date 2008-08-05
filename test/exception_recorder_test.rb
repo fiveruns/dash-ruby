@@ -3,69 +3,109 @@ require File.dirname(__FILE__) << "/test_helper"
 class ExceptionRecorderTest < Test::Unit::TestCase
   
   attr_reader :payload
+  attr_reader :recorder, :exceptions
 
   context "ExceptionRecorder" do
     setup do
-      mock!
-      @recorder = ExceptionRecorder.new( @session )
-      @fakesystempaths = "/Library/Ruby/1.8:/Library/Ruby/1.8/powerpc-darwin9.0"
-      @fakegempaths = "/Library/Ruby/Gems/1.8:/usr/local/gems"
+      @recorder = Fiveruns::Dash::ExceptionRecorder.new(flexmock(:session))
+      flexmock(ExceptionRecorder).should_receive(:replacements).and_return({
+        :foo => /^foo\b/
+      })
     end
     
-    should "extract exception data" do
-      begin
-        raise ArgumentError.new("I am an exception")
-      rescue => e
-        flexmock(@recorder).should_receive(:sanitize).and_return "sanitized_backtrace"
-        data = @recorder.send(:extract_data_from_exception, e)  
-        assert_equal( "ArgumentError", data[:name])
-        assert_equal( "I am an exception", data[:message])
-        assert_equal( "sanitized_backtrace", data[:backtrace])
+    context "when recording an exception" do
+      setup do
+        recorder.record(build("Message", "foo/bar/baz"))
+      end
+      should "record an exception" do
+        assert_equal 1, recorder.data.size
+      end
+      should "normalize a backtrace" do
+        assert(recorder.data.first[:backtrace] =~ /\[FOO\]/)
+      end
+    end
+
+    context "when recording an exception with a sample" do
+      setup do
+        recorder.record(build("Message", "foo/bar/baz"), {:key => :value})
+      end
+      should "record an exception" do
+        assert_equal 1, recorder.data.size
+      end
+      should "normalize a backtrace" do
+        assert(recorder.data.first[:backtrace] =~ /\[FOO\]/)
+      end      
+      should "serialize sample" do
+        assert_equal YAML::dump(:key=>:value), recorder.data.first[:serialized_sample]
+      end      
+    end
+    
+    context "when recording exceptions with the same message and backtrace" do
+      setup do
+        recorder.record(build, :key1=>:value1)
+        recorder.record(build, :key2=>:value2)
+      end
+      should "collapse" do
+        assert_equal 1, recorder.data.size
+      end
+      should "count them together" do
+        assert_equal [2], recorder.data.map { |exc| exc[:total] }
+      end
+      should "store only the first sample" do
+        assert_equal YAML::dump(:key1=>:value1), recorder.data.first[:serialized_sample]
       end
     end
     
-    should "santize_backtrace_using_replacements" do
+    context "when recording exceptions with different messages" do
+      setup do
+        recorder.record(build("Message1", "Line 1"))
+        recorder.record(build("Message2", "Line 1"))
+      end
+      should "not collapse" do
+        assert_equal 2, recorder.data.size
+      end
+      should "count them separately" do
+        assert_equal [1, 1], recorder.data.map { |exc| exc[:total] }
+      end
     end
     
-    should "convert sample to yaml on serialize" do
-      assert_equal( YAML::dump( :key => :value ),  @recorder.send(:serialize, {:key => :value}))
-    end
-    
-    should "record first exception successfully with sample" do
-    end
-    
-    should "incrememnt count for subsequent identical exceptions, and ignore sample" do
-    end
-    
-    should "find_existing_exception for matching key/bvalues" do
+    context "when recording exceptions with different backtraces" do
+      setup do
+        recorder.record(build("Message", "Line 1"))
+        recorder.record(build("Message", "Line 2"))
+      end
+      should "not collapse" do
+        assert_equal 2, recorder.data.size
+      end
+      should "count them separately" do
+        assert_equal [1, 1], recorder.data.map { |exc| exc[:total] }
+      end
     end
 
-    should "not find_existing_exception for differing key/bvalues" do
-    end
+    context "when retrieving the data" do
+      should "call reset when returning data hash" do
+        flexmock(recorder).should_receive(:reset).once
+        recorder.data
+      end
     
-    should "call reset when returning data hash" do
+      should "empty the exception list on reset" do
+        recorder.send(:exceptions) << "Item"
+        assert_equal( 1, recorder.send(:exceptions).size )
+        recorder.send(:reset)
+        assert_equal( 0, recorder.send(:exceptions).size )
+      end
     end
-    
-    should "empty the exception list on reset" do
-      @recorder.send(:exceptions) << "Item"
-      assert_equal( 1, @recorder.send(:exceptions).size )
-      @recorder.send(:reset)
-      assert_equal( 0, @recorder.send(:exceptions).size )
-    end
-    
-    should "provide correct replacements" do
-      flexmock(ExceptionRecorder).should_receive(:system_paths).once.and_return(@fakesystempaths)
-      flexmock(ExceptionRecorder).should_receive(:path_prefixes).once.with(@fakesystempaths).and_return "syspath"
-      flexmock(ExceptionRecorder).should_receive(:esc).once.with("syspath").and_return "escaped_syspath" 
-      flexmock(ExceptionRecorder).should_receive(:system_gempaths).once.and_return(@fakegempaths)
-      flexmock(ExceptionRecorder).should_receive(:path_prefixes).once.with(@fakegempaths, "/gems").and_return "gempath"
-      flexmock(ExceptionRecorder).should_receive(:esc).once.with("gempath").and_return "escaped_gempath" 
-      
-      reps = ExceptionRecorder.replacements
-      expected_replacements = { :system=> /^(escaped_syspath)/, :gems=> /^(escaped_gempath)/ }
-      assert_equal expected_replacements.size, reps.size
-      assert_equal expected_replacements[:system].to_s, reps[:system].to_s 
-      assert_equal expected_replacements[:gems].to_s, reps[:gems].to_s 
+
+  end
+  
+  #######
+  private
+  #######
+
+  def build(message = 'This is a message', line = 'backtrace line')
+    flexmock(:exception) do |mock|
+      mock.should_receive(:backtrace).and_return([line])        
+      mock.should_receive(:message).and_return(message)
     end
   end
 end

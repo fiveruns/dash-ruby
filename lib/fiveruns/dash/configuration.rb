@@ -40,15 +40,20 @@ module Fiveruns::Dash
     
     # Merge in an existing recipe
     # call-seq:
-    #   include_recipe :ruby
-    def include_recipe(name)
+    #   add_recipe :ruby
+    def add_recipe(name)
       if Fiveruns::Dash.recipes[name]
         Fiveruns::Dash.recipes[name].each do |recipe|
-          recipe.call(self)
+          recipe.add_to(self)
         end
       else
         raise ArgumentError, "No such recipe: #{name}"
       end
+    end
+    
+    # Optionally fired by recipes when included
+    def included
+      yield
     end
     
     #######

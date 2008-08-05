@@ -36,14 +36,14 @@ module Fiveruns
       @session = session
     end
     
-    def record(exception, sample={})
+    def record(exception, sample=nil)
       data = extract_data_from_exception(exception)
       if (matching = existing_exception_for(data))
         matching[:total] += 1
         matching
       else
         data[:total] = 1
-        data[:serialized_sample] = serialize( sample )
+        data[:serialized_sample] = serialize( sample ) unless sample.nil?
         exceptions << data
         data
       end
