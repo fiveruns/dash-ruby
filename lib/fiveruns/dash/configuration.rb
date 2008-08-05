@@ -70,6 +70,7 @@ module Fiveruns::Dash
       if (klass = Metric.types[meth])
         metric = klass.new(*args, &block)
         if metrics.key?(metric.name)
+          # TODO: Deal with uninstrumenting hook for previous metric
           Fiveruns::Dash.logger.warn "Overriding previously defined metric `#{metric.name}'"
         end
         metrics[metric.name] = metric
