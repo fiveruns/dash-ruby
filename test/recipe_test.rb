@@ -1,6 +1,8 @@
 require File.dirname(__FILE__) << "/test_helper"
 
 class RecipeTest < Test::Unit::TestCase
+  
+  attr_reader :config
 
   context "Recipe" do
 
@@ -13,7 +15,7 @@ class RecipeTest < Test::Unit::TestCase
       context "with valid metadata" do
         setup do
           assert_nothing_raised do
-            Fiveruns::Dash.register_recipe :test, :url => 'http://test.com' do |metrics|
+            recipe do |metrics|
               metrics.counter :foo do
                 1
               end
@@ -29,7 +31,7 @@ class RecipeTest < Test::Unit::TestCase
       context "without url" do
         should "raise error" do
           assert_raises Fiveruns::Dash::Recipe::ConfigurationError do
-            Fiveruns::Dash.register_recipe :test do |metrics|
+            recipe(:test, {}) do |metrics|
               metrics.counter :foo do
                 1
               end
@@ -40,7 +42,37 @@ class RecipeTest < Test::Unit::TestCase
 
     end
     
-    context "when included" do
+    context "when adding" do
+      context "with single matching recipe" do
+        setup do
+          recipe :test, :url => 'http://test1.com' do |r|
+            r.counter(:test1) { }
+          end
+          config.add_recipe :test
+        end
+        should "description" do
+          assert_equal 1, config.metrics.size
+          assert_equal %w(test1), config.metrics.keys.map(&:to_s).sort
+        end
+      end
+      context "with multiple similiarly-named recipes" do
+        setup do
+          recipe :test, :url => 'http://test1.com' do |r|
+            r.counter(:test1) { }
+          end
+          recipe :test, :url => 'http://test2.com' do |r|
+            r.counter(:test2) { }
+          end
+          config.add_recipe :test
+        end
+        should "load all by default" do
+          assert_equal 2, config.metrics.size
+          assert_equal %w(test1 test2), config.metrics.keys.map(&:to_s).sort
+        end
+      end
+    end
+    
+    context "when added" do
       setup do
         @fired = false
         Fiveruns::Dash.register_recipe :test, :url => 'http://test.com' do |metrics|
@@ -50,13 +82,19 @@ class RecipeTest < Test::Unit::TestCase
         end
       end
       should "fire recipe hook" do
-        Fiveruns::Dash.configure do |metrics|
-          metrics.add_recipe :test
-        end
+        config.add_recipe :test
         assert @fired
       end
     end
 
   end
+  
+  #######
+  private
+  #######
+  
+  def recipe(name = :test, options = {:url => 'http://test.com'}, &block)
+    Fiveruns::Dash.register_recipe(name, options, &block)
+  end  
 
 end
