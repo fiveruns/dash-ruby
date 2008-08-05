@@ -60,7 +60,7 @@ module Fiveruns::Dash
     def send_info_update
       @info_update_sent ||= begin
         payload = InfoPayload.new(@session.info)
-        Update.new(payload, @session.configuration).store(*update_locations)
+        sent = Update.new(payload, @session.configuration).store(*update_locations)
       end
     end
     
@@ -70,7 +70,7 @@ module Fiveruns::Dash
         Update.new(payload, @session.configuration).store(*update_locations)
       else
         # Discard data
-        @session.data
+        @session.reset
         Fiveruns::Dash.logger.warn "Discarding interval data"
       end
     end

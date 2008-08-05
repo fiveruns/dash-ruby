@@ -18,13 +18,17 @@ module Fiveruns::Dash
     def info
       {name => {:data_type => self.class.metric_type, :description => description}.merge(unit_info)}
     end
-    
+        
     def data
       if info_id
         value_hash.update(:metric_info_id => info_id)
       else
         raise NotImplementedError, "No info_id assigned for #{self.inspect}"
       end
+    end
+    
+    def reset
+      # Abstract
     end
 
     #######
@@ -114,6 +118,10 @@ module Fiveruns::Dash
       install_hook
     end
     
+    def reset
+      @data = Hash.new {{ :invocations => 0, :value => 0 }}
+    end
+    
     #######
     private
     #######
@@ -122,10 +130,6 @@ module Fiveruns::Dash
       returning(:value => @data) do
         reset
       end
-    end
-    
-    def reset
-      @data = Hash.new {{ :invocations => 0, :value => 0 }}
     end
 
     def install_hook

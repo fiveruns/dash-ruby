@@ -55,6 +55,10 @@ module Fiveruns
       end
     end
     
+    def reset
+      exceptions.clear
+    end
+    
     #######
     private
     #######
@@ -77,10 +81,6 @@ module Fiveruns
     
     def exceptions
       @exceptions ||= []
-    end
-    
-    def reset
-      exceptions.clear
     end
     
     def sanitize(backtrace)

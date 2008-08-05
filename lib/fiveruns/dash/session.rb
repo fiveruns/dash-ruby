@@ -25,6 +25,11 @@ module Fiveruns::Dash
       end
     end
     
+    def reset
+      exception_recorder.reset
+      configuration.metrics.values.each(&:reset)
+    end
+    
     def data
       {
         :exceptions => exception_recorder.data,
