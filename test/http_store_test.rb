@@ -11,11 +11,12 @@ class HTTPStoreTest < Test::Unit::TestCase
       @klass = Class.new { include Store::HTTP }
       @params = {:this_is_a_param => 'value'}
       @metric = flexmock(:metric) do |mock|
+        mock.should_receive(:key).and_return(:name => 'MetricTest.time_me', :recipe_name => nil, :recipe_url => nil)
         mock.should_receive(:info_id=)
       end
       @configuration = flexmock(:config) do |mock|
         mock.should_receive(:options).and_return(:app => '123')
-        mock.should_receive(:metrics).and_return({'MetricTest.time_me' => @metric})
+        mock.should_receive(:metrics).and_return([@metric])
       end
       flexmock(@klass).new_instances do |mock|
         mock.should_receive(:configuration).and_return(@configuration)
@@ -42,7 +43,7 @@ class HTTPStoreTest < Test::Unit::TestCase
         setup do
           FakeWeb.register_uri full_urls(:processes).first, :string => 'FAIL!', :exception => Net::HTTPError
           full_urls(:processes)[1..-1].each do |url|
-            FakeWeb.register_uri url, :string => "---\nprocess_id: 1\nmetric_infos:\n  'MetricTest.time_me': 1", :status => 201
+            FakeWeb.register_uri url, :status => 201, :string => File.read(File.dirname(__FILE__) << "/fixtures/http_store_test/response.yml")
           end
         end
         should "fallback to working URL" do
