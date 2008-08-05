@@ -8,7 +8,7 @@ lib/fiveruns/dash/exception_recorder.rb
 lib/fiveruns/dash/host.rb
 lib/fiveruns/dash/instrument.rb
 lib/fiveruns/dash/metric.rb
-lib/fiveruns/dash/recipes.rb
+lib/fiveruns/dash/recipe.rb
 lib/fiveruns/dash/reporter.rb
 lib/fiveruns/dash/scm.rb
 lib/fiveruns/dash/session.rb
