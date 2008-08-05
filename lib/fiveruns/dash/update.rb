@@ -86,6 +86,10 @@ module Fiveruns::Dash
   end
   
   class InfoPayload < Payload
+    def initialize(data, started_at)
+      super(data)
+      @started_at = started_at
+    end
     def to_yaml_type
       "!dash.fiveruns.com,2008-07/info"
     end
@@ -100,7 +104,8 @@ module Fiveruns::Dash
         :pwd => Dir.pwd,
         :arch => Fiveruns::Dash.host.architecture,
         :dash_version => Fiveruns::Dash::Version::STRING,
-        :ruby_version => RUBY_VERSION
+        :ruby_version => RUBY_VERSION,
+        :started_at => @started_at
       }
       if (scm = Fiveruns::Dash.scm)
         params.update(

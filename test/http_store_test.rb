@@ -33,7 +33,7 @@ class HTTPStoreTest < Test::Unit::TestCase
     
     context "with info payload" do
       setup do
-        @payload = InfoPayload.new(:pid => 987)
+        @payload = InfoPayload.new({:pid => 987}, Time.now.utc)
       end
       teardown do
         Fiveruns::Dash.process_id = nil
