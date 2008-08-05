@@ -16,6 +16,10 @@ module Fiveruns::Dash
       @block.call(configuration)
     end
     
+    def matches?(criteria)
+      criteria.all? { |k, v| options[k] == v }
+    end
+    
     #######
     private
     #######

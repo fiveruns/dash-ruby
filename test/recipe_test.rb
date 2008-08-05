@@ -63,11 +63,16 @@ class RecipeTest < Test::Unit::TestCase
           recipe :test, :url => 'http://test2.com' do |r|
             r.counter(:test2) { }
           end
-          config.add_recipe :test
         end
         should "load all by default" do
+          config.add_recipe :test
           assert_equal 2, config.metrics.size
           assert_equal %w(test1 test2), config.metrics.keys.map(&:to_s).sort
+        end
+        should "allow specific recipe to be loaded" do
+          config.add_recipe :test, :url => 'http://test2.com'
+          assert_equal 1, config.metrics.size
+          assert_equal %w(test2), config.metrics.keys.map(&:to_s).sort
         end
       end
     end
