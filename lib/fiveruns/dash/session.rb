@@ -20,15 +20,20 @@ module Fiveruns::Dash
     end
     
     def info
-      configuration.metrics.inject({}) do |metrics, (name, metric)|
+      configuration.metrics.inject({}) do |metrics, metric|
         metrics.update(metric.info)
       end
+    end
+    
+    def reset
+      exception_recorder.reset
+      configuration.metrics.each(&:reset)
     end
     
     def data
       {
         :exceptions => exception_recorder.data,
-        :metrics => configuration.metrics.values.map { |metric| metric.data }.flatten
+        :metrics => configuration.metrics.map { |metric| metric.data }.flatten
       }
     end
     

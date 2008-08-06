@@ -7,6 +7,7 @@ module Fiveruns::Dash
   class Reporter
     
     attr_accessor :interval
+    attr_reader :started_at
     def initialize(session, interval = 60.seconds.to_i)
       @session = session
       @interval = interval
@@ -18,7 +19,10 @@ module Fiveruns::Dash
     end
     
     def start(run_in_background = true)
-      restarted = @started ? true : false
+      restarted = @started_at ? true : false
+      unless defined?(@started_at)
+        @started_at = Time.now.utc
+      end
       setup_for run_in_background
       if @background
         @thread = Thread.new { run(restarted) }
@@ -29,7 +33,7 @@ module Fiveruns::Dash
     end
     
     def started?
-      @started
+      @started_at
     end
     
     def foreground?
@@ -53,14 +57,13 @@ module Fiveruns::Dash
     end
     
     def setup_for(run_in_background = true)
-      @started = true
       @background = run_in_background
     end
     
     def send_info_update
       @info_update_sent ||= begin
-        payload = InfoPayload.new(@session.info)
-        Update.new(payload, @session.configuration).store(*update_locations)
+        payload = InfoPayload.new(@session.info, @started_at)
+        sent = Update.new(payload, @session.configuration).store(*update_locations)
       end
     end
     
@@ -70,7 +73,7 @@ module Fiveruns::Dash
         Update.new(payload, @session.configuration).store(*update_locations)
       else
         # Discard data
-        @session.data
+        @session.reset
         Fiveruns::Dash.logger.warn "Discarding interval data"
       end
     end

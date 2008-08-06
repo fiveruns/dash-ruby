@@ -2,6 +2,8 @@ module Fiveruns::Dash
   
   class Configuration
     
+    class ConflictError < ::ArgumentError; end
+    
     delegate :each, :to => :metrics
     
     def self.default_options
@@ -35,16 +37,16 @@ module Fiveruns::Dash
     end
     
     def metrics #:nodoc:
-      @metrics ||= {}
+      @metrics ||= []
     end
     
     # Merge in an existing recipe
     # call-seq:
     #   add_recipe :ruby
-    def add_recipe(name)
+    def add_recipe(name, options = {})
       if Fiveruns::Dash.recipes[name]
         Fiveruns::Dash.recipes[name].each do |recipe|
-          recipe.add_to(self)
+          recipe.add_to(self) if recipe.matches?(options)
         end
       else
         raise ArgumentError, "No such recipe: #{name}"
@@ -67,7 +69,12 @@ module Fiveruns::Dash
     def method_missing(meth, *args, &block)
       if (klass = Metric.types[meth])
         metric = klass.new(*args, &block)
-        metrics[metric.name] = metric
+        metric.recipe = Recipe.current
+        if metrics.include?(metric)
+          Fiveruns::Dash.logger.info "Skipping previously defined metric `#{metric.name}'"
+        else
+          metrics << metric
+        end
       else
         super
       end

@@ -1,0 +1,8 @@
+---
+process_id: 1
+metric_infos:
+  ?
+    name: MetricTest.time_me
+    recipe_url: ~
+    recipe_name: ~
+  : 1

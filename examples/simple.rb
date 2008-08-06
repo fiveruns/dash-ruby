@@ -34,7 +34,7 @@ Fiveruns::Dash.configure :app => 'foo-bar-baz' do |metrics|
   metrics.time :do_somethings, :method => 'MyApp#do_something', :contexts => lambda { |obj, *args| [:class, obj.class.name] }
   metrics.counter :somethings, :incremented_by => 'MyApp#do_something', :contexts => lambda { |obj, *args| [:class, obj.class.name] }
 end
-Fiveruns::Dash.configuration.metrics.each_value { |metric| metric.info_id = metric.name }
+Fiveruns::Dash.configuration.metrics.each { |metric| metric.info_id = metric.name }
 Fiveruns::Dash.session.reporter.interval = 10
 Fiveruns::Dash.session.start
 

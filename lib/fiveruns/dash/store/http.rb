@@ -44,8 +44,14 @@ module Fiveruns::Dash::Store
         if payload.is_a?(Fiveruns::Dash::InfoPayload)
           data = YAML.load(response.body)
           Fiveruns::Dash.process_id = data['process_id']
-          data['metric_infos'].each do |name, info_id|
-            configuration.metrics[name].info_id = info_id
+          data['metric_infos'].each do |key, info_id|
+            metric = configuration.metrics.detect { |metric| normalize_key(metric.key) ==  normalize_key(key) }
+            if metric
+              metric.info_id = info_id
+            else
+              Fiveruns::Dash.logger.warn "Did not find local metric for server metric #{key.inspect}"
+              return false
+            end
           end
         end
         true
@@ -71,6 +77,10 @@ module Fiveruns::Dash::Store
         end
         new_uri.path = ::File.join('/apps', app_token, "#{component}.yml")
       end
+    end
+    
+    def normalize_key(key)
+      key.to_a.flatten.map(&:to_s).sort
     end
     
     def app_token

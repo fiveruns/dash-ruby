@@ -9,6 +9,7 @@ module Fiveruns::Dash
           return klass.new(path)
         end
       end
+      nil
     end
     
     def initialize(path)
