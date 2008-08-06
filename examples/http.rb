@@ -29,11 +29,11 @@ app = MyApp.new
 loop do
   sleep rand(3)
   app.do_something
-  # if rand(3) == 1
-  #   begin
-  #     raise ArgumentError, 'This is an error'
-  #   rescue => e
-  #     Fiveruns::Dash.session.add_exception e
-  #   end
-  # end
+  if rand(3) == 1
+    begin
+      raise ArgumentError, 'This is an error'
+    rescue => e
+      Fiveruns::Dash.session.add_exception e, {:time => Time.now.to_s}
+    end
+  end
 end
