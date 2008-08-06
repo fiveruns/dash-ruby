@@ -20,7 +20,7 @@ module Fiveruns::Dash
     end
     
     def info
-      configuration.metrics.inject({}) do |metrics, (name, metric)|
+      configuration.metrics.inject({}) do |metrics, metric|
         metrics.update(metric.info)
       end
     end
