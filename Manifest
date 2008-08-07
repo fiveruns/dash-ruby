@@ -24,6 +24,7 @@ recipes/ruby.rb
 test/configuration_test.rb
 test/exception_recorder_test.rb
 test/file_store_test.rb
+test/fixtures/http_store_test/response.yml
 test/http_store_test.rb
 test/metric_test.rb
 test/recipe_test.rb
