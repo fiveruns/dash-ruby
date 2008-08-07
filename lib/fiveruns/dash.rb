@@ -19,9 +19,13 @@ require 'dash/instrument'
 module Fiveruns
   
   module Dash
-        
+            
     def self.logger
       @logger ||= Logger.new($stdout)
+    end
+    
+    def self.logger=(logger)
+      @logger = logger
     end
   
     def self.configure(options = {})

@@ -15,6 +15,10 @@ module Fiveruns::Dash
       @options = self.class.default_options.merge(options)
       yield self if block_given?
     end
+    
+    def ready?
+      options[:app]
+    end
 
     # Optionally add to a recipe if the given version meets
     # a requirement
