@@ -42,7 +42,11 @@ module Fiveruns::Dash
     def ==(other)
       key == other.key
     end
-
+    
+    def find_context_with(&block)
+      @context_finder = block
+    end
+    
     #######
     private
     #######
