@@ -29,7 +29,8 @@ module Fiveruns::Dash
     private
     #######
     
-    def locate_upwards( startpath, target )
+    def self.locate_upwards( startpath, target )
+      startpath = File.expand_path(startpath)
       return startpath if File.exist?(File.join( startpath, target ))
       return locate_upwards( File.dirname(startpath), target) unless File.dirname(startpath) == startpath
       nil

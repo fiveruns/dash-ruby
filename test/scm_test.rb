@@ -30,24 +30,17 @@ class ScmTest < Test::Unit::TestCase
   
   context "All SCMs" do
     should "find .git in plugin/core on locate_upwards" do
-      scm = SCM.new( File.dirname(__FILE__) )
-      assert_match %r(plugin/core$), scm.send(:locate_upwards, File.dirname(__FILE__), ".git" )
+      assert_match %r(plugin/core$), SCM.send(:locate_upwards, File.dirname(__FILE__), ".git" )
     end
 
     should "return nil from locate_upwards when no .git" do
-      scm = SCM.new( File.dirname(__FILE__) )
-      assert_nil scm.send(:locate_upwards, '/tmp', ".git" )
+      assert_nil SCM.send(:locate_upwards, '/tmp', ".git" )
     end
   
     should "return nil from locate_upwards when root on posix" do
-      scm = SCM.new( File.dirname(__FILE__) )
-      assert_nil scm.send(:locate_upwards, "/", ".git" )
+      assert_nil SCM.send(:locate_upwards, "/", ".git" )
     end
 
-    should "return nil from locate_upwards when root on windoze" do
-      scm = SCM.new( File.dirname(__FILE__) )
-      assert_nil scm.send(:locate_upwards, "C:\\", ".git" )
-    end
   end
 
   
