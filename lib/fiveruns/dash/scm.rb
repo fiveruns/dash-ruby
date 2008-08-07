@@ -1,11 +1,11 @@
+require 'date'
 module Fiveruns::Dash
-  
   class SCM
     include Typable
     
-    def self.matching(path)
+    def self.matching(startpath)
       types.each do |name, klass|
-        if File.exists?(File.join(path, ".#{name}"))
+        if path = locate_upwards(startpath, ".#{name}")
           return klass.new(path)
         end
       end
@@ -28,6 +28,12 @@ module Fiveruns::Dash
     #######
     private
     #######
+    
+    def locate_upwards( startpath, target )
+      return startpath if File.exist?(File.join( startpath, target ))
+      return locate_upwards( File.dirname(startpath), target) unless File.dirname(startpath) == startpath
+      nil
+    end
 
     def require_binding
     end
@@ -67,6 +73,35 @@ module Fiveruns::Dash
       require 'git'
     rescue LoadError
       raise LoadError, "Requires the 'git' gem"
+    end
+    
+  end
+
+  class SvnSCM < SCM
+    
+    def revision
+        @yaml['Last Changed Rev'] || @yaml['Revision']
+    end
+    
+    def time
+      DateTime.parse(@yaml['Last Changed Date'].split("(").first.strip)
+    end
+    
+    def url
+      @url ||= @yaml['URL']
+    end
+    
+    #######
+    private
+    #######
+    
+    def require_binding
+      @yaml = YAML.load(svn_info)
+      @yaml = {} unless Hash === @yaml
+    end
+
+    def svn_info
+      `svn info`
     end
     
   end
