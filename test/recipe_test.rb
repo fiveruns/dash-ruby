@@ -85,7 +85,7 @@ class RecipeTest < Test::Unit::TestCase
       setup do
         @fired = false
         recipe :test, :url => 'http://test.com' do |recipe|
-          recipe.included do
+          recipe.added do
             @fired = true
           end
           recipe.counter(:countme) { }
@@ -100,6 +100,33 @@ class RecipeTest < Test::Unit::TestCase
         config.add_recipe :test
         assert_metrics(*%w(countme countme))
       end
+      context "modifying existing metrics" do
+        setup do
+          recipe :test3 do |r|
+            r.modify :name => :countme do |metric|
+              metric.find_context_with do |obj, *args|
+                [:modified, true]
+              end
+            end
+          end
+        end
+        should "only occur on addition" do
+          config.metrics.each do |metric|
+            if metric.name == :countme
+              assert_nil metric.instance_eval { @metric_finder }
+            end
+          end
+        end
+        should "change context finder" do
+          config.add_recipe :test3
+          config.metrics.each do |metric|
+            if metric.name == :countme
+              assert_kind_of Proc, metric.instance_eval { @metric_finder }
+            end
+          end
+        end
+      end
+
     end
 
   end

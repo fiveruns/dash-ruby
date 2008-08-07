@@ -43,6 +43,7 @@ module Fiveruns::Dash
       key == other.key
     end
     
+    # Set context finder
     def find_context_with(&block)
       @context_finder = block
     end
