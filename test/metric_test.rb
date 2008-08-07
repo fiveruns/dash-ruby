@@ -53,6 +53,12 @@ class MetricTest < Test::Unit::TestCase
         assert_equal 'time_mes', metric.info.keys.first[:name]
         assert_equal 'Time Mes', @metric.info.values.first[:description]
       end
+      should "be able to set context finder" do
+        finder = lambda { |obj, *args| [:class, obj.name] }
+        @metric.find_context_with(&finder)
+        invoke 4
+        assert_equal 4, metric.data[:value][[:class, 'MetricTest']][:invocations]
+      end
     end
 
   end

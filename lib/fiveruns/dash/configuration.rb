@@ -53,8 +53,17 @@ module Fiveruns::Dash
       end
     end
     
+    # Lookup metrics for modification by subsequent recipes
+    def modify(criteria = {})
+      metrics.each do |metric|
+        if criteria.all? { |k, v| metric.key[k] == v }
+          yield metric
+        end
+      end        
+    end
+    
     # Optionally fired by recipes when included
-    def included
+    def added
       yield
     end
     

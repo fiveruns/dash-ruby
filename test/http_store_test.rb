@@ -24,6 +24,7 @@ class HTTPStoreTest < Test::Unit::TestCase
         mock.should_receive(:params).and_return(@params)
       end
       @update = @klass.new
+      no_recipe_loading!
       mock_streams!
     end
     
