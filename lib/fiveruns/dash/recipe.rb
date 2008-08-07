@@ -47,6 +47,58 @@ module Fiveruns::Dash
       end
     end
     
+    class Loader
+      
+      delegate :logger, :recipes, :to => Fiveruns::Dash
+      
+      def run
+        load_core_recipes
+        load_gem_recipes
+      end
+      
+      #######
+      private
+      #######
+            
+      def load_core_recipes
+        logger.warn "Registering core recipes"
+        track do
+          Dir[File.dirname(__FILE__) << "/../../../recipes/*.rb"].each do |file|
+            require file
+          end
+        end
+      end
+
+      def load_gem_recipes
+        logger.info "Registering gem recipes..."
+        spec_path = File.join(Gem.dir, 'specifications')
+        gems = Gem::SourceIndex.from_installed_gems(spec_path)
+        gems.each do |path, gem|
+          gem.dependencies.each do |dependency|
+            if dependency.name == 'fiveruns_dash'
+              gem_path = File.join(Gem.dir, "gems", path)
+              logger.info "Registering recipes from #{path}"
+              track do
+                Dir[File.join(gem_path, 'dash/**/*.rb')].each do |file|                
+                  require file
+                end
+              end
+            end
+          end
+        end
+      end
+
+      def track
+        list = recipes.values.flatten.dup
+        yield
+        delta = recipes.values.flatten - list
+        delta.each do |recipe|
+          logger.info "> Registered `#{recipe.name}' (#{recipe.url})"
+        end
+      end
+    
+    end
+    
   end
   
 end
