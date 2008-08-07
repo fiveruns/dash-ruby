@@ -15,6 +15,7 @@ class Test::Unit::TestCase
   include Fiveruns::Dash
   
   def mock!
+    no_recipe_loading!
     mock_configuration!
     create_session!
     mock_reporter!
@@ -60,6 +61,14 @@ class Test::Unit::TestCase
     $stderr = StringIO.new
     @original_logdev = Fiveruns::Dash.logger.instance_eval { @logdev }
     @logdev = Fiveruns::Dash.logger.instance_eval { @logdev = StringIO.new }
+  end
+  
+  def no_recipe_loading!
+    # For now, we just stub it out so we don't muddy the list of recipes
+    # due to environmental factors
+    flexmock(Fiveruns::Dash::Recipe::Loader).new_instances do |mock|
+      mock.should_receive(:run)
+    end
   end
   
   def assert_wrote(*args)

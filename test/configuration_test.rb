@@ -5,6 +5,7 @@ class ConfigurationTest < Test::Unit::TestCase
   context "Configuration" do
     
     setup do
+      no_recipe_loading!
       mock_streams!
     end
     

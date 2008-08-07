@@ -69,10 +69,13 @@ module Fiveruns::Dash
 
       def load_gem_recipes
         logger.info "Registering gem recipes..."
+        loaded_gems = []
         plugin_gems.each do |path, gem|
+          next if loaded_gems.include?(gem.name)
           logger.info "Registering recipes from #{path}"
           track do
             load_recipes_from File.join(Gem.dir, 'gems', path, 'dash')
+            loaded_gems << gem.name
           end
         end
       end
