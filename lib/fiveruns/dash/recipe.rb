@@ -63,27 +63,16 @@ module Fiveruns::Dash
       def load_core_recipes
         logger.warn "Registering core recipes"
         track do
-          Dir[File.dirname(__FILE__) << "/../../../recipes/*.rb"].each do |file|
-            require file
-          end
+          load_recipes_from(File.dirname(__FILE__) << '/../../../recipes')
         end
       end
 
       def load_gem_recipes
         logger.info "Registering gem recipes..."
-        spec_path = File.join(Gem.dir, 'specifications')
-        gems = Gem::SourceIndex.from_installed_gems(spec_path)
-        gems.each do |path, gem|
-          gem.dependencies.each do |dependency|
-            if dependency.name == 'fiveruns_dash'
-              gem_path = File.join(Gem.dir, "gems", path)
-              logger.info "Registering recipes from #{path}"
-              track do
-                Dir[File.join(gem_path, 'dash/**/*.rb')].each do |file|                
-                  require file
-                end
-              end
-            end
+        plugin_gems.each do |path, gem|
+          logger.info "Registering recipes from #{path}"
+          track do
+            load_recipes_from File.join(Gem.dir, 'gems', path, 'dash')
           end
         end
       end
@@ -94,6 +83,24 @@ module Fiveruns::Dash
         delta = recipes.values.flatten - list
         delta.each do |recipe|
           logger.info "> Registered `#{recipe.name}' (#{recipe.url})"
+        end
+      end
+      
+      def plugin_gems
+        spec_path = File.join(Gem.dir, 'specifications')
+        gems = Gem::SourceIndex.from_installed_gems(spec_path)
+        gems.select { |path, gem| plugin?(gem) }
+      end
+      
+      def plugin?(gem)
+        gem.dependencies.any? do |dependency|
+          dependency.name == 'fiveruns_dash'
+        end
+      end
+      
+      def load_recipes_from(directory)
+        Dir[File.join(directory, '/**/*.rb')].each do |file|                
+          require file
         end
       end
     
