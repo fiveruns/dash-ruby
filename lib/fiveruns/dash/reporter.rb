@@ -49,6 +49,7 @@ module Fiveruns::Dash
     #######
 
     def run(restarted)
+      Fiveruns::Dash.logger.info "Starting reporter thread; endpoints are #{update_locations.inspect}"
       loop do
         send_info_update
         sleep @interval
@@ -62,8 +63,11 @@ module Fiveruns::Dash
     
     def send_info_update
       @info_update_sent ||= begin
+        Fiveruns::Dash.logger.warn "Sending info: #{@session.info}"
         payload = InfoPayload.new(@session.info, @started_at)
         sent = Update.new(payload, @session.configuration).store(*update_locations)
+        Fiveruns::Dash.logger.warn "Result was: #{sent.inspect}"
+        sent
       end
     end
     
