@@ -17,10 +17,6 @@ module Fiveruns::Dash
     end
     
     def store(*urls)
-      if @payload.blank?
-        Fiveruns::Dash.logger.debug "Empty payload; skipping"
-        return nil
-      end
       uris_by_scheme(urls).each do |scheme, uris|
         value = __send__("store_#{storage_method_for(scheme)}", *uris)
         return value if value
@@ -55,9 +51,7 @@ module Fiveruns::Dash
   end
 
   class Payload
-    
-    delegate :blank?, :to => :@data
-    
+        
     def initialize(data)
       @version = Fiveruns::Dash::Version::STRING
       @data = data
@@ -119,11 +113,6 @@ module Fiveruns::Dash
         )
       end
       params
-    end
-    
-    # InfoPayloads are never blank
-    def blank?
-      false
     end
     
   end
