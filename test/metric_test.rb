@@ -9,6 +9,18 @@ class MetricTest < Test::Unit::TestCase
   end
 
   context "Metric" do
+    
+    teardown do
+      # Hacked 'uninstrument' until it's built-in
+      ::Fiveruns::Dash::Instrument.handlers.each do |handler|
+        (class << MetricTest; self; end).class_eval <<-EOCE
+          remove_method :time_me_with_instrument_#{handler.hash}
+          alias_method :time_me, :time_me_without_instrument_#{handler.hash}
+          remove_method :time_me_without_instrument_#{handler.hash}
+        EOCE
+      end
+      ::Fiveruns::Dash::Instrument.handlers.clear
+    end
 
     context "using time" do
       setup do
@@ -61,6 +73,23 @@ class MetricTest < Test::Unit::TestCase
       end
     end
 
+    context "using incremented counter" do
+      setup do
+        @metric = CounterMetric.new(:time_mes_counter, :incremented_by => time_method)
+        flexmock(@metric).should_receive(:info_id).and_return(1)
+      end
+      should "default to 0 before being incremented, and after reset" do
+        assert_counted 0
+        invoke 4
+        assert_counted 4
+        assert_counted 0
+      end
+      should "get correct number after being incremented" do
+        invoke 4
+        assert_counted 4
+      end
+    end
+
   end
   
   #######
@@ -77,6 +106,16 @@ class MetricTest < Test::Unit::TestCase
   
   def time_method
     'MetricTest.time_me'
+  end
+  
+  def assert_counted(number)
+    counted = nil
+    assert_nothing_raised do
+      # We fetch to ensure values aren't just being returned due to hash defaults
+      counted = metric.data[:value].fetch(nil)
+    end
+    assert_kind_of Numeric, counted
+    assert_equal number, counted
   end
   
   def assert_invocations_reported(number = 1)

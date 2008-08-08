@@ -187,6 +187,7 @@ module Fiveruns::Dash
     
     def value_hash
       if incrementing_methods.any?
+        @data[nil] = @data.fetch(nil, 0)
         returning(:value => @data) do
           reset
         end
