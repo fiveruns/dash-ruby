@@ -65,9 +65,7 @@ module Fiveruns::Dash
       @info_update_sent ||= begin
         Fiveruns::Dash.logger.warn "Sending info: #{@session.info}"
         payload = InfoPayload.new(@session.info, @started_at)
-        sent = Update.new(payload, @session.configuration).store(*update_locations)
-        Fiveruns::Dash.logger.warn "Result was: #{sent.inspect}"
-        sent
+        Update.new(payload, @session.configuration).store(*update_locations)
       end
     end
     
