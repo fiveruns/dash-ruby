@@ -37,6 +37,10 @@ module Fiveruns::Dash
       criteria.all? { |k, v| options[k] == v }
     end
     
+    def ==(other)
+      name == other.name && other.options == options
+    end
+        
     #######
     private
     #######

@@ -54,7 +54,12 @@ module Fiveruns
     
     def self.register_recipe(name, options = {}, &block)
       recipes[name] ||= []
-      recipes[name] << Recipe.new(name, options, &block)
+      recipe = Recipe.new(name, options, &block)
+      if recipes[name].include?(recipe)
+        logger.warn "Skipping re-registration of recipe :#{name} #{options.inspect}"
+      else
+        recipes[name] << recipe
+      end
     end
 
     def self.recipes
