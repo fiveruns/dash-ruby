@@ -46,23 +46,23 @@ dash do |metrics|
   end
   
   finds = %w(ActiveRecord::Base.find ActiveRecord::Base.find_by_sql)
-  metrics.time :find_time, 'Find Time', :methods => finds
-  metrics.counter :finds, 'Finds', :incremented_by => finds
+  metrics.time :find_time, 'Find Time', :methods => finds, :context => [:parent, 'foo', :child, 'bar']
+  metrics.counter :finds, 'Finds', :incremented_by => finds, :context => [:parent, 'foo', :child, 'bar']
 
   creates = %w(ActiveRecord::Base.create)
-  metrics.time :create_time, 'Create Time', :methods => creates
-  metrics.counter :creates, 'Creates', :incremented_by => creates
+  metrics.time :create_time, 'Create Time', :methods => creates, :context => [:parent, 'foo', :child, 'bar']
+  metrics.counter :creates, 'Creates', :incremented_by => creates, :context => [:parent, 'foo', :child, 'bar']
 
   updates = %w(ActiveRecord::Base.update ActiveRecord::Base.update_all
                ActiveRecord::Base#update
                ActiveRecord::Base#save ActiveRecord::Base#save!)
-  metrics.time :update_time, 'Update Time', :methods => updates
-  metrics.counter :updates, 'Updates', :incremented_by => updates
+  metrics.time :update_time, 'Update Time', :methods => updates, :context => [:parent, 'foo', :child, 'bar']
+  metrics.counter :updates, 'Updates', :incremented_by => updates, :context => [:parent, 'foo', :child, 'bar']
   
   deletes  = %w(ActiveRecord::Base#destroy ActiveRecord::Base.destroy ActiveRecord::Base.destroy_all
                 ActiveRecord::Base.delete ActiveRecord::Base.delete_all)
-  metrics.time :delete_time, 'Delete Time', :methods => deletes
-  metrics.counter :deletes, 'Deletes', :incremented_by => deletes
+  metrics.time :delete_time, 'Delete Time', :methods => deletes, :context => [:parent, 'foo', :child, 'bar']
+  metrics.counter :deletes, 'Deletes', :incremented_by => deletes, :context => [:parent, 'foo', :child, 'bar']
   
 end
 
@@ -89,5 +89,12 @@ loop do
     person.destroy
     people.delete(person)
     puts "Annihilated #{person.name}"
+  end
+  begin
+    if rand(10) % 2 == 0
+      raise [ArgumentError, RuntimeError, StandardError].rand.new, 'This is bad!'
+    end
+  rescue => e
+    Fiveruns::Dash.session.add_exception e, 'something' => 'sampley'
   end
 end
