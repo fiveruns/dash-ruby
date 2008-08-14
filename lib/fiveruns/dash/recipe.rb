@@ -43,8 +43,8 @@ module Fiveruns::Dash
     
     def info
       {
-        :name => name,
-        :url => url
+        :name => name.to_s,
+        :url => url.to_s
       }
     end
         

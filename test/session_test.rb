@@ -36,6 +36,10 @@ class SessionTest < Test::Unit::TestCase
       end
       should "have recipes" do
         assert_kind_of Array, session.info[:recipes]
+        session.info[:recipes].each do |recipe|
+          assert_kind_of String, recipe[:name]
+          assert_kind_of String, recipe[:url]
+        end          
       end
       
     end
