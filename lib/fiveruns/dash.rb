@@ -34,6 +34,7 @@ module Fiveruns
     end
     
     def self.start(options = {}, &block)
+      handle_pwd_is_root(caller[0]) if Dir.pwd == '/'
       configure(options, &block) if block_given?
       session.start
     end
@@ -70,6 +71,15 @@ module Fiveruns
     private
     #######
         
+    def self.handle_pwd_is_root(last_method)
+      # We are in a Daemon and don't have a valid PWD.  Change the
+      # default SCM repo location based on the caller stack.
+      if last_method =~ /([^:]+):\d+/
+        file = File.dirname($1)
+        configuration.options[:scm_repo] = file
+      end
+    end
+
     def self.session
       @session ||= Session.new(configuration)
     end
