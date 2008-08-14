@@ -39,9 +39,13 @@ class Test::Unit::TestCase
     3.times do |i|
       @metrics << @metric_class.new("Metric#{i}") { 1 }
     end
+    @recipes = []
+    @recipes << Fiveruns::Dash::Recipe.new(:foo, :url => 'http://foo.com')
+    @recipes << Fiveruns::Dash::Recipe.new(:foo2, :url => 'http://foo2.com')
     @metrics << @metric_class.new("NonCustomMetric") { 2 }
     @configuration = flexmock(:configuration) do |mock|
       mock.should_receive(:metrics).and_return(@metrics)
+      mock.should_receive(:recipes).and_return(@recipes)
     end
   end
   

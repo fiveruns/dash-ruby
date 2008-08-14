@@ -27,8 +27,8 @@ module Fiveruns::Dash
     end
     
     def recipe_metadata
-      configuration.recipes.inject({}) do |recipes, recipe|
-        recipes.update(recipe.info)
+      configuration.recipes.inject([]) do |recipes, recipe|
+        recipes << recipe.info
       end
     end
     

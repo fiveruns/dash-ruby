@@ -28,6 +28,17 @@ class SessionTest < Test::Unit::TestCase
         assert_equal @metrics.size, session.data[:metrics].size
       end
     end
+    
+    context "info" do
+      should "have metric_infos" do
+        assert_kind_of Hash, session.info[:metric_infos]
+        assert_equal @metrics.size, session.info[:metric_infos].size
+      end
+      should "have recipes" do
+        assert_kind_of Array, session.info[:recipes]
+      end
+      
+    end
 
   end
 
