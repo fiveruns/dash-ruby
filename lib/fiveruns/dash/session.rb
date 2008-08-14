@@ -20,6 +20,19 @@ module Fiveruns::Dash
     end
     
     def info
+      {
+        :recipes => recipe_metadata,
+        :metric_infos => metric_metadata
+      }
+    end
+    
+    def recipe_metadata
+      configuration.recipes.inject({}) do |recipes, recipe|
+        recipes.update(recipe.info)
+      end
+    end
+    
+    def metric_metadata
       configuration.metrics.inject({}) do |metrics, metric|
         metrics.update(metric.info)
       end

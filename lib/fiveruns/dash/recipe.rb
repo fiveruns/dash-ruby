@@ -40,6 +40,13 @@ module Fiveruns::Dash
     def ==(other)
       name == other.name && other.options == options
     end
+    
+    def info
+      {
+        :name => name,
+        :url => url
+      }
+    end
         
     #######
     private

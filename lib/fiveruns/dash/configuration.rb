@@ -44,13 +44,20 @@ module Fiveruns::Dash
       @metrics ||= []
     end
     
+    def recipes
+      @recipes ||= []
+    end
+    
     # Merge in an existing recipe
     # call-seq:
     #   add_recipe :ruby
     def add_recipe(name, options = {})
       if Fiveruns::Dash.recipes[name]
         Fiveruns::Dash.recipes[name].each do |recipe|
-          recipe.add_to(self) if recipe.matches?(options)
+          if !recipes.include?(recipe) && recipe.matches?(options)
+            recipes << recipe
+            recipe.add_to(self) 
+          end
         end
       else
         raise ArgumentError, "No such recipe: #{name}"
