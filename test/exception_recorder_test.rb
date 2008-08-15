@@ -6,6 +6,7 @@ class ExceptionRecorderTest < Test::Unit::TestCase
   attr_reader :recorder, :exceptions
 
   context "ExceptionRecorder" do
+    
     setup do
       @recorder = Fiveruns::Dash::ExceptionRecorder.new(flexmock(:session))
       flexmock(ExceptionRecorder).should_receive(:replacements).and_return({

@@ -75,7 +75,7 @@ module Fiveruns
       }
     end
 
-    def serialize( sample )
+    def serialize(sample)
       YAML::dump(sample)
     end
     

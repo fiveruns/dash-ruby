@@ -3,7 +3,7 @@ require File.dirname(__FILE__) << "/test_helper"
 class RecipeTest < Test::Unit::TestCase
   
   attr_reader :config
-
+  
   context "Recipe" do
 
     setup do

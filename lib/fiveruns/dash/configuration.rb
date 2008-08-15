@@ -48,6 +48,12 @@ module Fiveruns::Dash
       @recipes ||= []
     end
     
+    def add_exceptions_from(*meths, &block)
+      block = block ? block : lambda { }
+      meths.push :exceptions => true
+      Instrument.add(*meths, &block)
+    end
+    
     # Merge in an existing recipe
     # call-seq:
     #   add_recipe :ruby

@@ -12,6 +12,10 @@ get '/' do
   "Welcome to Sinatra"
 end
 
+get '/blowup' do
+  raise 'b0rk!!'
+end
+
 def fetch(metric, reset = 0)
   returning $metrics[metric] do
     $metrics[metric] = reset
@@ -25,6 +29,7 @@ def start_dash_once
       metrics.counter :requests, "Number of Requests" do
         fetch :requests
       end
+      metrics.add_exceptions_from 'Sinatra::Application#run_safely'
     end
     true
   end

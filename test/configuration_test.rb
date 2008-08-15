@@ -1,9 +1,9 @@
 require File.dirname(__FILE__) << "/test_helper"
 
 class ConfigurationTest < Test::Unit::TestCase
+  
+   context "Configuration" do
 
-  context "Configuration" do
-    
     setup do
       no_recipe_loading!
       mock_streams!

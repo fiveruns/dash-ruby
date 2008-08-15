@@ -15,6 +15,7 @@ module Fiveruns::Dash
     #
     # Add a handler to be called every time a method is invoked
     def self.add(*raw_targets, &handler)
+      options = raw_targets.last.is_a?(Hash) ? raw_targets.pop : {}
       raw_targets.each do |raw_target|
         obj, meth = case raw_target
         when /^(.+)#(.+)$/
@@ -24,7 +25,7 @@ module Fiveruns::Dash
         else
           raise Error, "Bad target format: #{raw_target}"
         end
-        instrument(obj, meth, &handler)
+        instrument(obj, meth, options, &handler)
       end
     end  
     
@@ -32,21 +33,31 @@ module Fiveruns::Dash
     private
     #######
 
-    def self.instrument(obj, meth, &handler)
+    def self.instrument(obj, meth, options = {}, &handler)
       handlers << handler unless handlers.include?(handler)
       offset = handlers.size - 1
       identifier = "instrument_#{handler.hash}"
       code = wrapping meth, identifier do |without|
-        <<-CONTENTS
-          # Invoke and time
-          _start = Time.now
-          _result = #{without}(*args, &block)
-          _time = Time.now - _start
-          # Call handler (don't change *args!)
-          ::Fiveruns::Dash::Instrument.handlers[#{offset}].call(self, _time, *args)
-          # Return the original result
-          _result
-        CONTENTS
+        if options[:exceptions]
+          <<-EXCEPTIONS
+            #{without}(*args, &block)
+          rescue Exception => _e
+            _sample = ::Fiveruns::Dash::Instrument.handlers[#{offset}].call(self, *args)
+            ::Fiveruns::Dash.session.add_exception(_e, _sample)
+            raise
+          EXCEPTIONS
+        else
+          <<-PERFORMANCE
+            # Invoke and time
+            _start = Time.now          
+            _result = #{without}(*args, &block)
+            _time = Time.now - _start
+            # Call handler (don't change *args!)
+            ::Fiveruns::Dash::Instrument.handlers[#{offset}].call(self, _time, *args)
+            # Return the original result
+            _result
+          PERFORMANCE
+        end
       end
       obj.module_eval code
       identifier
