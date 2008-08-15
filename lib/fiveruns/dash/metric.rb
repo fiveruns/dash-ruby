@@ -100,12 +100,11 @@ module Fiveruns::Dash
     # Note: only to be used when the +@operation+
     #       block is used to set contexts
     def find_containers(*args, &block) #:nodoc:
-      contexts = context_finder.call(*args)
-      if contexts.all? { |item| !item.is_a?(Array) }
-        contexts = [contexts]
-      end
+      contexts = Array(context_finder.call(*args))
       if contexts.empty? || contexts == [[]]
         contexts = [nil]
+      elsif contexts.all? { |item| !item.is_a?(Array) }
+        contexts = [contexts]
       end
       contexts.each do |context|
         with_container_for_context(context, &block)
