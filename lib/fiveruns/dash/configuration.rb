@@ -73,7 +73,7 @@ module Fiveruns::Dash
     # Lookup metrics for modification by subsequent recipes
     def modify(criteria = {})
       metrics.each do |metric|
-        if criteria.all? { |k, v| metric.key[k] == v }
+        if criteria.all? { |k, v| metric.key[k].to_s == v.to_s }
           yield metric
         end
       end        

@@ -63,7 +63,7 @@ module Fiveruns::Dash
     
     def send_info_update
       @info_update_sent ||= begin
-        Fiveruns::Dash.logger.warn "Sending info: #{@session.info.inspect}"
+        Fiveruns::Dash.logger.debug "Sending info: #{@session.info.inspect}"
         payload = InfoPayload.new(@session.info, @started_at)
         Update.new(payload, @session.configuration).store(*update_locations)
       end
@@ -71,7 +71,9 @@ module Fiveruns::Dash
     
     def send_data_update
       if @info_update_sent
-        payload = DataPayload.new(@session.data)
+        data = @session.data
+        payload = DataPayload.new(data)
+        Fiveruns::Dash.logger.debug "Sending data: #{data.inspect}"
         Update.new(payload, @session.configuration).store(*update_locations)
       else
         # Discard data

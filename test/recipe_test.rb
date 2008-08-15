@@ -112,7 +112,7 @@ class RecipeTest < Test::Unit::TestCase
         end
         should "only occur on addition" do
           config.metrics.each do |metric|
-            if metric.name == :countme
+            if metric.name == 'countme'
               assert_nil metric.instance_eval { @metric_finder }
             end
           end
@@ -120,7 +120,7 @@ class RecipeTest < Test::Unit::TestCase
         should "change context finder" do
           config.add_recipe :test3
           config.metrics.each do |metric|
-            if metric.name == :countme
+            if metric.name == 'countme'
               assert_kind_of Proc, metric.instance_eval { @metric_finder }
             end
           end
