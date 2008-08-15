@@ -19,6 +19,12 @@ require 'dash/instrument'
 module Fiveruns
   
   module Dash
+    
+    START_TIME = Time.now.utc
+    
+    def self.process_age
+      Time.now.utc - START_TIME
+    end
             
     def self.logger
       @logger ||= Logger.new($stdout)

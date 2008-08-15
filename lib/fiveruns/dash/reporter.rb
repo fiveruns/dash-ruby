@@ -21,7 +21,7 @@ module Fiveruns::Dash
     def start(run_in_background = true)
       restarted = @started_at ? true : false
       unless defined?(@started_at)
-        @started_at = Time.now.utc
+        @started_at = ::Fiveruns::Dash::START_TIME
       end
       setup_for run_in_background
       if @background
