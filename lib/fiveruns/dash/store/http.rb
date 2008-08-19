@@ -31,6 +31,7 @@ module Fiveruns::Dash::Store
       yield
     rescue Exception => e
       Fiveruns::Dash.logger.error "Could not access service: #{e.message}"
+      Fiveruns::Dash.logger.error e.backtrace.join("\n\t")
       false
     end
     

@@ -6,6 +6,7 @@ module Fiveruns::Dash
     def self.matching(startpath)
       types.each do |name, klass|
         if path = locate_upwards(startpath, ".#{name}")
+          Fiveruns::Dash.logger.info "SCM: Found #{name} in #{path}"
           return klass.new(path)
         end
       end
@@ -102,7 +103,7 @@ module Fiveruns::Dash
     end
 
     def svn_info
-      `svn info`
+      `svn info #{@path}`
     end
     
   end
