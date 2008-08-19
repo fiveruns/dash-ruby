@@ -1,6 +1,8 @@
 require 'rubygems'
 require 'activesupport'
 
+require 'thread'
+
 require 'logger'
 
 $:.unshift(File.dirname(__FILE__))
@@ -15,10 +17,13 @@ require 'dash/scm'
 require 'dash/exception_recorder'
 require 'dash/recipe'
 require 'dash/instrument'
+require 'dash/threads'
 
 module Fiveruns
   
   module Dash
+    
+    include Threads
     
     START_TIME = Time.now.utc
     

@@ -61,7 +61,8 @@ module Fiveruns::Dash
     end
     
     def value_hash
-      {:value => parse_value(@operation.call)}
+      current_value = ::Fiveruns::Dash.sync { @operation.call }
+      {:value => parse_value(current_value)}
     end
     
     # Verifies value matches one of the following patterns:
@@ -100,7 +101,7 @@ module Fiveruns::Dash
     # Note: only to be used when the +@operation+
     #       block is used to set contexts
     def find_containers(*args, &block) #:nodoc:
-      contexts = Array(context_finder.call(*args))
+      contexts = Array(current_context_for(*args))
       if contexts.empty? || contexts == [[]]
         contexts = [nil]
       elsif contexts.all? { |item| !item.is_a?(Array) }
@@ -111,10 +112,16 @@ module Fiveruns::Dash
       end
     end
     
+    # Get the container for this context, allow modifications to it,
+    # and store it
+    # * Note: We sync here when looking up the container, while
+    #         the block is being executed, and when it is stored
     def with_container_for_context(context)
-      container = @data[context]
-      new_container = yield container
-      @data[context] = new_container # For hash defaults
+      ::Fiveruns::Dash.sync do
+        container = @data[context]
+        new_container = yield container
+        @data[context] = new_container # For hash defaults
+      end
     end
     
     def context_finder
@@ -122,6 +129,12 @@ module Fiveruns::Dash
         context_setting = @options[:context] || @options[:contexts]
         context_setting.is_a?(Proc) ? context_setting : lambda { |*args| Array(context_setting) } 
       end
+    end
+    
+    # Retrieve the context for the given arguments
+    # * Note: We need to sync here (and wherever the context is modified)
+    def current_context_for(*args)
+      ::Fiveruns::Dash.sync { context_finder.call(*args) }
     end
     
   end
@@ -135,7 +148,9 @@ module Fiveruns::Dash
     end
     
     def reset
-      @data = Hash.new {{ :invocations => 0, :value => 0 }}
+      ::Fiveruns::Dash.sync do
+        @data = Hash.new {{ :invocations => 0, :value => 0 }}
+      end
     end
     
     #######
@@ -143,7 +158,7 @@ module Fiveruns::Dash
     #######
     
     def value_hash
-      returning(:value => @data) do
+      returning(:value => current_value) do
         reset
       end
     end
@@ -172,6 +187,14 @@ module Fiveruns::Dash
       end
     end
     
+    # Get the current value
+    # * Note: We sync here (and wherever @data is being written)
+    def current_value
+      ::Fiveruns::Dash.sync do
+        @data
+      end
+    end
+    
   end
       
   class CounterMetric < Metric
@@ -186,8 +209,7 @@ module Fiveruns::Dash
     
     def value_hash
       if incrementing_methods.any?
-        @data[nil] = @data.fetch(nil, 0)
-        returning(:value => @data) do
+        returning(:value => current_value) do
           reset
         end
       else
@@ -210,8 +232,10 @@ module Fiveruns::Dash
       end
     end
     
+    # Reset the current value
+    # * Note: We sync here (and wherever @data is being written)
     def reset
-      @data = Hash.new(0)
+      ::Fiveruns::Dash.sync { @data = Hash.new(0) }
     end     
     
     def incrementing_methods
@@ -221,6 +245,16 @@ module Fiveruns::Dash
     def validate!
       if !@options[:incremented_by]
         raise ArgumentError, "No block given to capture counter `#{@name}'" unless @operation
+      end
+    end
+    
+    # Get the current value
+    # * Note: We sync here (and wherever @data is being written)
+    def current_value
+      ::Fiveruns::Dash.sync do
+        # Ensure the nil context is stored with a default of 0
+        @data[nil] = @data.fetch(nil, 0)
+        @data
       end
     end
     
