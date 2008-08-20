@@ -69,7 +69,7 @@ class MetricTest < Test::Unit::TestCase
         finder = lambda { |obj, *args| [:class, obj.name] }
         @metric.find_context_with(&finder)
         invoke 4
-        assert_equal 4, metric.data[:value][[:class, 'MetricTest']][:invocations]
+        assert_equal 4, metric.data[:values].select { |m| m[:context] == [:class, 'MetricTest'] }.first[:invocations]
       end
     end
 
@@ -112,14 +112,14 @@ class MetricTest < Test::Unit::TestCase
     counted = nil
     assert_nothing_raised do
       # We fetch to ensure values aren't just being returned due to hash defaults
-      counted = metric.data[:value].fetch(nil)
+      counted = metric.data[:values].detect { |m| m[:context] == nil }[:value]
     end
     assert_kind_of Numeric, counted
     assert_equal number, counted
   end
   
   def assert_invocations_reported(number = 1)
-    assert_equal number, metric.data[:value][nil][:invocations]
+    assert_equal number, metric.data[:values].detect { |m| m[:context] == nil }[:invocations]
   end
 
   def invoke(number = 1)

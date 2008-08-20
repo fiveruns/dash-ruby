@@ -62,7 +62,7 @@ module Fiveruns::Dash
     
     def value_hash
       current_value = ::Fiveruns::Dash.sync { @operation.call }
-      {:value => parse_value(current_value)}
+      {:values => parse_value(current_value)}
     end
     
     # Verifies value matches one of the following patterns:
@@ -74,13 +74,13 @@ module Fiveruns::Dash
       when Numeric
         value
       when Hash
-        value.inject({}) do |all, (key, val)|
+        value.inject([]) do |all, (key, val)|
           case key
           when nil
-            all[key] = val
+            all.push :context => nil, :value => val
           when Array
             if key.size % 2 == 0
-              all[key.in_groups_of(2)] = val
+              all.push :context => key, :value => val
             else
               bad_value! "Contexts must have an even number of items"
             end
@@ -158,7 +158,7 @@ module Fiveruns::Dash
     #######
     
     def value_hash
-      returning(:value => current_value) do
+      returning(:values => current_value) do
         reset
       end
     end
@@ -191,7 +191,9 @@ module Fiveruns::Dash
     # * Note: We sync here (and wherever @data is being written)
     def current_value
       ::Fiveruns::Dash.sync do
-        @data
+        @data.inject([]) do |all, (context, data)|
+          all.push(data.merge(:context => context))
+        end
       end
     end
     
@@ -209,7 +211,7 @@ module Fiveruns::Dash
     
     def value_hash
       if incrementing_methods.any?
-        returning(:value => current_value) do
+        returning(:values => current_value) do
           reset
         end
       else
@@ -251,11 +253,12 @@ module Fiveruns::Dash
     # Get the current value
     # * Note: We sync here (and wherever @data is being written)
     def current_value
-      ::Fiveruns::Dash.sync do
+      result = ::Fiveruns::Dash.sync do
         # Ensure the nil context is stored with a default of 0
         @data[nil] = @data.fetch(nil, 0)
         @data
       end
+      parse_value result
     end
     
   end
