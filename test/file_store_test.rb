@@ -32,7 +32,7 @@ class FileStoreTest < Test::Unit::TestCase
   #######
   
   def files
-    Dir[File.dirname(__FILE__) << "/tmp/**/*.yml"]
+    Dir[File.dirname(__FILE__) << "/tmp/**/*.json"]
   end
   
   def mock_storage!

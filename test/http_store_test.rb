@@ -44,7 +44,7 @@ class HTTPStoreTest < Test::Unit::TestCase
         setup do
           FakeWeb.register_uri full_urls(:processes).first, :string => 'FAIL!', :exception => Net::HTTPError
           full_urls(:processes)[1..-1].each do |url|
-            FakeWeb.register_uri url, :status => 201, :string => File.read(File.dirname(__FILE__) << "/fixtures/http_store_test/response.yml")
+            FakeWeb.register_uri url, :status => 201, :string => File.read(File.dirname(__FILE__) << "/fixtures/http_store_test/response.json")
           end
         end
         should "fallback to working URL" do
@@ -114,7 +114,7 @@ class HTTPStoreTest < Test::Unit::TestCase
   def full_uris(service)
     @urls.map do |url|
       uri = URI.parse(url)
-      uri.path = "/apps/123/#{service}.yml"
+      uri.path = "/apps/123/#{service}.json"
       uri
     end
   end

@@ -43,7 +43,7 @@ module Fiveruns::Dash::Store
       case response.code.to_i
       when 201
         if payload.is_a?(Fiveruns::Dash::InfoPayload)
-          data = YAML.load(response.body)
+          data = JSON.load(response.body)
           Fiveruns::Dash.process_id = data['process_id']
           data['metric_infos'].each do |key, info_id|
             metric = configuration.metrics.detect { |metric| normalize_key(metric.key) ==  normalize_key(key) }
@@ -76,7 +76,7 @@ module Fiveruns::Dash::Store
         else
           raise ArgumentError, 'Unknown payload type: #{payload.class}'
         end
-        new_uri.path = ::File.join('/apps', app_token, "#{component}.yml")
+        new_uri.path = ::File.join('/apps', app_token, "#{component}.json")
       end
     end
     
@@ -134,7 +134,7 @@ module Fiveruns::Dash::Store
       def headers_for(name, value)
         if value.respond_to?(:read)
           [
-            %(Content-Disposition: form-data; name="#{name}"; filename="metrics.yml.gz"),
+            %(Content-Disposition: form-data; name="#{name}"; filename="metrics.json.gz"),
             %(Content-Transfer-Encoding: binary),
             %(Content-Type: application/octet-stream)
           ]

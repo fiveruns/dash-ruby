@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'activesupport'
+require 'json'
 
 require 'thread'
 

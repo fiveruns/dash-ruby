@@ -63,13 +63,13 @@ module Fiveruns::Dash
         io.rewind
       end
     end
-
-    def to_yaml_type
-      raise NotImplementedError, "Abstract payload type"
-    end
     
     def params
       {}
+    end
+    
+    def to_json
+      @data.to_json
     end
     
     #######
@@ -77,7 +77,7 @@ module Fiveruns::Dash
     #######
 
     def compressed
-      Zlib::Deflate.deflate(to_yaml)
+      Zlib::Deflate.deflate(to_json)
     end
 
   end
@@ -87,11 +87,9 @@ module Fiveruns::Dash
       super(data)
       @started_at = started_at
     end
-    def to_yaml_type
-      "!dash.fiveruns.com,2008-07/info"
-    end
     def params
       params = { 
+        :type => 'info',
         :ip => Fiveruns::Dash.host.ip_address,
         :mac => Fiveruns::Dash.host.mac_address,
         :hostname => Fiveruns::Dash.host.hostname,
@@ -118,11 +116,9 @@ module Fiveruns::Dash
   end
   
   class DataPayload < Payload
-    def to_yaml_type
-      "!dash.fiveruns.com,2008-07/data"
-    end
     def params
       { 
+        :type => 'data',
         :collected_at => Time.now.utc,
         :process_id => Fiveruns::Dash.process_id,
       }

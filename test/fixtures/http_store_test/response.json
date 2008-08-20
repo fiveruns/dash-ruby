@@ -1,0 +1,6 @@
+{
+  "process_id":1,
+  "metric_infos": [
+    {"id":1, "name":"MetricTest.time_me","recipe_url":null, "recipe_name":null}
+  ]
+}
