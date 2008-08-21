@@ -54,6 +54,7 @@ module Fiveruns::Dash
         send_info_update
         sleep @interval
         send_data_update
+        send_exceptions_update
       end
     end
     
@@ -66,6 +67,23 @@ module Fiveruns::Dash
         payload = InfoPayload.new(@session.info, @started_at)
         Fiveruns::Dash.logger.debug "Sending info: #{payload.to_json}"
         Update.new(payload, @session.configuration).store(*update_locations)
+      end
+    end
+    
+    def send_exceptions_update
+      if @info_update_sent
+        data = @session.exception_data
+        if data.empty?
+          Fiveruns::Dash.logger.debug "No exceptions for this interval"
+        else
+          payload = ExceptionsPayload.new(data)
+          Fiveruns::Dash.logger.debug "Sending exceptions: #{payload.to_json}"
+          Update.new(payload, @session.configuration).store(*update_locations)
+        end        
+      else
+        # Discard data
+        @session.reset
+        Fiveruns::Dash.logger.warn "Discarding interval exceptions"
       end
     end
     

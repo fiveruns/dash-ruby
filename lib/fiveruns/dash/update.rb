@@ -115,6 +115,16 @@ module Fiveruns::Dash
     
   end
   
+  class ExceptionsPayload < Payload
+    def params
+      {
+        :type => 'exceptions',
+        :collected_at => Time.now.utc,
+        :process_id => Fiveruns::Dash.process_id
+      }
+    end
+  end
+  
   class DataPayload < Payload
     def params
       { 

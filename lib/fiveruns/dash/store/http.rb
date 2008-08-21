@@ -21,7 +21,8 @@ module Fiveruns::Dash::Store
         http = Net::HTTP.new(uri.host, uri.port)
         http.use_ssl = true if uri.scheme == 'https'
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-        multipart = Multipart.new(payload.io, payload.params)
+        extra_params = extra_params_for(payload)
+        multipart = Multipart.new(payload.io, payload.params.merge(extra_params))
         response = http.post(uri.request_uri, multipart.to_s, "Content-Type" => multipart.content_type)
       end
       check_response_of response
@@ -69,15 +70,26 @@ module Fiveruns::Dash::Store
     
     def add_path_to(uri)
       returning uri.dup do |new_uri|
-        component = case payload
+        path = case payload
         when Fiveruns::Dash::InfoPayload
-          :processes
+          ::File.join('/apps', app_token, "processes.json")
         when Fiveruns::Dash::DataPayload
-          :metrics
+          ::File.join('/apps', app_token, "metrics.json")
+        when Fiveruns::Dash::ExceptionsPayload
+          '/exceptions.json'
         else
           raise ArgumentError, 'Unknown payload type: #{payload.class}'
         end
-        new_uri.path = ::File.join('/apps', app_token, "#{component}.json")
+        new_uri.path = path
+      end
+    end
+    
+    def extra_params_for(payload)
+      case payload
+      when Fiveruns::Dash::ExceptionsPayload
+        {:app_id => app_token}
+      else
+        Hash.new
       end
     end
     

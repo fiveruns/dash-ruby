@@ -72,7 +72,7 @@ class HTTPStoreTest < Test::Unit::TestCase
     context "with data payload" do
 
       setup do
-        @payload = DataPayload.new({:foo => 'bar'})
+        @payload = DataPayload.new([{:metric_info_id => 123, :name => 'bar'}])
       end
     
       context "fallback URLs" do
@@ -103,6 +103,53 @@ class HTTPStoreTest < Test::Unit::TestCase
 
     end
     
+    context "with exceptions payload" do
+
+      setup do
+        @payload = ExceptionsPayload.new([
+          {
+            :name => 'FooError',
+            :message => 'Fake Foo Error',
+            :backtrace => '--- This is not real',
+            :total => 3
+          },
+          {
+            :name => 'BarError',
+            :message => 'Fake Bar Error',
+            :backtrace => '--- This is not real',
+            :total => 10
+          }
+        ])
+      end
+    
+      context "fallback URLs" do
+        context "on connection error" do
+          setup do
+            FakeWeb.register_uri full_urls(:exceptions).first, :string => 'FAIL!', :exception => Net::HTTPError
+            full_urls(:exceptions)[1..-1].each do |url|
+              FakeWeb.register_uri url, :string => 'OK!', :status => 201
+            end
+          end
+          should "fallback to working URL" do
+            returning @update.store_http(*uris) do |pass_uri|
+              assert_equal uris[1], pass_uri
+            end
+          end
+        end
+        context "on non-201 response" do
+          setup do
+            [500, 403, 200].zip(full_urls(:exceptions)).each do |status, url|
+              FakeWeb.register_uri url, :string => 'Not what we want', :status => status
+            end
+          end
+          should "not succeed" do
+            assert !@update.store_http(*uris)
+          end
+        end
+      end
+
+    end    
+    
   end
   
   #######
@@ -116,7 +163,11 @@ class HTTPStoreTest < Test::Unit::TestCase
   def full_uris(service)
     @urls.map do |url|
       uri = URI.parse(url)
-      uri.path = "/apps/123/#{service}.json"
+      uri.path = if service == :exceptions
+        '/exceptions.json'
+      else
+        "/apps/123/#{service}.json"
+      end
       uri
     end
   end

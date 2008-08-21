@@ -25,7 +25,7 @@ class SessionTest < Test::Unit::TestCase
     
     context "data" do
       should "have right number of metrics" do
-        assert_equal @metrics.size, session.data[:metrics].size
+        assert_equal @metrics.size, session.data.size
       end
     end
     

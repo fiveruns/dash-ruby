@@ -44,10 +44,11 @@ module Fiveruns::Dash
     end
     
     def data
-      {
-        :exceptions => exception_recorder.data,
-        :metrics => configuration.metrics.map { |metric| metric.data }.flatten
-      }
+      configuration.metrics.map { |metric| metric.data }.flatten
+    end
+    
+    def exception_data
+      exception_recorder.data
     end
     
     def exception_recorder
