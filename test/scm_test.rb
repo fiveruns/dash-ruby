@@ -30,7 +30,7 @@ class ScmTest < Test::Unit::TestCase
   
   context "All SCMs" do
     should "find .git in gems/fiveruns_dash on locate_upwards" do
-      assert_match %r(gems/fiveruns_dash$), SCM.send(:locate_upwards, File.dirname(__FILE__), ".git" )
+      assert_match %r(fiveruns_dash), SCM.send(:locate_upwards, File.dirname(__FILE__), ".git" )
     end
 
     should "return nil from locate_upwards when no .git" do
