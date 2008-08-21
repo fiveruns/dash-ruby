@@ -16,7 +16,7 @@ module Fiveruns::Dash
     end
     
     def info
-      {key => {:data_type => self.class.metric_type, :description => description}.merge(unit_info)}
+      key.merge(:data_type => self.class.metric_type, :description => description).merge(unit_info)
     end
         
     def data
@@ -72,7 +72,7 @@ module Fiveruns::Dash
     def parse_value(value)
       case value
       when Numeric
-        value
+        [{:context => nil, :value => value}]
       when Hash
         value.inject([]) do |all, (key, val)|
           case key

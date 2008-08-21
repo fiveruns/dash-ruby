@@ -33,8 +33,8 @@ module Fiveruns::Dash
     end
     
     def metric_metadata
-      configuration.metrics.inject({}) do |metrics, metric|
-        metrics.update(metric.info)
+      configuration.metrics.inject([]) do |metrics, metric|
+        metrics << metric.info
       end
     end
     

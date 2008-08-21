@@ -11,7 +11,7 @@ Echoe.new 'fiveruns_dash' do |p|
   p.summary = "Communication to the FiveRuns Dash service"
   p.url = "http://dash.fiveruns.com"
   p.include_rakefile = true
-  p.runtime_dependencies = %w(activesupport)
+  p.runtime_dependencies = %w(activesupport json)
   p.development_dependencies = %w(FakeWeb Shoulda)
   p.rcov_options = '--exclude gems --exclude version.rb --sort coverage --text-summary --html -o coverage'
 end
