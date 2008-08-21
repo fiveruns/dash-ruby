@@ -1,10 +1,13 @@
 require 'test/unit'
 require 'rubygems'
-require 'Shoulda'
-require 'flexmock/test_unit'
 
-require 'rubygems'
-require 'fake_web'
+begin
+  require 'shoulda'
+  require 'flexmock/test_unit'
+  require 'fake_web'
+rescue
+  puts "Please install the Shoulda, FakeWeb and flexmock gems to run the Dash plugin tests."
+end
 
 $:.unshift(File.dirname(__FILE__) << '/../lib')
 # Require library files
