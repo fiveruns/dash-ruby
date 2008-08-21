@@ -62,8 +62,8 @@ class MetricTest < Test::Unit::TestCase
         assert_equal 0, current_time_total
       end
       should "have correct info" do
-        assert_equal 'time_mes', metric.info.keys.first[:name]
-        assert_equal 'Time Mes', @metric.info.values.first[:description]
+        assert_equal 'time_mes', metric.info[:name]
+        assert_equal 'Time Mes', metric.info[:description]
       end
       should "be able to set context finder" do
         finder = lambda { |obj, *args| [:class, obj.name] }
