@@ -25,20 +25,22 @@ class HTTPStoreTest < Test::Unit::TestCase
       end
       @update = @klass.new
       no_recipe_loading!
-      mock_streams!
+   #   mock_streams!
     end
     
     teardown do
       FakeWeb.clean_registry
-      restore_streams!
+   #   restore_streams!
     end
     
     context "with info payload" do
       setup do
         @payload = InfoPayload.new({:pid => 987}, Time.now.utc)
+   #     restore_streams!
       end
       teardown do
         Fiveruns::Dash.process_id = nil
+   #     mock_streams!
       end
       context "on connection error" do
         setup do
