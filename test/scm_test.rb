@@ -40,6 +40,10 @@ class ScmTest < Test::Unit::TestCase
     should "return nil from locate_upwards when root on posix" do
       assert_nil SCM.send(:locate_upwards, "/", ".git" )
     end
+    
+    should "select the longest path when two available" do
+      assert_equal( "/Users/acf/foo/bar/baz" , SCM.send(:best_match, ["/Users/acf/foo/bar/baz", "/Users/acf/foo/bar/baz", "/Users/acf"]) )
+    end
 
   end
 

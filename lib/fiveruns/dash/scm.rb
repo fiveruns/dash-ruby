@@ -4,13 +4,21 @@ module Fiveruns::Dash
     include Typable
     
     def self.matching(startpath)
+      scm_hash = {}
       types.each do |name, klass|
         if path = locate_upwards(startpath, ".#{name}")
           Fiveruns::Dash.logger.info "SCM: Found #{name} in #{path}"
-          return klass.new(path)
+          scm_hash[path] = klass
         end
       end
-      nil
+      winning_path = best_match(scm_hash.keys)
+      return nil if winning_path.nil?
+      Fiveruns::Dash.logger.info "SCM: Using #{scm_hash[winning_path].name} in #{winning_path}" 
+      scm_hash[winning_path].new(winning_path)
+    end
+    
+    def self.best_match( scm_paths )
+      scm_paths.max{|a,b| a.split("/").length <=> b.split("/").length}
     end
     
     def initialize(path)
@@ -86,7 +94,8 @@ module Fiveruns::Dash
     end
     
     def time
-      DateTime.parse(@yaml['Last Changed Date'].split("(").first.strip)
+      datestring = @yaml['Last Changed Date']
+      datestring.nil? ? nil : DateTime.parse(datestring.split("(").first.strip)
     end
     
     def url
