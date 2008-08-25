@@ -7,6 +7,7 @@ module Fiveruns::Dash
     delegate :each, :to => :metrics
     
     def self.default_options
+      ::Fiveruns::Dash.logger.info "CWD::#{Dir.pwd.inspect}"
       {:scm_repo => Dir.pwd}
     end
     
