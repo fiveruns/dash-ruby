@@ -16,7 +16,7 @@ module Fiveruns::Dash
     end
     
     def info
-      key.merge(:data_type => self.class.metric_type, :description => description).merge(unit_info)
+      key.merge(:data_type => self.class.metric_type, :description => description, :aggregation => aggregation).merge(unit_info)
     end
     
     def aggregation
