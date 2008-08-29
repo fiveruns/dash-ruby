@@ -18,6 +18,19 @@ module Fiveruns::Dash
     def info
       key.merge(:data_type => self.class.metric_type, :description => description).merge(unit_info)
     end
+    
+    def aggregation
+      @aggregation ||= if @options[:aggregate]
+        case @options[:aggregate]
+        when Hash
+          @options[:aggregate]
+        else
+          {:host => @options[:aggregate], :app => @options[:aggregate]}
+        end
+      else
+        {}
+      end
+    end
         
     def data
       if info_id
@@ -53,7 +66,16 @@ module Fiveruns::Dash
     #######
     
     def validate!
-      true
+      validate_aggregation!
+    end
+    
+    def validate_aggregation!
+      bad = aggregation.values.select { |aggregation| ![:sum, :average].include?(aggregation) }
+      if bad.any?
+        raise ArgumentError, "Invalid aggregation types #{bad.inspect} (should be :sum or :average)"
+      else
+        true
+      end
     end
     
     def unit_info
@@ -181,6 +203,7 @@ module Fiveruns::Dash
     end
     
     def validate!
+      super
       raise ArgumentError, "Can not set :unit for `#{@name}' time metric" if @options[:unit]
       if methods_to_instrument.blank?
         raise ArgumentError, "Must set :method or :methods option for `#{@name}` time metric"
@@ -245,6 +268,7 @@ module Fiveruns::Dash
     end
     
     def validate!
+      super
       if !@options[:incremented_by]
         raise ArgumentError, "No block given to capture counter `#{@name}'" unless @operation
       end
@@ -266,6 +290,7 @@ module Fiveruns::Dash
   class PercentageMetric < Metric
     
     def validate!
+      super
       raise ArgumentError, "Can not set :unit for `#{@name}' percentage metric" if @options[:unit]
     end
       

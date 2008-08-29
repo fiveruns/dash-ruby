@@ -21,6 +21,25 @@ class MetricTest < Test::Unit::TestCase
       end
       ::Fiveruns::Dash::Instrument.handlers.clear
     end
+    
+    context "with custom aggregation" do
+      context "for all types" do
+        setup do
+          @metric = CounterMetric.new(:time_mes_counter, :incremented_by => time_method, :aggregate => :average)
+        end
+        should "set aggregate for host and app" do
+          assert_equal({:host => :average, :app => :average}, @metric.aggregation)
+        end
+      end
+      context "for one type" do
+        setup do
+          @metric = CounterMetric.new(:time_mes_counter, :incremented_by => time_method, :aggregate => {:host => :average})
+        end
+        should "set aggregate for one" do
+          assert_equal({:host => :average}, @metric.aggregation)
+        end
+      end
+    end
 
     context "using time" do
       setup do
