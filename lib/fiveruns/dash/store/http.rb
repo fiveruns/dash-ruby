@@ -31,14 +31,14 @@ module Fiveruns::Dash::Store
     def safely
       yield
     rescue Exception => e
-      Fiveruns::Dash.logger.error "Could not access service: #{e.message}"
+      Fiveruns::Dash.logger.error "Could not access Dash service: #{e.message}"
       Fiveruns::Dash.logger.error e.backtrace.join("\n\t")
       false
     end
     
     def check_response_of(response)
       unless response
-        Fiveruns::Dash.logger.debug "Received no response from service"
+        Fiveruns::Dash.logger.debug "Received no response from Dash service"
         return false
       end
       case response.code.to_i
@@ -58,11 +58,11 @@ module Fiveruns::Dash::Store
           end
         end
         true
-      when 403
-        Fiveruns::Dash.logger.warn "Not authorized to access the FiveRuns Dash service"
+      when 400..499
+         Fiveruns::Dash.logger.warn "Could not access Dash service (#{response.code.to_i}, #{response.body.inspect})"
         false
       else
-        Fiveruns::Dash.logger.debug "Received bad response from service (#{response.inspect})"
+        Fiveruns::Dash.logger.debug "Received unknown response from Dash service (#{response.inspect})"
         Fiveruns::Dash.logger.debug response.body
         false
       end

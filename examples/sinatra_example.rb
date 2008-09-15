@@ -1,11 +1,14 @@
 require File.dirname(__FILE__) << "/example_helper"
 
 require 'rubygems'
+
 require 'sinatra'
 
 unless defined?($metrics)
   $metrics = Hash.new(0)
 end
+
+p :ok
 
 get '/' do
   $metrics[:requests] += 1

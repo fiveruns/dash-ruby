@@ -2,7 +2,7 @@ examples/active_record.rb
 examples/example_helper.rb
 examples/http.rb
 examples/simple.rb
-examples/sinatra.rb
+examples/sin.rb
 lib/fiveruns/dash/configuration.rb
 lib/fiveruns/dash/exception_recorder.rb
 lib/fiveruns/dash/host.rb
