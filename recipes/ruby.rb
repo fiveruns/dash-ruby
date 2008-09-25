@@ -1,5 +1,5 @@
 Fiveruns::Dash.register_recipe :ruby, :url => 'http://dash.fiveruns.com' do |metrics|
-  metrics.absolute :rss, "Resident Memory Usage", :unit => 'byte', :aggregate => {:host => :sum, :app => :average} do 
+  metrics.absolute :rss, "Resident Memory Usage", :unit => 'bytes', :aggregate => {:host => :sum, :app => :average} do 
     Integer(`ps -o rss -p #{Process.pid}`[/(\d+)/, 1])
   end
   metrics.percentage :pmem, "Resident Memory Usage", :aggregate => {:host => :sum, :app => :average} do 
