@@ -19,6 +19,7 @@ require 'dash/exception_recorder'
 require 'dash/recipe'
 require 'dash/instrument'
 require 'dash/threads'
+require 'dash/trace'
 
 module Fiveruns
   

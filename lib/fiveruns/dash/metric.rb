@@ -129,6 +129,10 @@ module Fiveruns::Dash
       elsif contexts.all? { |item| !item.is_a?(Array) }
         contexts = [contexts]
       end
+      if Thread.current[:trace]
+        result = yield blank_data[nil]
+        Thread.current[:trace].add_data(self, contexts, result)
+      end
       contexts.each do |context|
         with_container_for_context(context, &block)
       end
@@ -171,13 +175,17 @@ module Fiveruns::Dash
     
     def reset
       ::Fiveruns::Dash.sync do
-        @data = Hash.new {{ :invocations => 0, :value => 0 }}
+        @data = blank_data
       end
     end
     
     #######
     private
     #######
+    
+    def blank_data
+      Hash.new {{ :invocations => 0, :value => 0 }}
+    end
     
     def value_hash
       returning(:values => current_value) do
@@ -260,8 +268,12 @@ module Fiveruns::Dash
     # Reset the current value
     # * Note: We sync here (and wherever @data is being written)
     def reset
-      ::Fiveruns::Dash.sync { @data = Hash.new(0) }
-    end     
+      ::Fiveruns::Dash.sync { @data = blank_data }
+    end
+    
+    def blank_data
+      Hash.new(0)
+    end
     
     def incrementing_methods
       @incrementing_methods ||= Array(@options[:incremented_by])

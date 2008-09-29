@@ -69,7 +69,12 @@ module Fiveruns::Dash
       format = meth =~ /^(.*?)(\?|!|=)$/ ? "#{$1}_%s_#{feature}#{$2}" : "#{meth}_%s_#{feature}" 
       <<-DYNAMIC
         def #{format % :with}(*args, &block)
-          #{yield(format % :without)}
+          _trace = Thread.current[:trace]
+          if _trace
+            _trace.step { #{yield(format % :without)} }
+          else
+            #{yield(format % :without)}
+          end
         end
         alias_method_chain :#{meth}, :#{feature}
       DYNAMIC
