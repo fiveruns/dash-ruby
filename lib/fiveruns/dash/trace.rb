@@ -2,8 +2,9 @@ module Fiveruns::Dash
   
   class Trace
     
-    attr_reader :data, :stack
-    def initialize
+    attr_reader :name, :data, :stack
+    def initialize(name)
+      @name = name
       @stack = []
     end
     
@@ -28,7 +29,9 @@ module Fiveruns::Dash
     end
         
     def to_json
-      (@data || {}).to_json
+      { :name => name,
+        :data => (@data || {})
+      }.to_json
     end
     
     class Step

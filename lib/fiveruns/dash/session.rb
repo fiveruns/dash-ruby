@@ -16,8 +16,8 @@ module Fiveruns::Dash
     end
     
     # Trace and send metric collection
-    def trace
-      Thread.current[:trace] = ::Fiveruns::Dash::Trace.new
+    def trace(name)
+      Thread.current[:trace] = ::Fiveruns::Dash::Trace.new(name)
       result = yield
       reporter.send_trace(Thread.current[:trace])
       Thread.current[:trace] = nil
