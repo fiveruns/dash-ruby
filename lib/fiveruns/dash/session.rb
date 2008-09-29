@@ -18,9 +18,10 @@ module Fiveruns::Dash
     # Trace and send metric collection
     def trace
       Thread.current[:trace] = ::Fiveruns::Dash::Trace.new
-      yield
+      result = yield
       reporter.send_trace(Thread.current[:trace])
       Thread.current[:trace] = nil
+      result
     end
     
     def add_exception(exception, sample=nil)
