@@ -11,7 +11,7 @@ class TracingTest < Test::Unit::TestCase
   context "Tracing" do
     
     setup do
-      Thread.current[:trace] = Fiveruns::Dash::Trace.new("A Simple Trace")
+      Thread.current[:trace] = Fiveruns::Dash::Trace.new([:subject, 'Test'])
     end
     
     teardown do

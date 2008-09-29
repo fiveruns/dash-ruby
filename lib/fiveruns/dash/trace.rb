@@ -2,10 +2,11 @@ module Fiveruns::Dash
   
   class Trace
     
-    attr_reader :name, :data, :stack
-    def initialize(name)
-      @name = name
+    attr_reader :context, :data, :stack
+    def initialize(context)
+      @context = context
       @stack = []
+      validate!
     end
     
     def step(&block)
@@ -29,9 +30,17 @@ module Fiveruns::Dash
     end
         
     def to_json
-      { :name => name,
+      { :context => context,
         :data => (@data || {})
       }.to_json
+    end
+    
+    private
+    
+    def validate!
+      unless @context.is_a?(Array) && @context.size % 2 == 0
+        raise ArgumentError, 'Invalid context: #{@context.inspect} (must be an array with an even number of elements)'
+      end
     end
     
     class Step
