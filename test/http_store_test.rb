@@ -18,8 +18,8 @@ class HTTPStoreTest < Test::Unit::TestCase
         mock.should_receive(:options).and_return(:app => '123')
         mock.should_receive(:metrics).and_return([@metric])
       end
+      flexmock(::Fiveruns::Dash).should_receive(:configuration).and_return(@configuration)
       flexmock(@klass).new_instances do |mock|
-        mock.should_receive(:configuration).and_return(@configuration)
         mock.should_receive(:payload).and_return { payload }
         mock.should_receive(:params).and_return(@params)
       end

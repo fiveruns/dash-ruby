@@ -40,11 +40,13 @@ module Fiveruns::Dash
       code = wrapping meth, identifier do |without|
         if options[:exceptions]
           <<-EXCEPTIONS
-            #{without}(*args, &block)
-          rescue Exception => _e
-            _sample = ::Fiveruns::Dash::Instrument.handlers[#{offset}].call(self, *args)
-            ::Fiveruns::Dash.session.add_exception(_e, _sample)
-            raise
+            begin
+              #{without}(*args, &block)
+            rescue Exception => _e
+              _sample = ::Fiveruns::Dash::Instrument.handlers[#{offset}].call(self, *args)
+              ::Fiveruns::Dash.session.add_exception(_e, _sample)
+              raise
+            end
           EXCEPTIONS
         else
           <<-PERFORMANCE
@@ -61,8 +63,11 @@ module Fiveruns::Dash
       end
       obj.module_eval code
       identifier
+    rescue SyntaxError => e
+      puts "Syntax error (#{e.message})\n#{code}"
+      raise
     rescue => e
-      raise Error, "Could not attach (#{e.message})"
+      raise Error, "Could not attach (#{e.message})\n#{code}"
     end
 
     def self.wrapping(meth, feature)
@@ -71,7 +76,9 @@ module Fiveruns::Dash
         def #{format % :with}(*args, &block)
           _trace = Thread.current[:trace]
           if _trace
-            _trace.step { #{yield(format % :without)} }
+            _trace.step do
+              #{yield(format % :without)}
+            end
           else
             #{yield(format % :without)}
           end

@@ -10,9 +10,10 @@ module Fiveruns::Dash
     include Store::HTTP
     include Store::File
     
-    attr_reader :payload
-    def initialize(payload)
+    attr_reader :payload, :handler
+    def initialize(payload, &handler)
       @payload = payload
+      @handler = handler
     end
     
     def store(*urls)

@@ -42,13 +42,13 @@ module Fiveruns::Dash::Store
         return false
       end
       case response.code.to_i
-      when 201
+      when 201        
         if payload.is_a?(Fiveruns::Dash::InfoPayload)
           data = JSON.load(response.body)
           Fiveruns::Dash.process_id = data['process_id']
           data['metric_infos'].each do |mapping|
             info_id = mapping.delete('id')
-            metric = configuration.metrics.detect { |metric| normalize_key(metric.key) ==  normalize_key(mapping) }
+            metric = ::Fiveruns::Dash.configuration.metrics.detect { |metric| normalize_key(metric.key) ==  normalize_key(mapping) }
             if metric
               metric.info_id = info_id
             else
@@ -100,7 +100,7 @@ module Fiveruns::Dash::Store
     end
     
     def app_token
-      configuration.options[:app]
+      ::Fiveruns::Dash.configuration.options[:app]
     end
 
     class Multipart
