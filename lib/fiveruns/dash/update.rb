@@ -10,10 +10,9 @@ module Fiveruns::Dash
     include Store::HTTP
     include Store::File
     
-    attr_reader :payload, :configuration
-    def initialize(payload, configuration)
+    attr_reader :payload
+    def initialize(payload)
       @payload = payload
-      @configuration = configuration
     end
     
     def store(*urls)
@@ -134,6 +133,15 @@ module Fiveruns::Dash
       }
     end
   end
-    
-          
+  
+  class TracePayload < Payload
+    def params
+      {
+        :type => 'trace',
+        :collected_at => Time.now.utc,
+        :process_id => Fiveruns::Dash.process_id 
+      }
+    end
+  end
+
 end

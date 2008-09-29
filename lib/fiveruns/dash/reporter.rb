@@ -44,6 +44,16 @@ module Fiveruns::Dash
       started? && @background
     end
     
+    def send_trace(trace)
+      if trace.data
+        payload = TracePayload(trace.data)
+        Fiveruns::Dash.logger.debug "Sending trace: #{payload.to_json}"
+        Update.new(payload).store(*update_locations)
+      else
+        Fiveruns::Dash.logger.debug "No trace to send"      
+      end
+    end
+    
     #######
     private
     #######
@@ -66,7 +76,7 @@ module Fiveruns::Dash
       @info_update_sent ||= begin
         payload = InfoPayload.new(@session.info, @started_at)
         Fiveruns::Dash.logger.debug "Sending info: #{payload.to_json}"
-        Update.new(payload, @session.configuration).store(*update_locations)
+        Update.new(payload).store(*update_locations)
       end
     end
     
@@ -78,7 +88,7 @@ module Fiveruns::Dash
         else
           payload = ExceptionsPayload.new(data)
           Fiveruns::Dash.logger.debug "Sending exceptions: #{payload.to_json}"
-          Update.new(payload, @session.configuration).store(*update_locations)
+          Update.new(payload).store(*update_locations)
         end        
       else
         # Discard data
@@ -92,7 +102,7 @@ module Fiveruns::Dash
         data = @session.data
         payload = DataPayload.new(data)
         Fiveruns::Dash.logger.debug "Sending data: #{payload.to_json}"
-        Update.new(payload, @session.configuration).store(*update_locations)
+        Update.new(payload).store(*update_locations)
       else
         # Discard data
         @session.reset

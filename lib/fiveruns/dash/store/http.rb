@@ -75,6 +75,8 @@ module Fiveruns::Dash::Store
           ::File.join('/apps', app_token, "processes.json")
         when Fiveruns::Dash::DataPayload
           ::File.join('/apps', app_token, "metrics.json")
+        when Fiveruns::Dash::TracePayload
+          ::File.join('/apps', app_token, "traces.json")
         when Fiveruns::Dash::ExceptionsPayload
           '/exceptions.json'
         else
