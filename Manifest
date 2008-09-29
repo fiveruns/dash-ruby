@@ -15,6 +15,7 @@ lib/fiveruns/dash/session.rb
 lib/fiveruns/dash/store/file.rb
 lib/fiveruns/dash/store/http.rb
 lib/fiveruns/dash/threads.rb
+lib/fiveruns/dash/trace.rb
 lib/fiveruns/dash/typable.rb
 lib/fiveruns/dash/update.rb
 lib/fiveruns/dash/version.rb
@@ -33,4 +34,5 @@ test/reporter_test.rb
 test/scm_test.rb
 test/session_test.rb
 test/test_helper.rb
+test/tracing_test.rb
 test/update_test.rb
