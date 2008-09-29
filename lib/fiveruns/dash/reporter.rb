@@ -46,7 +46,7 @@ module Fiveruns::Dash
     
     def send_trace(trace)
       if trace.data
-        payload = TracePayload.new(trace.data)
+        payload = TracePayload.new(trace)
         Fiveruns::Dash.logger.debug "Sending trace: #{payload.to_json}"
         Thread.new { Update.new(payload).store(*update_locations) }
       else
