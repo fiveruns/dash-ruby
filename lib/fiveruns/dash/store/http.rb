@@ -42,9 +42,10 @@ module Fiveruns::Dash::Store
         return false
       end
       case response.code.to_i
-      when 201        
+      when 201
+        data = JSON.load(response.body)
+        set_trace_contexts(data)
         if payload.is_a?(Fiveruns::Dash::InfoPayload)
-          data = JSON.load(response.body)
           Fiveruns::Dash.process_id = data['process_id']
           data['metric_infos'].each do |mapping|
             info_id = mapping.delete('id')
@@ -56,16 +57,25 @@ module Fiveruns::Dash::Store
               return false
             end
           end
-          Fiveruns::Dash.trace_contexts = data['traces']
         end
         true
       when 400..499
-         Fiveruns::Dash.logger.warn "Could not access Dash service (#{response.code.to_i}, #{response.body.inspect})"
+        Fiveruns::Dash.logger.warn "Could not access Dash service (#{response.code.to_i}, #{response.body.inspect})"
         false
       else
         Fiveruns::Dash.logger.debug "Received unknown response from Dash service (#{response.inspect})"
-        Fiveruns::Dash.logger.debug response.body
         false
+      end
+    rescue JSON::ParserError => e
+      puts response.body
+      Fiveruns::Dash.logger.error "Received non-JSON response (#{response.inspect})"
+      false
+    end
+    
+    def set_trace_contexts(data)
+      trace_contexts = data['traces']
+      if trace_contexts.is_a?(Array)
+        Fiveruns::Dash.trace_contexts = trace_contexts
       end
     end
     

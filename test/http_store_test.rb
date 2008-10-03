@@ -80,7 +80,7 @@ class HTTPStoreTest < Test::Unit::TestCase
           setup do
             FakeWeb.register_uri full_urls(:metrics).first, :string => 'FAIL!', :exception => Net::HTTPError
             full_urls(:metrics)[1..-1].each do |url|
-              FakeWeb.register_uri url, :string => 'OK!', :status => 201
+              FakeWeb.register_uri url, :string => '{"message" : "OK!"}', :status => 201
             end
           end
           should "fallback to working URL" do
@@ -127,7 +127,7 @@ class HTTPStoreTest < Test::Unit::TestCase
           setup do
             FakeWeb.register_uri full_urls(:exceptions).first, :string => 'FAIL!', :exception => Net::HTTPError
             full_urls(:exceptions)[1..-1].each do |url|
-              FakeWeb.register_uri url, :string => 'OK!', :status => 201
+              FakeWeb.register_uri url, :string => '{"message" : "OK!"}', :status => 201
             end
           end
           should "fallback to working URL" do
