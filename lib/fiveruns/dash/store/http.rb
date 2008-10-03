@@ -56,6 +56,7 @@ module Fiveruns::Dash::Store
               return false
             end
           end
+          Fiveruns::Dash.trace_contexts = data['traces']
         end
         true
       when 400..499

@@ -63,7 +63,7 @@ module Fiveruns
     end
         
     class << self
-      attr_accessor :process_id
+      attr_accessor :process_id, :trace_contexts
     end
     
     def self.register_recipe(name, options = {}, &block)
@@ -78,6 +78,10 @@ module Fiveruns
 
     def self.recipes
       @recipes ||= {}
+    end
+    
+    def self.trace_contexts
+      @trace_contexts ||= []
     end
         
     #######
