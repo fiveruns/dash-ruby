@@ -88,36 +88,38 @@ module Fiveruns::Dash
       @started_at = started_at
     end
     def params
-      params = { 
-        :type => 'info',
-        :ip => Fiveruns::Dash.host.ip_address,
-        :mac => Fiveruns::Dash.host.mac_address,
-        :hostname => Fiveruns::Dash.host.hostname,
-        :pid => Process.pid,
-        :os_name => Fiveruns::Dash.host.os_name,
-        :os_version => Fiveruns::Dash.host.os_version,
-        :pwd => Dir.pwd,
-        :arch => Fiveruns::Dash.host.architecture,
-        :dash_version => Fiveruns::Dash::Version::STRING,
-        :ruby_version => RUBY_VERSION,
-        :started_at => @started_at
-      }
-      if (scm = Fiveruns::Dash.scm)
-        params.update(
-          :scm_revision => scm.revision,
-          :scm_time => scm.time,
-          :scm_type => scm.class.scm_type,
-          :scm_url => scm.url
-        )
+      @params ||= begin
+        params = {
+          :type => 'info',
+          :ip => Fiveruns::Dash.host.ip_address,
+          :mac => Fiveruns::Dash.host.mac_address,
+          :hostname => Fiveruns::Dash.host.hostname,
+          :pid => Process.pid,
+          :os_name => Fiveruns::Dash.host.os_name,
+          :os_version => Fiveruns::Dash.host.os_version,
+          :pwd => Dir.pwd,
+          :arch => Fiveruns::Dash.host.architecture,
+          :dash_version => Fiveruns::Dash::Version::STRING,
+          :ruby_version => RUBY_VERSION,
+          :started_at => @started_at
+        }
+        if (scm = Fiveruns::Dash.scm)
+          params.update(
+            :scm_revision => scm.revision,
+            :scm_time => scm.time,
+            :scm_type => scm.class.scm_type,
+            :scm_url => scm.url
+          )
+        end
+        params
       end
-      params
     end
     
   end
   
   class ExceptionsPayload < Payload
     def params
-      {
+      @params ||= {
         :type => 'exceptions',
         :collected_at => Time.now.utc,
         :process_id => Fiveruns::Dash.process_id
@@ -127,7 +129,7 @@ module Fiveruns::Dash
   
   class DataPayload < Payload
     def params
-      { 
+      @params ||= {
         :type => 'data',
         :collected_at => Time.now.utc,
         :process_id => Fiveruns::Dash.process_id,
@@ -137,7 +139,7 @@ module Fiveruns::Dash
   
   class TracePayload < Payload
     def params
-      {
+      @params ||= {
         :type => 'trace',
         :collected_at => Time.now.utc,
         :process_id => Fiveruns::Dash.process_id 

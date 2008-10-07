@@ -61,9 +61,19 @@ module Fiveruns
         SCM.matching(configuration.options[:scm_repo])
       end
     end
+
+    # Support for multiple fake hosts in development
+    def self.process_id=(value)
+      @process_ids ||= []
+      @process_ids << value
+    end
+
+    def self.process_id
+      @process_ids[0]
+    end
         
     class << self
-      attr_accessor :process_id, :trace_contexts
+      attr_accessor :process_ids, :trace_contexts
     end
     
     def self.register_recipe(name, options = {}, &block)

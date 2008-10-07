@@ -77,6 +77,14 @@ module Fiveruns::Dash
         payload = InfoPayload.new(@session.info, @started_at)
         Fiveruns::Dash.logger.debug "Sending info: #{payload.to_json}"
         Update.new(payload).store(*update_locations)
+
+        host = payload.params[:hostname]
+        host_count.times do |idx|
+          payload.params[:mac] += idx.to_s
+          payload.params[:hostname] = host + idx.to_s
+          Fiveruns::Dash.logger.debug "Sending info: #{payload.to_json}"
+          Update.new(payload).store(*update_locations)
+        end
       end
     end
     
@@ -103,6 +111,12 @@ module Fiveruns::Dash
         payload = DataPayload.new(data)
         Fiveruns::Dash.logger.debug "Sending data: #{payload.to_json}"
         Update.new(payload).store(*update_locations)
+
+        host_count.times do |idx|
+          payload.params[:process_id] = Fiveruns::Dash.process_ids[idx+1]
+          Fiveruns::Dash.logger.debug "Sending data: #{payload.to_json}"
+          Update.new(payload).store(*update_locations)
+        end
       else
         # Discard data
         @session.reset
@@ -117,11 +131,15 @@ module Fiveruns::Dash
         default_update_locations
       end
     end
+
+    def host_count
+      ENV['DASH_FAKE_HOST_COUNT'].to_i
+    end
     
     def default_update_locations
       %w(https://dash-collector.fiveruns.com https://dash-collector02.fiveruns.com)
     end
-          
+
   end
       
 end
