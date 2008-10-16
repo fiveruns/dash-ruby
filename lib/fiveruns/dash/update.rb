@@ -75,6 +75,10 @@ module Fiveruns::Dash
     #######
     private
     #######
+    
+    def timestamp
+      Time.now.strftime("%Y/%m/%d %H:%M:%S %z")
+    end
 
     def compressed
       Zlib::Deflate.deflate(to_json)
@@ -121,7 +125,7 @@ module Fiveruns::Dash
     def params
       @params ||= {
         :type => 'exceptions',
-        :collected_at => Time.now.utc,
+        :collected_at => timestamp,
         :process_id => Fiveruns::Dash.process_id
       }
     end
@@ -131,7 +135,7 @@ module Fiveruns::Dash
     def params
       @params ||= {
         :type => 'data',
-        :collected_at => Time.now.utc,
+        :collected_at => timestamp,
         :process_id => Fiveruns::Dash.process_id,
       }
     end
@@ -141,7 +145,7 @@ module Fiveruns::Dash
     def params
       @params ||= {
         :type => 'trace',
-        :collected_at => Time.now.utc,
+        :collected_at => timestamp,
         :process_id => Fiveruns::Dash.process_id 
       }
     end
