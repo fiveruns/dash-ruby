@@ -5,18 +5,19 @@ module Fiveruns::Dash
   class Metric
     include Typable
     
-    attr_reader :name, :description, :options
+    attr_reader :name, :description, :help_text, :options
     attr_accessor :info_id, :recipe
     def initialize(name, *args, &block)
       @name = name.to_s
       @options = args.extract_options!
       @description = args.shift || @name.titleize
+      @help_text = args.shift || "#{self.class.name.demodulize}: #{@description}"
       @operation = block
       validate!
     end
     
     def info
-      key.merge(:data_type => self.class.metric_type, :description => description, :aggregation => aggregation).merge(unit_info)
+      key.merge(:data_type => self.class.metric_type, :description => description, :help_text => help_text, :aggregation => aggregation).merge(unit_info)
     end
     
     def aggregation

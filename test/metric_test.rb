@@ -22,6 +22,54 @@ class MetricTest < Test::Unit::TestCase
       ::Fiveruns::Dash::Instrument.handlers.clear
     end
     
+    context "should parse arguments for name, description and help_text" do
+      setup do
+        @options = Hash.new
+        @options[:method] = time_method
+        @metric = TimeMetric.new(:name, "Description", "HelpText", :method => time_method)
+      end
+      
+      should "interpret name" do
+        assert_equal "name", @metric.name
+      end
+
+      should "interpret description" do
+        assert_equal "Description", @metric.description
+      end
+
+      should "interpret help text" do
+        assert_equal "HelpText", @metric.help_text
+      end
+
+      should "interpret options" do
+        assert_equal @options, @metric.options
+      end
+    end
+    
+    context "should parse arguments for name, description and help_text using defaults" do
+      setup do
+        @options = Hash.new
+        @options[:method] = time_method
+        @metric = TimeMetric.new(:name, :method => time_method)
+      end
+      
+      should "interpret name" do
+        assert_equal "name", @metric.name
+      end
+
+      should "default description to titleized name" do
+        assert_equal "Name", @metric.description
+      end
+
+      should "default help text to class and description" do
+        assert_equal "TimeMetric: Name", @metric.help_text
+      end
+
+      should "interpret options" do
+        assert_equal @options, @metric.options
+      end
+    end
+
     context "with custom aggregation" do
       context "for all types" do
         setup do
