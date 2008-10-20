@@ -121,6 +121,9 @@ module Fiveruns::Dash
     
   end
   
+  class PingPayload < InfoPayload
+  end
+
   class ExceptionsPayload < Payload
     def params
       @params ||= {

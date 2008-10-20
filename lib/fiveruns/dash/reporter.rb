@@ -18,6 +18,10 @@ module Fiveruns::Dash
       start if !@thread || !@thread.alive?
     end
     
+    def alive?
+      @thread && @thread.alive? && started?
+    end
+
     def start(run_in_background = true)
       restarted = @started_at ? true : false
       unless defined?(@started_at)
@@ -54,6 +58,12 @@ module Fiveruns::Dash
       end
     end
     
+    def ping
+      payload = PingPayload.new(@session.info, @started_at)
+      Fiveruns::Dash.logger.debug "Ping: #{payload.to_json}"
+      Update.new(payload).store(*update_locations)
+    end
+
     #######
     private
     #######

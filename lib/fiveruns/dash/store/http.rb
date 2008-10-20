@@ -82,6 +82,8 @@ module Fiveruns::Dash::Store
     def add_path_to(uri)
       returning uri.dup do |new_uri|
         path = case payload
+        when Fiveruns::Dash::PingPayload
+          ::File.join('/apps', app_token, "ping")
         when Fiveruns::Dash::InfoPayload
           ::File.join('/apps', app_token, "processes.json")
         when Fiveruns::Dash::DataPayload
