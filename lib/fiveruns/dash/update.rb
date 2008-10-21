@@ -24,11 +24,11 @@ module Fiveruns::Dash
         http.use_ssl = true if url.scheme == 'https'
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
         multipart = Fiveruns::Dash::Store::HTTP::Multipart.new(payload.io, payload.params)
-        response = http.post(url.request_uri, multipart.to_s, "Content-Type" => multipart.content_type)
+        response = http.post("/apps/#{token}/ping", multipart.to_s, "Content-Type" => multipart.content_type)
         case response.code.to_i
         when 201
           data = JSON.load(response.body)
-          [:success, "Found application `#{data[:name]}`"]
+          [:success, "Found application '#{data['name']}'"]
         else
           # Error message
           [:failed, response.body.to_s]
@@ -36,6 +36,10 @@ module Fiveruns::Dash
       rescue => e
         [:error, e.message]
       end
+    end
+
+    def token
+      ::Fiveruns::Dash.configuration.options[:app]
     end
 
     def try_urls(urls)
