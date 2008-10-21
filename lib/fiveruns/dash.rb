@@ -65,10 +65,15 @@ module Fiveruns
     # Support for multiple fake hosts in development
     def self.process_id=(value)
       @process_ids ||= []
-      @process_ids << value
+      if value
+        @process_ids << value
+      else
+        @process_ids.clear
+      end
     end
 
     def self.process_id
+      @process_ids ||= []
       @process_ids[0]
     end
         
