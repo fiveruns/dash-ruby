@@ -17,20 +17,7 @@ module Fiveruns::Dash
     end
     
     def info
-      key.merge(:data_type => self.class.metric_type, :description => description, :help_text => help_text, :aggregation => aggregation).merge(unit_info)
-    end
-    
-    def aggregation
-      @aggregation ||= if @options[:aggregate]
-        case @options[:aggregate]
-        when Hash
-          @options[:aggregate]
-        else
-          {:host => @options[:aggregate], :app => @options[:aggregate]}
-        end
-      else
-        {}
-      end
+      key.merge(:data_type => self.class.metric_type, :description => description, :help_text => help_text).merge(unit_info)
     end
         
     def data
@@ -67,16 +54,6 @@ module Fiveruns::Dash
     #######
     
     def validate!
-      validate_aggregation!
-    end
-    
-    def validate_aggregation!
-      bad = aggregation.values.select { |aggregation| ![:sum, :average].include?(aggregation) }
-      if bad.any?
-        raise ArgumentError, "Invalid aggregation types #{bad.inspect} (should be :sum or :average)"
-      else
-        true
-      end
     end
     
     def unit_info
