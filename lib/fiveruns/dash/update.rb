@@ -4,12 +4,64 @@ require 'dash/store/http'
 require 'dash/store/file'
 
 module Fiveruns::Dash
-    
+
+  class Pinger
+
+    attr_reader :payload
+    def initialize(payload)
+      @payload = payload
+    end
+
+    def ping(*urls)
+      try_urls(urls) do |url|
+        send_ping(url, payload)
+      end
+    end
+
+    def send_ping(url, payload)
+      begin
+        http = Net::HTTP.new(url.host, url.port)
+        http.use_ssl = true if url.scheme == 'https'
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        multipart = Fiveruns::Dash::Store::HTTP::Multipart.new(payload.io, payload.params)
+        response = http.post(url.request_uri, multipart.to_s, "Content-Type" => multipart.content_type)
+        case response.code.to_i
+        when 201
+          data = JSON.load(response.body)
+          [:success, "Found application `#{data[:name]}`"]
+        else
+          # Error message
+          [:failed, response.body.to_s]
+        end
+      rescue => e
+        [:error, e.message]
+      end
+    end
+
+    def try_urls(urls)
+      results = urls.map do |u|
+        result = yield(URI.parse(u))
+        case result[0]
+        when :success
+          puts "OK: #{result[1]}"
+          true
+        when :failed
+          puts "Failed talking to #{u}: #{result[1]}"
+          false
+        when :error
+          puts "Error contacting #{u}: #{result[1]}"
+          false
+        end
+      end
+      results.all?
+    end
+  end
+
   class Update
-    
+
     include Store::HTTP
     include Store::File
-    
+
     attr_reader :payload, :handler
     def initialize(payload, &handler)
       @payload = payload
@@ -24,6 +76,10 @@ module Fiveruns::Dash
       return false
     end
     
+    def ping(*urls)
+      Pinger.new(payload).ping(*urls)
+    end
+
     def guid
       @guid ||= timestamp << "_#{Process.pid}"
     end

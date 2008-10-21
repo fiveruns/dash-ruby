@@ -60,8 +60,7 @@ module Fiveruns::Dash
     
     def ping
       payload = PingPayload.new(@session.info, @started_at)
-      Fiveruns::Dash.logger.debug "Ping: #{payload.to_json}"
-      Update.new(payload).store(*update_locations)
+      Update.new(payload).ping(*update_locations)
     end
 
     #######
