@@ -4,6 +4,10 @@ require 'json'
 
 require 'thread'
 
+# Replace Ruby's default native Resolv with the pure ruby Resolv
+# so DNS lookups do not block the entire process.
+require 'resolv-replace'
+
 require 'logger'
 
 $:.unshift(File.dirname(__FILE__))
