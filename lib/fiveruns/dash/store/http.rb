@@ -1,5 +1,9 @@
 require 'net/https'
 
+if defined?(Socket)
+  Socket.do_not_reverse_lookup=true
+end
+
 module Fiveruns::Dash::Store
   
   module HTTP
