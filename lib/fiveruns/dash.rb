@@ -8,7 +8,7 @@ require 'thread'
 # so DNS lookups do not block the entire process.
 # resolv-replace does not work for localhost on most Macs. Use 
 # 127.0.0.1 instead
-require 'resolv-replace'
+#require 'resolv-replace'
 
 require 'logger'
 
