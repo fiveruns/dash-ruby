@@ -85,15 +85,9 @@ module Fiveruns::Dash
       @info_update_sent ||= begin
         payload = InfoPayload.new(@session.info, @started_at)
         Fiveruns::Dash.logger.debug "Sending info: #{payload.to_json}"
-        Update.new(payload).store(*update_locations)
-
-        host = payload.params[:hostname]
-        host_count.times do |idx|
-          payload.params[:mac] += idx.to_s
-          payload.params[:hostname] = host + idx.to_s
-          Fiveruns::Dash.logger.debug "Sending info: #{payload.to_json}"
-          Update.new(payload).store(*update_locations)
-        end
+        result = Update.new(payload).store(*update_locations)
+        send_fake_info(payload)
+        result
       end
     end
     
@@ -119,13 +113,9 @@ module Fiveruns::Dash
         data = @session.data
         payload = DataPayload.new(data)
         Fiveruns::Dash.logger.debug "Sending data: #{payload.to_json}"
-        Update.new(payload).store(*update_locations)
-
-        host_count.times do |idx|
-          payload.params[:process_id] = Fiveruns::Dash.process_ids[idx+1]
-          Fiveruns::Dash.logger.debug "Sending data: #{payload.to_json}"
-          Update.new(payload).store(*update_locations)
-        end
+        result = Update.new(payload).store(*update_locations)
+        send_fake_data(payload)
+        result
       else
         # Discard data
         @session.reset
@@ -141,7 +131,25 @@ module Fiveruns::Dash
       end
     end
 
-    def host_count
+    def send_fake_data(payload)
+      fake_host_count.times do |idx|
+        payload.params[:process_id] = Fiveruns::Dash.process_ids[idx+1]
+        Fiveruns::Dash.logger.debug "Sending data: #{payload.to_json}"
+        Update.new(payload).store(*update_locations)
+      end
+    end
+
+    def send_fake_info(payload)
+      host = payload.params[:hostname]
+      fake_host_count.times do |idx|
+        payload.params[:mac] += idx.to_s
+        payload.params[:hostname] = host + idx.to_s
+        Fiveruns::Dash.logger.debug "Sending info: #{payload.to_json}"
+        Update.new(payload).store(*update_locations)
+      end
+    end
+
+    def fake_host_count
       ENV['DASH_FAKE_HOST_COUNT'].to_i
     end
     
