@@ -10,29 +10,36 @@ end
 
 class ReliabilityTest < Test::Unit::TestCase
   
-  context "The Dash plugin" do
+  context "FiveRuns Dash" do
     
     should 'not swallow user-created exceptions' do
-      TimeMetric.new(:oops, 'Time spent messing up', 'Ooops!', 
+      dash do |metrics|
+        metrics.time(:oops, 'Time spent messing up', 'Ooops!', 
                      :method => 'Gizmo#oops!')
+      end
+      
       assert_raises(RuntimeError) { Gizmo.new.oops! }
     end
     
     should 'report an exception if instrumentation cannot proceed' do
       assert_raises(Fiveruns::Dash::Instrument::Error) do
-        TimeMetric.new(:wheee, 'Time spent having fun', 'Wheeee!',
+        dash do |metrics|
+          metrics.time(:wheee, 'Time spent having fun', 'Wheeee!',
                        :method => 'Gizmo.wheeeeeeee!')
-        TimeMetric.new(:oops, 'Time spent messing up', 'Ooops!', 
+          metrics.time(:oops, 'Time spent messing up', 'Ooops!', 
                        :method => 'Gizmo#oops!')
+        end
       end
     end
     
     should 'not proceed with instrumentation if an error occurs' do
       begin
-        TimeMetric.new(:wheee, 'Time spent having fun', 'Wheeee!',
+        dash do |metrics|
+          metrics.time(:wheee, 'Time spent having fun', 'Wheeee!',
                        :method => 'Gizmo.wheeeeeeee!')
-        TimeMetric.new(:oops, 'Time spent messing up', 'Ooops!', 
+          metrics.time(:oops, 'Time spent messing up', 'Ooops!', 
                        :method => 'Gizmo#oops!')
+        end
       rescue Fiveruns::Dash::Instrument::Error
       end
       assert_equal 0, Fiveruns::Dash.configuration.metrics.length
@@ -42,6 +49,12 @@ class ReliabilityTest < Test::Unit::TestCase
       assert !Thread.abort_on_exception
     end
     
+  end
+  
+  def dash(&block)
+    Fiveruns::Dash.configure({:app => ENV['DASH_APP']}, &block)
+    Fiveruns::Dash.session.reporter.interval = 10
+    Fiveruns::Dash.session.start
   end
   
 end
