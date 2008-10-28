@@ -18,5 +18,11 @@ Echoe.new 'fiveruns_dash' do |p|
 end
 
 task :coverage do
+  if ccout = ENV['CC_BUILD_ARTIFACTS']
+    FileUtils.rm_rf '#{ccout}/coverage'
+    FileUtils.cp_r 'coverage', ccout
+  end
   system "open coverage/index.html" if PLATFORM['darwin']
 end
+
+task :cruise => [:test, :coverage]
