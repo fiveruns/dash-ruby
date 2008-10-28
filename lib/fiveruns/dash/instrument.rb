@@ -67,7 +67,7 @@ module Fiveruns::Dash
       puts "Syntax error (#{e.message})\n#{code}"
       raise
     rescue => e
-      raise Error, "Could not attach (#{e.message})\n#{code}"
+      raise Error, "Could not attach (#{e.message})"
     end
 
     def self.wrapping(meth, feature)
