@@ -70,6 +70,7 @@ module Fiveruns::Dash
     def run(restarted)
       Fiveruns::Dash.logger.info "Starting reporter thread; endpoints are #{update_locations.inspect}"
       loop do
+        #TODO account for the amount of time it took to upload, and adjust the sleep time accordingly
         send_info_update
         sleep @interval
         send_data_update

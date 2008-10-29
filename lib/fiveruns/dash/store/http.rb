@@ -10,28 +10,44 @@ module Fiveruns::Dash::Store
   
   module HTTP
     
-    attr_accessor :resolved_uris
-    
-    def resolved_uris
-      @resolved_uris ||= {}
+    # attr_accessor :resolved_uris
+    # 
+    # def resolved_uris
+    #   @resolved_uris ||= {}
+    # end
+    # 
+    # def resolved_uri(uri)
+    #   if resolved_uris[uri] && Time.now < resolved_uris[uri].next_update
+    #     ip = resolved_uris[uri].ip
+    #   else
+    #     ip = Resolv.getaddress(uri.host) 
+    #     uri_struct = OpenStruct.new(:ip => ip, :next_update => Time.now + 23.hours + rand(60).minutes)
+    #     resolved_uris[uri] = uri_struct
+    #     # TODO add host header
+    #   end
+    #   resolved_uris[uri].ip_uri
+    # end
+    # 
+    attr_accessor :resolved_hostnames
+    def resolved_hostnames
+      @resolved_hostnames ||= {}
     end
     
-    def resolved_uri(uri)
-      if resolved_uris[uri] && Time.now < resolved_uris[uri].next_update
-        ip = resolved_uris[uri].ip
+    def resolved_hostname(hostname)
+      if resolved_hostnames[hostname] && Time.now < resolved_hostnames[hostname].next_update
+        ip = resolved_hostnames[hostname]
       else
-        ip = Resolv.getaddress(uri.host) 
-        uri_struct = OpenStruct.new(:ip => ip, :next_update => Time.now + 23.hours + rand(60).minutes)
-        resolved_uris[uri] = uri_struct
-      end      
-      returning uri.dup do |new_uri|  
-        new_uri.host = resolved_uris[uri].ip
+        ip = Resolv.getaddress(hostname) 
+        ip_struct = OpenStruct.new(:ip => ip, :next_update => Time.now + 23.hours + rand(60).minutes)
+        resolved_hostnames[hostname] = ip_struct
       end
+      ip
     end
+      
     
     def store_http(*uris)
       Fiveruns::Dash.logger.info "Attempting to send #{payload.class}"
-      if (uri = uris.detect { |u| transmit_to((add_path_to(u))) })
+      if (uri = uris.detect { |u| transmit_to(add_path_to(u)) })
         Fiveruns::Dash.logger.info "Sent #{payload.class} to #{uri}"
         uri
       else
@@ -43,14 +59,14 @@ module Fiveruns::Dash::Store
     def transmit_to(uri)
       response = nil
       safely do
-        http = Net::HTTP.new(uri.host, uri.port)
+        http = Net::HTTP.new(resolved_hostname(uri.host), uri.port)
         http.use_ssl = true if uri.scheme == 'https'
         http.open_timeout = 10
         http.read_timeout = 10
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
         extra_params = extra_params_for(payload)
         multipart = Multipart.new(payload.io, payload.params.merge(extra_params))
-        response = http.post(uri.request_uri, multipart.to_s, "Content-Type" => multipart.content_type)        
+        response = http.post(uri.request_uri, multipart.to_s, "Content-Type" => multipart.content_type, "Host" => uri.host)        
       end
       check_response_of response
     end

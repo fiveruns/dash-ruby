@@ -22,8 +22,6 @@ module Fiveruns::Dash
       begin
         http = Net::HTTP.new(url.host, url.port)
         http.use_ssl = true if url.scheme == 'https'
-        http.open_timeout = 10
-        http.read_timeout = 10
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
         multipart = Fiveruns::Dash::Store::HTTP::Multipart.new(payload.io, payload.params)
         response = http.post("/apps/#{token}/ping", multipart.to_s, "Content-Type" => multipart.content_type)
