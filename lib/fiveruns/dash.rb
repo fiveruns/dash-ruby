@@ -3,8 +3,6 @@ require 'activesupport'
 require 'json'
 
 require 'thread'
-
-
 require 'logger'
 
 $:.unshift(File.dirname(__FILE__))
