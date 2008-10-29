@@ -33,9 +33,39 @@ class HTTPStoreTest < Test::Unit::TestCase
    #   restore_streams!
     end
     
+    #TODO
+    context "collector hostnames" do
+      should "should be resolved on the first access" do 
+        flexmock(Resolv).should_receive(:getaddress).returns("1.1.1.1")
+        assert_equal @update.resolved_uris.keys.size, 0
+        new_uri = @update.resolved_uri(uris.first)        
+        assert_equal new_uri.host, "1.1.1.1"
+        assert_equal @update.resolved_uris.keys.size, 1
+        assert @update.resolved_uris[uris.first].next_update > (Time.now + 23.hours)
+      end
+      
+      should "re-cache address if time has expired" do
+        flexmock(@update).should_receive(:rand).returns(1)
+        flexmock(Resolv).should_receive(:getaddress).returns("1.1.1.1", "2.2.2.2")
+        assert_equal @update.resolved_uris.keys.size, 0
+        new_uri = @update.resolved_uri(uris.first)   
+        assert_equal new_uri.host, "1.1.1.1"
+        @update.resolved_uris[uris.first].next_update = 10.hours.ago
+        first_expire = @update.resolved_uris[uris.first].next_update
+        
+        new_uri = @update.resolved_uri(uris.first)   
+        second_expire = @update.resolved_uris[uris.first].next_update
+        assert_equal new_uri.host, "2.2.2.2"
+        assert second_expire < (Time.now + 25.hours)
+        assert second_expire > (Time.now + 23.hours)
+      end
+    end
+    
     context "with info payload" do
       setup do
         @payload = InfoPayload.new({:pid => 987}, Time.now.utc)
+        @update#TODO
+        flexmock(@update).should_receive(:resolved_uri).and_return {|c| c}
    #     restore_streams!
       end
       teardown do
@@ -73,6 +103,8 @@ class HTTPStoreTest < Test::Unit::TestCase
 
       setup do
         @payload = DataPayload.new([{:metric_info_id => 123, :name => 'bar'}])
+        flexmock(@update).should_receive(:resolved_uri).and_return {|c| c}
+        
       end
     
       context "fallback URLs" do
@@ -120,6 +152,8 @@ class HTTPStoreTest < Test::Unit::TestCase
             :total => 10
           }
         ])
+        flexmock(@update).should_receive(:resolved_uri).and_return {|c| c}
+        
       end
     
       context "fallback URLs" do
