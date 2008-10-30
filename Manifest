@@ -30,6 +30,7 @@ test/fixtures/http_store_test/response.json
 test/http_store_test.rb
 test/metric_test.rb
 test/recipe_test.rb
+test/reliability_test.rb
 test/reporter_test.rb
 test/scm_test.rb
 test/session_test.rb

@@ -1,5 +1,5 @@
 require 'net/https'
-require 'resolv'
+#require 'resolv'
 require 'ostruct'
 
 if defined?(Socket)
@@ -37,7 +37,7 @@ module Fiveruns::Dash::Store
       if resolved_hostnames[hostname] && Time.now < resolved_hostnames[hostname].next_update
         ip = resolved_hostnames[hostname]
       else
-        ip = Resolv.getaddress(hostname) 
+        ip = hostname == 'localhost' ? '127.0.0.1' : IPSocket.getaddress(hostname)
         ip_struct = OpenStruct.new(:ip => ip, :next_update => Time.now + 23.hours + rand(60).minutes)
         resolved_hostnames[hostname] = ip_struct
       end
