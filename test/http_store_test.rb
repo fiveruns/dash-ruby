@@ -36,7 +36,7 @@ class HTTPStoreTest < Test::Unit::TestCase
     #TODO
     context "collector hostnames" do
       should "should be resolved on the first access" do 
-        flexmock(Resolv).should_receive(:getaddress).times(1).returns("1.1.1.1")
+        flexmock(IPSocket).should_receive(:getaddress).times(1).returns("1.1.1.1")
         assert_equal @update.resolved_hostnames.keys.size, 0
         new_uri = @update.resolved_hostname(uris.first.host)        
         assert_equal new_uri, "1.1.1.1"
@@ -48,7 +48,7 @@ class HTTPStoreTest < Test::Unit::TestCase
       
       should "re-cache address if time has expired" do
         flexmock(@update).should_receive(:rand).returns(1)
-        flexmock(Resolv).should_receive(:getaddress).returns("1.1.1.1", "2.2.2.2")
+        flexmock(IPSocket).should_receive(:getaddress).returns("1.1.1.1", "2.2.2.2")
         assert_equal @update.resolved_hostnames.keys.size, 0
         new_uri = @update.resolved_hostname(uris.first.host)   
         assert_equal new_uri, "1.1.1.1"
