@@ -17,11 +17,13 @@ class TracingTest < Test::Unit::TestCase
     teardown do
       # Hacked 'uninstrument' until it's built-in
       ::Fiveruns::Dash::Instrument.handlers.each do |handler|
-        (class << TracingTest; self; end).class_eval <<-EOCE
-          remove_method :time_me_with_instrument_#{handler.hash}
-          alias_method :time_me, :time_me_without_instrument_#{handler.hash}
-          remove_method :time_me_without_instrument_#{handler.hash}
-        EOCE
+        if TracingTest.methods.include?(%r!:time_me_with_instrument_#{handler.hash}!)
+          (class << TracingTest; self; end).class_eval <<-EOCE
+            remove_method :time_me_with_instrument_#{handler.hash}
+            alias_method :time_me, :time_me_without_instrument_#{handler.hash}
+            remove_method :time_me_without_instrument_#{handler.hash}
+          EOCE
+        end
       end
       ::Fiveruns::Dash::Instrument.handlers.clear
     end
