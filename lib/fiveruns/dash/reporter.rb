@@ -1,8 +1,8 @@
 require 'thread'
 
-# Thread.abort_on_exception = true
-
 module Fiveruns::Dash
+
+  class ShutdownSignal < ::Exception; end
     
   class Reporter
     
@@ -63,21 +63,66 @@ module Fiveruns::Dash
       Update.new(payload).ping(*update_locations)
     end
 
+    def stop
+      @thread && @thread.alive? && @thread.raise(ShutdownSignal.new)
+    end
+
     #######
     private
     #######
 
-    def run(restarted)
-      Fiveruns::Dash.logger.info "Starting reporter thread; endpoints are #{update_locations.inspect}"
-      loop do
-        #TODO account for the amount of time it took to upload, and adjust the sleep time accordingly
-        send_info_update
-        sleep @interval
-        send_data_update
-        send_exceptions_update
+    TRAPS = {}
+
+    def install_signals
+      %w(INT TERM).each do |sym|
+        TRAPS[sym] = Signal.trap(sym) do
+          stop
+          TRAPS[sym].call if TRAPS[sym]
+        end
       end
     end
-    
+
+    def run(restarted)
+      Fiveruns::Dash.logger.info "Starting reporter thread; endpoints are #{update_locations.inspect}"
+
+      install_signals
+      error_barrier do
+        total_time = 0
+        loop do
+          # account for the amount of time it took to upload, and adjust the sleep time accordingly
+          total_time += time_for { send_info_update }
+          rest(@interval - total_time)
+          total_time = 0
+          total_time += time_for do
+            send_data_update
+            send_exceptions_update
+          end
+        end
+      end
+    end
+
+    def error_barrier
+      begin
+        yield
+      rescue Fiveruns::Dash::ShutdownSignal => me
+        return
+      rescue Exception => e
+        Fiveruns::Dash.logger.error "#{e.class.name}: #{e.message}"
+        Fiveruns::Dash.logger.error e.backtrace.join("\n\t")
+        retry
+      end
+    end
+
+    def rest(amount)
+      amount > 0 ? sleep(amount) : nil
+    end
+
+    def time_for(&block)
+      a = Time.now
+      block.call
+      Time.now - a
+    end
+
     def setup_for(run_in_background = true)
       @background = run_in_background
     end
