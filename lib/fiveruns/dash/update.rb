@@ -93,7 +93,7 @@ module Fiveruns::Dash
     #######
     
     def timestamp
-      Time.now.strftime('%Y%m%d%H%M%S')
+      Time.now.utc.strftime('%Y%m%d%H%M%S')
     end
     
     def uris_by_scheme(urls)
@@ -137,7 +137,7 @@ module Fiveruns::Dash
     #######
     
     def timestamp
-      Time.now.strftime("%Y/%m/%d %H:%M:%S %z")
+      Time.now.utc.strftime("%Y/%m/%d %H:%M:%S")
     end
 
     def compressed
