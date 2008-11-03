@@ -137,7 +137,7 @@ module Fiveruns::Dash
     #######
     
     def timestamp
-      Time.now.utc.strftime("%Y/%m/%d %H:%M:%S")
+      Time.now.utc.rfc2822
     end
 
     def compressed
