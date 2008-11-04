@@ -6,7 +6,11 @@ require 'thread'
 require 'logger'
 
 $:.unshift(File.dirname(__FILE__))
+
+# NB: Pre-load ALL Dash files here so we do not accidentally
+# use ActiveSupport's autoloading.
 require 'dash/version'
+require 'dash/typable'
 require 'dash/configuration'
 require 'dash/metric'
 require 'dash/session'
@@ -19,6 +23,8 @@ require 'dash/recipe'
 require 'dash/instrument'
 require 'dash/threads'
 require 'dash/trace'
+require 'dash/store/http'
+require 'dash/store/file'
 
 module Fiveruns
   
