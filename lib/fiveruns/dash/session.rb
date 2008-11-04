@@ -5,6 +5,9 @@ module Fiveruns::Dash
     attr_reader :configuration, :reporter
     def initialize(configuration)
       @configuration = configuration
+      # eager create the host data in the main thread
+      # as it is dangerous to load in the reporter thread
+      Fiveruns::Dash.host
     end
     
     def start(background = true, &block)
