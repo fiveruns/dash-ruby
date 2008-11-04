@@ -134,7 +134,7 @@ module Fiveruns::Dash::Store
         when Fiveruns::Dash::TracePayload
           ::File.join('/apps', app_token, "traces.json")
         when Fiveruns::Dash::ExceptionsPayload
-          '/exceptions.json'
+          ::File.join('/apps', app_token, "exceptions.json")
         else
           raise ArgumentError, 'Unknown payload type: #{payload.class}'
         end
