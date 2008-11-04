@@ -199,11 +199,7 @@ class HTTPStoreTest < Test::Unit::TestCase
   def full_uris(service)
     @urls.map do |url|
       uri = URI.parse(url)
-      uri.path = if service == :exceptions
-        '/exceptions.json'
-      else
-        "/apps/123/#{service}.json"
-      end
+      uri.path = "/apps/123/#{service}.json"
       uri
     end
   end
