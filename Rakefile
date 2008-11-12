@@ -25,7 +25,7 @@ spec = Gem::Specification.new do |s|
   s.homepage = HOMEPAGE
   s.add_dependency('json_pure')
   s.require_path = 'lib'
-  s.files = %w(Rakefile) + FileList["{lib,test}/**/*"]
+  s.files = %w(Rakefile) + FileList["{lib,test,recipes,examples}/**/*"]
 end
 
 Rake::GemPackageTask.new(spec) do |pkg|
@@ -42,8 +42,13 @@ task :default => :test
 sudo = RUBY_PLATFORM[/win/] ? '' : 'sudo '
 
 desc "Install as a gem"
-task :install => [:package] do
+task :install => [:package, :uninstall] do
   sh %{#{sudo}gem install pkg/#{NAME}-#{GEM_VERSION} --no-update-sources}
+end
+
+desc "Uninstall the gem"
+task :uninstall do
+  sh %{#{sudo}gem uninstall #{NAME} -aIxv #{GEM_VERSION}} rescue nil
 end
 
 namespace :jruby do
