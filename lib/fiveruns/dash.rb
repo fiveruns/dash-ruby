@@ -39,7 +39,7 @@ module Fiveruns
     end
             
     def self.logger
-      @logger ||= Logger.new($stdout)
+      @logger ||= ( defined?(RAILS_DEFAULT_LOGGER) ? RAILS_DEFAULT_LOGGER : Logger.new($stdout) )
     end
     
     def self.logger=(logger)

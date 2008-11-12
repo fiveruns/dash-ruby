@@ -17,15 +17,20 @@ module Fiveruns::Dash
     def self.add(*raw_targets, &handler)
       options = raw_targets.last.is_a?(Hash) ? raw_targets.pop : {}
       raw_targets.each do |raw_target|
-        obj, meth = case raw_target
-        when /^(.+)#(.+)$/
-          [$1.constantize, $2]
-        when /^(.+)(?:\.|::)(.+)$/
-          [(class << $1.constantize; self; end), $2]
-        else
-          raise Error, "Bad target format: #{raw_target}"
+        begin
+          obj, meth = case raw_target
+          when /^(.+)#(.+)$/
+            [$1.constantize, $2]
+          when /^(.+)(?:\.|::)(.+)$/
+            [(class << $1.constantize; self; end), $2]
+          else
+            raise Error, "Bad target format: #{raw_target}"
+          end
+          instrument(obj, meth, options, &handler)
+        rescue => e
+          Fiveruns::Dash.logger.error "Unable to instrument '#{raw_target}': #{e.message}"
+          Fiveruns::Dash.logger.error e.backtrace.join("\n\t")
         end
-        instrument(obj, meth, options, &handler)
       end
     end  
     
