@@ -27,6 +27,8 @@ module Fiveruns::Dash
             raise Error, "Bad target format: #{raw_target}"
           end
           instrument(obj, meth, options, &handler)
+        rescue Fiveruns::Dash::Instrument::Error => em
+          raise em
         rescue => e
           Fiveruns::Dash.logger.error "Unable to instrument '#{raw_target}': #{e.message}"
           Fiveruns::Dash.logger.error e.backtrace.join("\n\t")
