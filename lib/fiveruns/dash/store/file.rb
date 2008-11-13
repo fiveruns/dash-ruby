@@ -5,12 +5,24 @@ module Fiveruns::Dash::Store
     def store_file(*uris)
       uris.each do |uri|
         directory = uri.path
-        write_to ::File.join(directory, "#{guid}.json")
+        write_to filename(directory)
+        fix_metric_info_ids
       end
     end
     
-    def write_to(filename)
-      ::File.open(filename, 'w') { |f| f.write @payload.to_json }
+    def write_to(path)
+      ::File.open(path, 'w') { |f| f.write @payload.to_json }
+    end
+    
+    def fix_metric_info_ids
+      ::Fiveruns::Dash.configuration.metrics.each do |metric|
+        metric.info_id = metric.name
+      end
+    end
+    
+    def filename(directory)
+      kind = payload.class.to_s.match(/Fiveruns::Dash::(\w+)Payload/)[1]
+      ::File.join(directory, "#{guid}.#{kind}.json")
     end
     
   end
