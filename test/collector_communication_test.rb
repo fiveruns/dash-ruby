@@ -16,10 +16,8 @@ class DummyCollector < Mongrel::HttpHandler
   end
   
   def stop
-    puts "SHUTTING DOWN"
     @mongrel.stop
   end
-    
 
   def process(request, response)
     response.start(201) do |head,out|
@@ -90,34 +88,35 @@ class CollectorCommunicationTest < Test::Unit::TestCase
       #t.join
     end
     
-    context "connection is refused" do
-      should "continue to report if the first payload fails" do
-        collector = DummyCollector.new(:startup_delay => 7)
-        t = collector.start
-        @session.reporter.interval = 5
-        @session.reporter.start
-        assert_equal collector.data_payload_count, 0
-        sleep(12)
-        assert_equal collector.info_payload_count, 1
-        assert_equal collector.data_payload_count, 2
-        collector.stop
-        #t.join
-      end
-      
-      should "continue to report if collector dies at a random time" do
-        collector = DummyCollector.new()
-        t = collector.start
-        @session.reporter.interval = 5
-        @session.reporter.start
-        sleep(11)
-        assert_equal collector.info_payload_count, 1
-        assert_equal collector.data_payload_count, 2
-        collector.stop      
-        sleep(10)
-        t = collector.start
-        sleep(11)
-        assert_equal collector.data_payload_count, 2
-      end
+    should "continue to report if the first payload fails" do
+      collector = DummyCollector.new(:startup_delay => 7)
+      t = collector.start
+      @session.reporter.interval = 5
+      @session.reporter.start
+      assert_equal collector.data_payload_count, 0
+      sleep(12)
+      assert_equal collector.info_payload_count, 1
+      assert_equal collector.data_payload_count, 2
+      collector.stop
+      #t.join
+    end
+  
+    should "continue to report if collector dies at a random time" do
+      collector = DummyCollector.new()
+      t = collector.start
+      @session.reporter.interval = 5
+      @session.reporter.start
+      sleep(11)
+      assert_equal collector.info_payload_count, 1
+      assert_equal collector.data_payload_count, 2
+      puts "SHUTTNG DOWN!!!"
+      collector.stop     
+      t.join
+      assert_equal collector.data_payload_count, 2
+      t = collector.start
+      sleep(11)
+      assert_equal collector.data_payload_count, 5
+      t.join
     end
     
   end
