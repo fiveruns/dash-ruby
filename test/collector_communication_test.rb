@@ -3,10 +3,11 @@ require 'thread'
 require 'rubygems'
 require 'mongrel'
 require 'json'
+require 'thin'
 
 class DummyCollector < Mongrel::HttpHandler
   
-  attr_accessor :sleep_time, :data_payload_count, :info_payload_count, :mongrel
+  attr_accessor :sleep_time, :data_payload_count, :info_payload_count
   
   def initialize(options = {})
     @startup_delay = options[:startup_delay]
@@ -14,54 +15,35 @@ class DummyCollector < Mongrel::HttpHandler
     @info_payload_count = 0
     @data_payload_count = 0
   end
-  
-  def stop
-    @mongrel.stop
+
+  def call(t)
+    if t["rack.input"].read =~ /name=\"type\"\r\n\r\ninfo\r\n/
+      @info_payload_count += 1
+    else
+     @data_payload_count += 1
+    end
+    puts "BOOM! workers: info: #{@info_payload_count} data: #{@data_payload_count} #{Time.now}"
+    return [201, {"Content-Type" => "application/json; charset=utf-8" }, my_response]
   end
 
-  def process(request, response)
-    response.start(201) do |head,out|
-      if @response_delay
-        puts "sleeping for #{@response_delay}"
-        sleep(@response_delay)
-      end
-      body = request.body.read
-      request.body.rewind
-      if body =~ /name=\"type\"\r\n\r\ninfo\r\n/
-        @info_payload_count += 1
-      else
-       @data_payload_count += 1
-      end
-      head["Content-Type"] = "application/json; charset=utf-8"
-      out.write(response)
-      puts "BOOM! #{@times_invoked} #{Time.now}"
-    end
-  end
    
-  def response
+  def my_response
    data = {"process_id"=>774736448, "metric_infos"=>[{"name"=>"rss", "id"=>932254199, "recipe_name"=>"ruby", "recipe_url"=>"http://dash.fiveruns.com"}, {"name"=>"pmem", "id"=>932254200, "recipe_name"=>"ruby", "recipe_url"=>"http://dash.fiveruns.com"}, {"name"=>"cpu", "id"=>932254201, "recipe_name"=>"ruby", "recipe_url"=>"http://dash.fiveruns.com"}, {"name"=>"activity", "id"=>932254194, "recipe_name"=>"activerecord", "recipe_url"=>"http://dash.fiveruns.com"}, {"name"=>"response_time", "id"=>932254195, "recipe_name"=>"actionpack", "recipe_url"=>"http://dash.fiveruns.com"}, {"name"=>"requests", "id"=>932254196, "recipe_name"=>"actionpack", "recipe_url"=>"http://dash.fiveruns.com"}, {"name"=>"render_time", "id"=>932254197, "recipe_name"=>"actionpack", "recipe_url"=>"http://dash.fiveruns.com"}, {"name"=>"queue_size", "id"=>932254198, "recipe_name"=>"rails", "recipe_url"=>"http://dash.fiveruns.com"}], "traces"=>[]}
    return data.to_json
   end
-
-  def start
-    if @startup_delay
-      sleep(@startup_delay) 
-      puts "starting up collector after a delay of #{@startup_delay}"
-    end
-    @mongrel = Mongrel::HttpServer.new("127.0.0.1", "9999")
-    @mongrel.register("/", self)
-    @mongrel.run
-  end  
 end
-  
 
+class Integer
+  def intervals
+    self * 5 + 0.1
+  end
+end
 
 class CollectorCommunicationTest < Test::Unit::TestCase
   
   attr_reader :payload
   context "FiveRuns Dash Gem" do
 
-    
     setup do
       no_recipe_loading!
       mock_configuration!
@@ -77,46 +59,46 @@ class CollectorCommunicationTest < Test::Unit::TestCase
     should "act properly" do
       # When the reporter starts, it immediately sends an info packet,
       # along with a regular payload
-      collector = DummyCollector.new
-      t = collector.start
+      @collector = DummyCollector.new()
+      @thin = Thin::Server.new('127.0.0.1', 9999, @collector)
+      @t = Thread.new { @thin.start }
       @session.reporter.interval = 5
       @session.reporter.start
-      sleep(12) #enough for 2 cycles
-      collector.stop
-      assert_equal collector.info_payload_count, 1
-      assert_equal collector.data_payload_count, 2
-      #t.join
+      sleep(2.intervals) #enough for 2 cycles
+      assert_equal @collector.info_payload_count, 1
+      assert_equal @collector.data_payload_count, 2
+      @thin.stop
     end
     
     should "continue to report if the first payload fails" do
-      collector = DummyCollector.new(:startup_delay => 7)
-      t = collector.start
+      @collector = DummyCollector.new()
+      @thin = Thin::Server.new('127.0.0.1', 9999, @collector)
       @session.reporter.interval = 5
       @session.reporter.start
-      assert_equal collector.data_payload_count, 0
-      sleep(12)
-      assert_equal collector.info_payload_count, 1
-      assert_equal collector.data_payload_count, 2
-      collector.stop
-      #t.join
+      sleep(1.intervals)
+      assert_equal @collector.data_payload_count, 0
+      @t = Thread.new { @thin.start }
+      sleep(2.intervals)
+      assert_equal @collector.info_payload_count, 1
+      assert_equal @collector.data_payload_count, 2
+      @thin.stop
     end
   
     should "continue to report if collector dies at a random time" do
-      collector = DummyCollector.new()
-      t = collector.start
       @session.reporter.interval = 5
+      puts "starting #{Time.now}"
       @session.reporter.start
-      sleep(11)
-      assert_equal collector.info_payload_count, 1
-      assert_equal collector.data_payload_count, 2
-      puts "SHUTTNG DOWN!!!"
-      collector.stop     
-      t.join
-      assert_equal collector.data_payload_count, 2
-      t = collector.start
-      sleep(11)
-      assert_equal collector.data_payload_count, 5
-      t.join
+      puts "started #{Time.now}"
+      sleep(2.intervals)
+      puts "stopping"
+      @thin.stop
+      assert_equal @collector.info_payload_count, 1
+      assert_equal @collector.data_payload_count, 2
+      sleep(3.intervals) #stop for a while
+      @thin.start
+      sleep(3.intervals)
+      @thin.stop
+      assert_equal @collector.data_payload_count, 5
     end
     
   end
