@@ -53,12 +53,12 @@ module Fiveruns
     end
   
     def self.configure(options = {})
+      handle_pwd_is_root(caller[0]) if Dir.pwd == '/'      
       configuration.options.update(options)
       yield configuration if block_given?
     end
     
     def self.start(options = {}, &block)
-      handle_pwd_is_root(caller[0]) if Dir.pwd == '/'
       configure(options, &block) if block_given?
       session.start
     end
