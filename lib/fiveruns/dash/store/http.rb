@@ -35,7 +35,7 @@ module Fiveruns::Dash::Store
     
     def resolved_hostname(hostname)
       if resolved_hostnames[hostname] && Time.now < resolved_hostnames[hostname].next_update
-        ip = resolved_hostnames[hostname]
+        ip = resolved_hostnames[hostname].ip
       else
         ip = hostname == 'localhost' ? '127.0.0.1' : IPSocket.getaddress(hostname)
         ip_struct = OpenStruct.new(:ip => ip, :next_update => Time.now + 23.hours + rand(60).minutes)
@@ -66,7 +66,7 @@ module Fiveruns::Dash::Store
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
         extra_params = extra_params_for(payload)
         multipart = Multipart.new(payload.io, payload.params.merge(extra_params))
-        response = http.post(uri.request_uri, multipart.to_s, "Content-Type" => multipart.content_type, "Host" => uri.host)        
+        response = http.post(uri.request_uri, multipart.to_s, "Content-Type" => multipart.content_type, "Host" => uri.host) 
       end
       check_response_of response
     end
@@ -88,9 +88,9 @@ module Fiveruns::Dash::Store
       when 201
         data = JSON.load(response.body)
         set_trace_contexts(data)
-        if payload.is_a?(Fiveruns::Dash::InfoPayload)
+        if payload.is_a?(Fiveruns::Dash::InfoPayload)   
           Fiveruns::Dash.process_id = data['process_id']
-          data['metric_infos'].each do |mapping|
+          data['metric_infos'].each do |mapping|            
             info_id = mapping.delete('id')
             metric = ::Fiveruns::Dash.configuration.metrics.detect { |metric| normalize_key(metric.key) ==  normalize_key(mapping) }
             if metric

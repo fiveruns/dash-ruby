@@ -42,6 +42,7 @@ class HTTPStoreTest < Test::Unit::TestCase
         assert_equal new_uri, "1.1.1.1"
         assert_equal @update.resolved_hostnames.keys.size, 1
         assert @update.resolved_hostnames[uris.first.host].next_update > (Time.now + 23.hours)
+        assert_equal @update.resolved_hostname(uris.first.host), "1.1.1.1"
         junk = @update.resolved_hostname(uris.first.host)        
         
       end
