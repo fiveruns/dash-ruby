@@ -10,27 +10,9 @@ module Fiveruns::Dash::Store
   
   module HTTP
     
-    # attr_accessor :resolved_uris
-    # 
-    # def resolved_uris
-    #   @resolved_uris ||= {}
-    # end
-    # 
-    # def resolved_uri(uri)
-    #   if resolved_uris[uri] && Time.now < resolved_uris[uri].next_update
-    #     ip = resolved_uris[uri].ip
-    #   else
-    #     ip = Resolv.getaddress(uri.host) 
-    #     uri_struct = OpenStruct.new(:ip => ip, :next_update => Time.now + 23.hours + rand(60).minutes)
-    #     resolved_uris[uri] = uri_struct
-    #     # TODO add host header
-    #   end
-    #   resolved_uris[uri].ip_uri
-    # end
-    # 
-    attr_accessor :resolved_hostnames
     def resolved_hostnames
-      @resolved_hostnames ||= {}
+      Thread.current[:resolved_hostnames] ||= {}
+      Thread.current[:resolved_hostnames]
     end
     
     def resolved_hostname(hostname)
