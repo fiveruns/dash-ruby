@@ -7,6 +7,7 @@ class HTTPStoreTest < Test::Unit::TestCase
   context "HTTPStore" do
     
     setup do
+      Thread.current[:resolved_hostnames] = nil
       @urls = %w(http://metrics.foo.com http://metrics02.bar.com http://metrics03.bar.com)
       @klass = Class.new { include Store::HTTP }
       @params = {:this_is_a_param => 'value'}
