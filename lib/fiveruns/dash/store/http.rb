@@ -70,19 +70,6 @@ module Fiveruns::Dash::Store
       when 201
         data = JSON.load(response.body)
         set_trace_contexts(data)
-        if payload.is_a?(Fiveruns::Dash::InfoPayload)   
-          Fiveruns::Dash.process_id = data['process_id']
-          data['metric_infos'].each do |mapping|            
-            info_id = mapping.delete('id')
-            metric = ::Fiveruns::Dash.configuration.metrics.detect { |metric| normalize_key(metric.key) ==  normalize_key(mapping) }
-            if metric
-              metric.info_id = info_id
-            else
-              Fiveruns::Dash.logger.warn "Did not find local metric for server metric #{key.inspect}"
-              return false
-            end
-          end
-        end
         true
       when 400..499
         Fiveruns::Dash.logger.warn "Could not access Dash service (#{response.code.to_i}, #{response.body.inspect})"

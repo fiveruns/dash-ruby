@@ -73,7 +73,6 @@ class HTTPStoreTest < Test::Unit::TestCase
    #     restore_streams!
       end
       teardown do
-        Fiveruns::Dash.process_id = nil
    #     mock_streams!
       end
       context "on connection error" do
@@ -87,7 +86,6 @@ class HTTPStoreTest < Test::Unit::TestCase
           returning @update.store_http(*uris) do |pass_uri|
             assert_equal uris[1], pass_uri
           end
-          assert_equal 1, Fiveruns::Dash.process_id
         end
       end
       context "on non-201 response" do
@@ -98,7 +96,6 @@ class HTTPStoreTest < Test::Unit::TestCase
         end
         should "not succeed" do
           assert !@update.store_http(*uris)
-          assert_nil Fiveruns::Dash.process_id
         end
       end
     end

@@ -156,12 +156,10 @@ module Fiveruns::Dash
         params = {
           :type => 'info',
           :ip => Fiveruns::Dash.host.ip_address,
-          :mac => Fiveruns::Dash.host.mac_address,
           :hostname => Fiveruns::Dash.host.hostname,
           :pid => Process.pid,
           :os_name => Fiveruns::Dash.host.os_name,
           :os_version => Fiveruns::Dash.host.os_version,
-          :pwd => Dir.pwd,
           :arch => Fiveruns::Dash.host.architecture,
           :dash_version => Fiveruns::Dash::Version::STRING,
           :ruby_version => RUBY_VERSION,
@@ -189,7 +187,7 @@ module Fiveruns::Dash
       @params ||= {
         :type => 'exceptions',
         :collected_at => timestamp,
-        :process_id => Fiveruns::Dash.process_id
+        :hostname => Fiveruns::Dash.host.hostname,
       }
     end
   end
@@ -199,7 +197,7 @@ module Fiveruns::Dash
       @params ||= {
         :type => 'data',
         :collected_at => timestamp,
-        :process_id => Fiveruns::Dash.process_id,
+        :hostname => Fiveruns::Dash.host.hostname,
       }
     end
   end
@@ -209,7 +207,7 @@ module Fiveruns::Dash
       @params ||= {
         :type => 'trace',
         :collected_at => timestamp,
-        :process_id => Fiveruns::Dash.process_id 
+        :hostname => Fiveruns::Dash.host.hostname,
       }
     end
   end

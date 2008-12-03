@@ -73,23 +73,8 @@ module Fiveruns
       end
     end
 
-    # Support for multiple fake hosts in development
-    def self.process_id=(value)
-      @process_ids ||= []
-      if value
-        @process_ids << value
-      else
-        @process_ids.clear
-      end
-    end
-
-    def self.process_id
-      @process_ids ||= []
-      @process_ids[0]
-    end
-        
     class << self
-      attr_accessor :process_ids, :trace_contexts
+      attr_accessor :trace_contexts
     end
     
     def self.register_recipe(name, options = {}, &block)

@@ -6,7 +6,7 @@ module Fiveruns::Dash
     include Typable
     
     attr_reader :name, :description, :help_text, :options
-    attr_accessor :info_id, :recipe
+    attr_accessor :recipe
     def initialize(name, *args, &block)
       @name = name.to_s
       @options = args.extract_options!
@@ -16,28 +16,29 @@ module Fiveruns::Dash
       validate!
     end
     
-    def info
-      key.merge(:data_type => self.class.metric_type, :description => description, :help_text => help_text).merge(unit_info)
-    end
-        
     def data
-      if info_id
-        value_hash.update(:metric_info_id => info_id)
-      else
-        raise NotImplementedError, "No info_id assigned for #{self.inspect}"
-      end
+      value_hash.merge(key)
     end
     
     def reset
       # Abstract
     end
     
+    def info
+      key
+    end
+    
     def key
-      @key ||= {
-        :name => name,
-        :recipe_url => recipe ? recipe.url : nil,
-        :recipe_name => recipe ? recipe.name.to_s : nil
-      }
+      @key ||= begin
+        {
+          :name => name,
+          :recipe_url => recipe ? recipe.url : nil,
+          :recipe_name => recipe ? recipe.name.to_s : nil,
+          :data_type => self.class.metric_type, 
+          :description => description, 
+          :help_text => help_text,
+        }.merge(unit_info)
+      end
     end
     
     def ==(other)

@@ -22,9 +22,7 @@ module Fiveruns::Dash
     def add_data(metric, contexts, value)
       unless @stack.empty?
         @stack.last.metrics.push(
-          :info_id => metric.info_id,
-          :contexts => contexts,
-          :value => value
+          metric.key.merge({:value => value, :contexts => contexts})
         )
       end
     end
