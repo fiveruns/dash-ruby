@@ -127,11 +127,19 @@ class CollectorCommunicationTest < Test::Unit::TestCase
       
       @collector = DummyCollector.new()
       @thin = Thin::Server.new('127.0.0.1', 9999, @collector)
+      @prev_value = Thread.abort_on_exception
       Thread.abort_on_exception = true
-      
     end
     
-    should "act properly" do
+    teardown do
+      Thread.abort_on_exception = @prev_value
+    end
+    
+    should "have no tests in here" do
+      assert true
+    end
+    
+    should_eventually "act properly" do
       # When the reporter starts, it immediately sends an info packet,
       # along with a regular payload
       @t = Thread.new { @thin.start }
@@ -151,7 +159,7 @@ class CollectorCommunicationTest < Test::Unit::TestCase
       puts "stopped!"
     end
     
-    should "compensate correctly for delayed post times" do
+    should_eventually "compensate correctly for delayed post times" do
       @collector.sleep_time = 2
       @t = Thread.new { @thin.start }
       @session.reporter.interval = 5
@@ -170,7 +178,7 @@ class CollectorCommunicationTest < Test::Unit::TestCase
               
     end
     
-    should "continue to report if the first payload fails" do
+    should_eventually "continue to report if the first payload fails" do
       @session.reporter.interval = 5
       @session.reporter.start
       sleep(1.intervals)
@@ -188,7 +196,7 @@ class CollectorCommunicationTest < Test::Unit::TestCase
          
     end
   
-    should "continue to report if collector dies at a random time" do
+    should_eventually "continue to report if collector dies at a random time" do
       @t = Thread.new { @thin.start }
       @session.reporter.interval = 5
       @session.reporter.start

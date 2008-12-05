@@ -21,8 +21,9 @@ module Fiveruns::Dash::Store
     end
     
     def filename(directory)
-      kind = payload.class.to_s.match(/Fiveruns::Dash::(\w+)Payload/)[1]
-      ::File.join(directory, "#{guid}.#{kind}.json")
+      kind = payload.class.to_s =~ /Fiveruns::Dash::(\w+)Payload/
+      name = kind ? kind[1] : 'unknown'
+      ::File.join(directory, "#{guid}.#{name}.json")
     end
     
   end
