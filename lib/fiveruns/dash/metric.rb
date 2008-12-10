@@ -122,10 +122,19 @@ module Fiveruns::Dash
     # * Note: We sync here when looking up the container, while
     #         the block is being executed, and when it is stored
     def with_container_for_context(context)
+      ctx = context || [] # normalize nil context to empty
       ::Fiveruns::Dash.sync do
-        container = @data[context]
-        new_container = yield container
-        @data[context] = new_container # For hash defaults
+        while true
+          container = @data[ctx]
+          new_container = yield container
+          @data[ctx] = new_container # For hash defaults
+
+          # Rollup this metric for each parent namespace also,
+          # by trimming the last two values and running the loop again
+          break if ctx.empty?
+          ctx = ctx[0..-3]
+        end
+        new_container
       end
     end
     

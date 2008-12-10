@@ -34,7 +34,23 @@ module Fiveruns::Dash
           Fiveruns::Dash.logger.error e.backtrace.join("\n\t")
         end
       end
-    end  
+    end
+
+    def self.timing(token, offset, this, args)
+      # token allows us to handle re-entrant timing, see e.g. ar_time
+      Thread.current[token] = 0 unless Thread.current[token]
+      Thread.current[token] = Thread.current[token] + 1
+
+      _start = Time.now
+      _result = yield
+      _time = Time.now - _start
+
+      Thread.current[token] = Thread.current[token] - 1
+      if Thread.current[token] == 0
+        ::Fiveruns::Dash::Instrument.handlers[offset].call(this, _time, *args)
+      end
+      _result
+    end
     
     #######
     private
@@ -57,18 +73,13 @@ module Fiveruns::Dash
           EXCEPTIONS
         else
           <<-PERFORMANCE
-            # Invoke and time
-            _start = Time.now          
-            _result = #{without}(*args, &block)
-            _time = Time.now - _start
-            # Call handler (don't change *args!)
-            ::Fiveruns::Dash::Instrument.handlers[#{offset}].call(self, _time, *args)
-            # Return the original result
-            _result
+            ::Fiveruns::Dash::Instrument.timing(:"handler-#{handler.object_id}", #{offset}, self, args) do
+              #{without}(*args, &block)
+            end
           PERFORMANCE
         end
       end
-      obj.module_eval code
+      obj.module_eval code, __FILE__, __LINE__
       identifier
     rescue SyntaxError => e
       puts "Syntax error (#{e.message})\n#{code}"
