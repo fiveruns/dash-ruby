@@ -36,20 +36,33 @@ module Fiveruns::Dash
       end
     end
 
-    def self.timing(token, offset, this, args)
+    def self.reentrant_timing(token, offset, this, args)
       # token allows us to handle re-entrant timing, see e.g. ar_time
       Thread.current[token] = 0 unless Thread.current[token]
       Thread.current[token] = Thread.current[token] + 1
-
-      _start = Time.now
-      _result = yield
-      _time = Time.now - _start
-
-      Thread.current[token] = Thread.current[token] - 1
-      if Thread.current[token] == 0
-        ::Fiveruns::Dash::Instrument.handlers[offset].call(this, _time, *args)
+      
+      begin
+        start = Time.now
+        result = yield
+        time = Time.now - start
+      ensure
+        Thread.current[token] = Thread.current[token] - 1
+        if Thread.current[token] == 0
+          puts "Handling call in ctx: #{::Fiveruns::Dash::Context.context}"
+          ::Fiveruns::Dash::Instrument.handlers[offset].call(this, time, *args)
+        else
+          puts "Skipping call in ctx: #{::Fiveruns::Dash::Context.context}"
+        end
       end
-      _result
+      result
+    end
+    
+    def self.timing(offset, this, args)
+      start = Time.now
+      result = yield
+      time = Time.now - start
+      ::Fiveruns::Dash::Instrument.handlers[offset].call(this, time, *args)
+      result
     end
     
     #######
@@ -71,9 +84,15 @@ module Fiveruns::Dash
               raise
             end
           EXCEPTIONS
+        elsif options[:reentrant]
+          <<-REENTRANT
+            ::Fiveruns::Dash::Instrument.reentrant_timing(:"handler-#{handler.object_id}", #{offset}, self, args) do
+              #{without}(*args, &block)
+            end
+          REENTRANT
         else
           <<-PERFORMANCE
-            ::Fiveruns::Dash::Instrument.timing(:"handler-#{handler.object_id}", #{offset}, self, args) do
+            ::Fiveruns::Dash::Instrument.timing(#{offset}, self, args) do
               #{without}(*args, &block)
             end
           PERFORMANCE

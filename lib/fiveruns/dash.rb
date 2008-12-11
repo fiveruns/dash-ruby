@@ -125,6 +125,20 @@ module Fiveruns
       end
     end
     
+    module Context
+      def self.set(value)
+        Thread.current[:fiveruns_dash_context] = value
+      end
+    
+      def self.reset
+        Thread.current[:fiveruns_dash_context] = []
+      end
+    
+      def self.context
+        Thread.current[:fiveruns_dash_context] ||= []
+      end
+    end
+
   end
   
 end

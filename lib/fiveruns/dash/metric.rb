@@ -124,17 +124,10 @@ module Fiveruns::Dash
     def with_container_for_context(context)
       ctx = context || [] # normalize nil context to empty
       ::Fiveruns::Dash.sync do
-        while true
-          container = @data[ctx]
-          new_container = yield container
-          @data[ctx] = new_container # For hash defaults
-
-          # Rollup this metric for each parent namespace also,
-          # by trimming the last two values and running the loop again
-          break if ctx.empty?
-          ctx = ctx[0..-3]
-        end
-        new_container
+        container = @data[ctx]
+        (p self; raise ArgumentError) unless container
+        new_container = yield container
+        @data[ctx] = new_container # For hash defaults
       end
     end
     
