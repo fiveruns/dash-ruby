@@ -90,9 +90,7 @@ class CollectorCommunicationTest < Test::Unit::TestCase
 
     setup do
       ##no_recipe_loading!
-      flexmock(Fiveruns::Dash::Recipe::Loader).new_instances do |mock|
-        mock.should_receive(:run)
-      end
+      flexmock(Fiveruns::Dash).should_receive(:load_recipes)
       
       ##mock_configuration!
       @metrics = []
