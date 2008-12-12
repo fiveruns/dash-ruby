@@ -120,7 +120,7 @@ module Fiveruns
     end
     
     def self.load_recipes
-      Dir[File.join(File.dirname(__FILE__), '..', '..', 'recipes', '*.rb')].each do |core_recipe|
+      Dir[File.join(File.dirname(__FILE__), '..', '..', 'recipes', '**', '*.rb')].each do |core_recipe|
         require core_recipe
       end
     end
