@@ -73,9 +73,7 @@ class Test::Unit::TestCase
   def no_recipe_loading!
     # For now, we just stub it out so we don't muddy the list of recipes
     # due to environmental factors
-    flexmock(Fiveruns::Dash::Recipe::Loader).new_instances do |mock|
-      mock.should_receive(:run)
-    end
+    flexmock(Fiveruns::Dash).should_receive(:load_recipes)
   end
   
   def assert_wrote(*args)

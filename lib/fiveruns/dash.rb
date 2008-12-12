@@ -120,8 +120,8 @@ module Fiveruns
     end
     
     def self.load_recipes
-      @recipe_loader ||= returning Recipe::Loader.new do |loader|
-        loader.run
+      Dir[File.join(File.dirname(__FILE__), '..', '..', 'recipes', '*.rb')].each do |core_recipe|
+        require core_recipe
       end
     end
     
