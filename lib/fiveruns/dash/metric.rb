@@ -174,7 +174,7 @@ module Fiveruns::Dash
     # * Note: We sync here when looking up the container, while
     #         the block is being executed, and when it is stored
     def with_container_for_context(context)
-      ctx = context || [] # normalize nil context to empty
+      ctx = (context || []).dup # normalize nil context to empty
       ::Fiveruns::Dash.sync do
         container = @data[ctx]
         new_container = yield container
@@ -322,8 +322,8 @@ module Fiveruns::Dash
     # * Note: We sync here (and wherever @data is being written)
     def current_value
       result = ::Fiveruns::Dash.sync do
-        # Ensure the nil context is stored with a default of 0
-        @data[nil] = @data.fetch(nil, 0)
+        # Ensure the empty context is stored with a default of 0
+        @data[[]] = @data.fetch([], 0)
         @data
       end
       parse_value result
