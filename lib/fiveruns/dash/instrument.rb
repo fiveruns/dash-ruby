@@ -76,7 +76,7 @@ module Fiveruns::Dash
             begin
               #{without}(*args, &block)
             rescue Exception => _e
-              _sample = ::Fiveruns::Dash::Instrument.handlers[#{offset}].call(self, *args)
+              _sample = ::Fiveruns::Dash::Instrument.handlers[#{offset}].call(_e, self, *args)
               ::Fiveruns::Dash.session.add_exception(_e, _sample)
               raise
             end

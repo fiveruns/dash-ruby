@@ -38,6 +38,9 @@ module Fiveruns
     
     def record(exception, sample=nil)
       data = extract_data_from_exception(exception)
+      # Allow the sample data to override the exception's display name.
+      data[:name] = sample.delete(:name) if sample and sample[:name]
+
       if (matching = existing_exception_for(data))
         matching[:total] += 1
         matching
@@ -54,19 +57,20 @@ module Fiveruns
         reset
       end
     end
-    
+
     def reset
       exceptions.clear
     end
-    
+
     #######
     private
     #######
-    
+
     def existing_exception_for(data)
-      exceptions.detect { |e| data.all? { |k,v| e[k] == v } }
+      # We detect exception dupes based on the same class name and backtrace.
+      exceptions.detect { |e| data[:name] == e[:name] && data[:backtrace] == e[:backtrace] }
     end
-    
+
     def extract_data_from_exception(e)
       {
         :name => e.class.name,
@@ -78,11 +82,11 @@ module Fiveruns
     def serialize(sample)
       YAML::dump(sample)
     end
-    
+
     def exceptions
       @exceptions ||= []
     end
-    
+
     def sanitize(backtrace)
       backtrace.map do |line|
         line = line.strip
