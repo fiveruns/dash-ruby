@@ -62,11 +62,11 @@ class ExceptionRecorderTest < Test::Unit::TestCase
         recorder.record(build("Message1", "Line 1"))
         recorder.record(build("Message2", "Line 1"))
       end
-      should "not collapse" do
-        assert_equal 2, recorder.data.size
+      should "collapse" do
+        assert_equal 1, recorder.data.size
       end
-      should "count them separately" do
-        assert_equal [1, 1], recorder.data.map { |exc| exc[:total] }
+      should "count them together" do
+        assert_equal [2], recorder.data.map { |exc| exc[:total] }
       end
     end
     
