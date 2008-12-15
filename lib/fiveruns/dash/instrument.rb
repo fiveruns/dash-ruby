@@ -48,10 +48,7 @@ module Fiveruns::Dash
       ensure
         Thread.current[token] = Thread.current[token] - 1
         if Thread.current[token] == 0
-          puts "Handling call in ctx: #{::Fiveruns::Dash::Context.context}"
           ::Fiveruns::Dash::Instrument.handlers[offset].call(this, time, *args)
-        else
-          puts "Skipping call in ctx: #{::Fiveruns::Dash::Context.context}"
         end
       end
       result
