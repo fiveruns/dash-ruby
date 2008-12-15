@@ -34,7 +34,36 @@ module Fiveruns::Dash
           Fiveruns::Dash.logger.error e.backtrace.join("\n\t")
         end
       end
-    end  
+    end
+
+    def self.reentrant_timing(token, offset, this, args)
+      # token allows us to handle re-entrant timing, see e.g. ar_time
+      Thread.current[token] = 0 unless Thread.current[token]
+      Thread.current[token] = Thread.current[token] + 1
+      
+      begin
+        start = Time.now
+        result = yield
+        time = Time.now - start
+      ensure
+        Thread.current[token] = Thread.current[token] - 1
+        if Thread.current[token] == 0
+          puts "Handling call in ctx: #{::Fiveruns::Dash::Context.context}"
+          ::Fiveruns::Dash::Instrument.handlers[offset].call(this, time, *args)
+        else
+          puts "Skipping call in ctx: #{::Fiveruns::Dash::Context.context}"
+        end
+      end
+      result
+    end
+    
+    def self.timing(offset, this, args)
+      start = Time.now
+      result = yield
+      time = Time.now - start
+      ::Fiveruns::Dash::Instrument.handlers[offset].call(this, time, *args)
+      result
+    end
     
     #######
     private
@@ -55,20 +84,21 @@ module Fiveruns::Dash
               raise
             end
           EXCEPTIONS
+        elsif options[:reentrant]
+          <<-REENTRANT
+            ::Fiveruns::Dash::Instrument.reentrant_timing(:"handler-#{handler.object_id}", #{offset}, self, args) do
+              #{without}(*args, &block)
+            end
+          REENTRANT
         else
           <<-PERFORMANCE
-            # Invoke and time
-            _start = Time.now          
-            _result = #{without}(*args, &block)
-            _time = Time.now - _start
-            # Call handler (don't change *args!)
-            ::Fiveruns::Dash::Instrument.handlers[#{offset}].call(self, _time, *args)
-            # Return the original result
-            _result
+            ::Fiveruns::Dash::Instrument.timing(#{offset}, self, args) do
+              #{without}(*args, &block)
+            end
           PERFORMANCE
         end
       end
-      obj.module_eval code
+      obj.module_eval code, __FILE__, __LINE__
       identifier
     rescue SyntaxError => e
       puts "Syntax error (#{e.message})\n#{code}"

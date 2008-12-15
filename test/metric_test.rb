@@ -145,11 +145,11 @@ class MetricTest < Test::Unit::TestCase
   #######
   
   def current_time_total
-    metric.instance_eval { @data[nil][:value] }
+    metric.instance_eval { @data[[]][:value] }
   end
   
   def current_invocations
-    metric.instance_eval { @data[nil][:invocations] }
+    metric.instance_eval { @data[[]][:invocations] }
   end
   
   def time_method
@@ -160,14 +160,14 @@ class MetricTest < Test::Unit::TestCase
     counted = nil
     assert_nothing_raised do
       # We fetch to ensure values aren't just being returned due to hash defaults
-      counted = metric.data[:values].detect { |m| m[:context] == nil }[:value]
+      counted = metric.data[:values].detect { |m| m[:context] == [] }[:value]
     end
     assert_kind_of Numeric, counted
     assert_equal number, counted
   end
   
   def assert_invocations_reported(number = 1)
-    assert_equal number, metric.data[:values].detect { |m| m[:context] == nil }[:invocations]
+    assert_equal number, metric.data[:values].detect { |m| m[:context] == [] }[:invocations]
   end
 
   def invoke(number = 1)

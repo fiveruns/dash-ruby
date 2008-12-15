@@ -56,13 +56,18 @@ module Fiveruns::Dash
     end
     
     def data
-      configuration.metrics.map { |metric| metric.data }.flatten
+      real_data = configuration.metrics.map { |metric| metric.data }.compact
+      virtual_data = configuration.metrics.map { |metric| metric.calculate(real_data) }.compact
+      # Return any metrics which are not abstract and should be sent to the server
+      metric_payload = (real_data + virtual_data).find_all { |data| !data[:abstract] }
+      puts "Sending #{metric_payload.map { |met| [met[:name], met[:values].size] }.inspect} metrics"
+      metric_payload
     end
-    
+
     def exception_data
       exception_recorder.data
     end
-    
+
     def exception_recorder
       @exception_recorder ||= ExceptionRecorder.new(self)
     end

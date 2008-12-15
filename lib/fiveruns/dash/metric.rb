@@ -13,13 +13,36 @@ module Fiveruns::Dash
       @description = args.shift || @name.titleize
       @help_text = args.shift || "#{self.class.name.demodulize}: #{@description}"
       @operation = block
+      @virtual = !!options[:sources]
+      @abstract = options[:abstract]
       validate!
     end
-    
+
+    # Indicates that this metric is calculated based on the value(s)
+    # of other metrics.
+    def virtual?
+      @virtual
+    end
+
+    # Indicates that this metric is only used for virtual calculations
+    # and should not be sent to the server for storage.
+    def abstract?
+      @abstract
+    end
+
     def data
+      return nil if virtual?
       value_hash.merge(key)
     end
     
+    def calculate(real_data)
+      return nil unless virtual?
+      datas = options[:sources].map {|met_name| real_data.detect { |hash| hash[:name] == met_name } }.flatten
+      raise ArgumentError, "Could not find one or more of #{options[:sources].inspect}" unless datas.size == options[:sources].size
+
+      combine(datas.map { |hsh| hsh[:values] }).merge(key)
+    end
+
     def reset
       # Abstract
     end
@@ -37,7 +60,7 @@ module Fiveruns::Dash
           :data_type => self.class.metric_type, 
           :description => description, 
           :help_text => help_text,
-        }.merge(unit_info)
+        }.merge(optional_info)
       end
     end
     
@@ -55,12 +78,41 @@ module Fiveruns::Dash
     #######
     
     def validate!
+      raise ArgumentError, "#{name} - Virtual metrics should have source metrics" if virtual? && options[:sources].blank?
+      raise ArgumentError, "#{name} - metrics should not have source metrics" if !virtual? && options[:sources]
     end
     
-    def unit_info
-       @options[:unit] ? {:unit => @options[:unit].to_s} : {}
+    def optional_info
+      returning({}) do |optional|
+        optional.merge(@options[:unit] ? {:unit => @options[:unit].to_s} : {})
+        optional.merge(abstract? ? {:abstract => true} : {})
+      end
     end
-    
+
+    def combine(source_values)
+      # Get the intersection of contexts for all the source metrics.
+      # We combine the values for all shared contexts.
+      contexts = source_values.map { |values| values.map { |value| value[:context] }}
+      intersection = nil
+      contexts.each_with_index do |arr, idx|
+        if idx == 0
+          intersection = arr
+        else
+          intersection = intersection & arr
+        end
+      end
+
+      values = intersection.map do |context|
+        args = source_values.map do |values|
+          values.detect { |value| value[:context] == context }[:value]
+        end
+
+        { :value => @operation.call(*args), :context => context }
+      end
+
+      {:values => values}
+    end
+
     def value_hash
       current_value = ::Fiveruns::Dash.sync { @operation.call }
       {:values => parse_value(current_value)}
@@ -73,12 +125,12 @@ module Fiveruns::Dash
     def parse_value(value)
       case value
       when Numeric
-        [{:context => nil, :value => value}]
+        [{:context => [], :value => value}]
       when Hash
         value.inject([]) do |all, (key, val)|
           case key
           when nil
-            all.push :context => nil, :value => val
+            all.push :context => [], :value => val
           when Array
             if key.size % 2 == 0
               all.push :context => key, :value => val
@@ -122,10 +174,11 @@ module Fiveruns::Dash
     # * Note: We sync here when looking up the container, while
     #         the block is being executed, and when it is stored
     def with_container_for_context(context)
+      ctx = (context || []).dup # normalize nil context to empty
       ::Fiveruns::Dash.sync do
-        container = @data[context]
+        container = @data[ctx]
         new_container = yield container
-        @data[context] = new_container # For hash defaults
+        @data[ctx] = new_container # For hash defaults
       end
     end
     
@@ -269,8 +322,8 @@ module Fiveruns::Dash
     # * Note: We sync here (and wherever @data is being written)
     def current_value
       result = ::Fiveruns::Dash.sync do
-        # Ensure the nil context is stored with a default of 0
-        @data[nil] = @data.fetch(nil, 0)
+        # Ensure the empty context is stored with a default of 0
+        @data[[]] = @data.fetch([], 0)
         @data
       end
       parse_value result
