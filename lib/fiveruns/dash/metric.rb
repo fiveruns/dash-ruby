@@ -37,8 +37,9 @@ module Fiveruns::Dash
     
     def calculate(real_data)
       return nil unless virtual?
-      datas = options[:sources].map {|met_name| real_data.detect { |hash| hash[:name] == met_name } }.flatten
-      raise ArgumentError, "Could not find one or more of #{options[:sources].inspect}" unless datas.size == options[:sources].size
+
+      datas = options[:sources].map {|met_name| real_data.detect { |hash| hash[:name] == met_name } }.compact
+      raise ArgumentError, "Could not find one or more of #{options[:sources].inspect} in #{real_data.map { |h| h[:name] }.inspect}" unless datas.size == options[:sources].size
 
       combine(datas.map { |hsh| hsh[:values] }).merge(key)
     end
