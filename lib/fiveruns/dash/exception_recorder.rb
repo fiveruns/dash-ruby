@@ -8,10 +8,16 @@ module Fiveruns
     class << self
       def replacements
         @replacements ||= begin
-          { 
+          paths = {
             :system => /^(#{esc(path_prefixes(system_paths))})/,
             :gems   => /^(#{esc(path_prefixes(system_gempaths, '/gems'))})/
           }
+          %w(RAILS_ROOT MERB_ROOT).each do |root|
+            const = nil
+            const = Object.const_get(root) if Object.const_defined?(root)
+            paths.merge({ :app => regexp_for_path(const) }) if const
+          end
+          paths
         end
       end
 
@@ -22,12 +28,16 @@ module Fiveruns
       def system_paths
         `ruby -e 'puts $:.reject{|p|p=="."}.join(":")'`
       end
+
+      def regexp_for_path(path)
+        /^(#{Regexp.escape(Pathname.new(path).cleanpath.to_s)})/
+      end
     
-      def path_prefixes( syspaths, suffix='')
+      def path_prefixes(syspaths, suffix='')
         syspaths.strip.split(":").collect { |path| Pathname.new(path+suffix).cleanpath.to_s }
       end
     
-      def esc( path_prefixes )
+      def esc(path_prefixes)
         path_prefixes.collect{|path|Regexp.escape(path)}.join('|')
       end
     end
