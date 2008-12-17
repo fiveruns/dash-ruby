@@ -4,7 +4,10 @@ class MetricTest < Test::Unit::TestCase
   
   attr_reader :metric
   
-  def self.time_me
+  def self.time_me(val=0)
+    if val == 0
+      time_me(1)
+    end
     sleep 0.01
   end
 
@@ -70,6 +73,30 @@ class MetricTest < Test::Unit::TestCase
       end
     end
 
+    context "using reentrant time" do
+      setup do
+        @metric = TimeMetric.new(:time_mes, :method => time_method, :reentrant => true)
+        flexmock(@metric).should_receive(:info_id).and_return(1)
+      end
+      teardown do
+        # Hacked 'uninstrument' until it's built-in
+        ::Fiveruns::Dash::Instrument.handlers.each do |handler|
+          (class << MetricTest; self; end).class_eval <<-EOCE
+            remove_method :time_me_with_instrument_#{handler.hash}
+            alias_method :time_me, :time_me_without_instrument_#{handler.hash}
+            remove_method :time_me_without_instrument_#{handler.hash}
+          EOCE
+        end
+        ::Fiveruns::Dash::Instrument.handlers.clear
+      end
+      should "get correct number of invocations" do
+        invoke 4
+        assert_invocations_reported 4
+        invoke 1
+        assert_invocations_reported 1
+      end
+    end
+    
     context "using time" do
       setup do
         @metric = TimeMetric.new(:time_mes, :method => time_method)
@@ -93,15 +120,15 @@ class MetricTest < Test::Unit::TestCase
       end
       should "get correct number of invocations" do
         invoke 4
-        assert_invocations_reported 4
+        assert_invocations_reported 8
         invoke 1
-        assert_invocations_reported 1
+        assert_invocations_reported 2
       end
       should "time invocations" do
         last_total = 0
         4.times do |i|
           invoke
-          assert_equal i + 1, current_invocations 
+          assert_equal (i + 1)*2, current_invocations 
           reported_total = current_time_total
           assert(reported_total > last_total)
           last_total = reported_total
@@ -117,7 +144,7 @@ class MetricTest < Test::Unit::TestCase
         finder = lambda { |obj, *args| [:class, obj.name] }
         @metric.find_context_with(&finder)
         invoke 4
-        assert_equal 4, metric.data[:values].select { |m| m[:context] == [:class, 'MetricTest'] }.first[:invocations]
+        assert_equal 8, metric.data[:values].select { |m| m[:context] == [:class, 'MetricTest'] }.first[:invocations]
       end
     end
 
@@ -129,12 +156,12 @@ class MetricTest < Test::Unit::TestCase
       should "default to 0 before being incremented, and after reset" do
         assert_counted 0
         invoke 4
-        assert_counted 4
+        assert_counted 8
         assert_counted 0
       end
       should "get correct number after being incremented" do
         invoke 4
-        assert_counted 4
+        assert_counted 8
       end
     end
 

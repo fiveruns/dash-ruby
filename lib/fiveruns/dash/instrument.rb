@@ -38,9 +38,8 @@ module Fiveruns::Dash
 
     def self.reentrant_timing(token, offset, this, args)
       # token allows us to handle re-entrant timing, see e.g. ar_time
-      Thread.current[token] = 0 unless Thread.current[token]
+      Thread.current[token] = 0 if Thread.current[token].nil?
       Thread.current[token] = Thread.current[token] + 1
-      
       begin
         start = Time.now
         result = yield
@@ -81,9 +80,9 @@ module Fiveruns::Dash
               raise
             end
           EXCEPTIONS
-        elsif options[:reentrant]
+        elsif options[:reentrant_token]
           <<-REENTRANT
-            ::Fiveruns::Dash::Instrument.reentrant_timing(:"handler-#{handler.object_id}", #{offset}, self, args) do
+            ::Fiveruns::Dash::Instrument.reentrant_timing(:id#{options[:reentrant_token]}, #{offset}, self, args) do
               #{without}(*args, &block)
             end
           REENTRANT

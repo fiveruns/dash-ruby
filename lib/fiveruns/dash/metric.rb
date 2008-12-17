@@ -229,7 +229,7 @@ module Fiveruns::Dash
     def install_hook
       @operation ||= lambda { nil }
       methods_to_instrument.each do |meth|
-        Instrument.add meth do |obj, time, *args|
+        Instrument.add meth, instrument_options do |obj, time, *args|
           find_containers(obj, *args) do |container|
             container[:invocations] += 1
             container[:value] += time
@@ -239,6 +239,12 @@ module Fiveruns::Dash
       end
     end
     
+    def instrument_options
+      returning({}) do |options|
+        options[:reentrant_token] = self.object_id if @options[:reentrant]
+      end
+    end
+
     def methods_to_instrument
       @methods_to_instrument ||= Array(@options[:method]) + Array(@options[:methods])
     end
