@@ -8,6 +8,7 @@ module Fiveruns::Dash
     attr_reader :name, :description, :help_text, :options
     attr_accessor :recipe
     def initialize(name, *args, &block)
+      @@warned = false
       @name = name.to_s
       @options = args.extract_options!
       @description = args.shift || @name.titleize
@@ -39,7 +40,29 @@ module Fiveruns::Dash
       return nil unless virtual?
 
       datas = options[:sources].map {|met_name| real_data.detect { |hash| hash[:name] == met_name } }.compact
-      raise ArgumentError, "Could not find one or more of #{options[:sources].inspect} in #{real_data.map { |h| h[:name] }.inspect}" unless datas.size == options[:sources].size
+
+      if datas.size != options[:sources].size && options[:sources].include?('response_time')
+        Fiveruns::Dash.logger.warn(<<-LOG
+          ActiveRecord utilization metrics require a time metric so Dash can calculate a percentage of time spent in the database.
+          Please set the :ar_total_time option when configuring Dash:
+
+          # Define an application-specific metric cooresponding to the total processing time for this app.
+          Fiveruns::Dash.register_recipe :loader, :url => 'http://dash.fiveruns.com' do |recipe|
+            recipe.time :total_time, 'Load Time', :method => 'Loader::Engine#load'
+          end
+
+          # Pass the name of this custom metric to Dash so it will be used in the AR metric calculations.
+          Fiveruns::Dash.configure :app => token, :ar_total_time => 'total_time' do |config|
+            config.add_recipe :activerecord
+            config.add_recipe :loader, :url => 'http://dash.fiveruns.com'
+          end
+        LOG
+        ) unless @@warned
+        @@warned = true
+        return nil
+      else
+        raise ArgumentError, "Could not find one or more of #{options[:sources].inspect} in #{real_data.map { |h| h[:name] }.inspect}" unless datas.size == options[:sources].size
+      end
 
       combine(datas.map { |hsh| hsh[:values] }).merge(key)
     end
@@ -157,12 +180,12 @@ module Fiveruns::Dash
     def find_containers(*args, &block) #:nodoc:
       contexts = Array(current_context_for(*args))
       if contexts.empty? || contexts == [[]]
-        contexts = [nil]
+        contexts = [[]]
       elsif contexts.all? { |item| !item.is_a?(Array) }
         contexts = [contexts]
       end
       if Thread.current[:trace]
-        result = yield blank_data[nil]
+        result = yield blank_data[[]]
         Thread.current[:trace].add_data(self, contexts, result)
       end
       contexts.each do |context|

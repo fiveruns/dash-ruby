@@ -5,7 +5,7 @@ Fiveruns::Dash.register_recipe :ruby, :url => 'http://dash.fiveruns.com' do |met
   metrics.absolute :rss, "Resident Memory Usage", "The amount of physical memory used by this process", :unit => 'kbytes' do
     Integer(`ps -o rss -p #{Process.pid}`[/(\d+)/, 1])
   end
-  metrics.percentage :pmem, "Resident Memory Usage", "The Percentage Resident Memopry Usage" do 
+  metrics.percentage :pmem, "Resident Memory Usage", "Percentage of Resident Memory Usage" do
     Float(`ps -o pmem -p #{Process.pid}`[/(\d+\.\d+)/, 1])
   end
 
