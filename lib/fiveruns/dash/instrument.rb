@@ -43,8 +43,8 @@ module Fiveruns::Dash
       begin
         start = Time.now
         result = yield
-        time = Time.now - start
       ensure
+        time = Time.now - start
         Thread.current[token] = Thread.current[token] - 1
         if Thread.current[token] == 0
           ::Fiveruns::Dash::Instrument.handlers[offset].call(this, time, *args)
