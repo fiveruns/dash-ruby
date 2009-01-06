@@ -46,7 +46,7 @@ module Fiveruns::Dash
       ensure
         time = Time.now - start
         Thread.current[token] = Thread.current[token] - 1
-        if time && Thread.current[token] == 0
+        if Thread.current[token] == 0
           ::Fiveruns::Dash::Instrument.handlers[offset].call(this, time, *args)
         end
       end
