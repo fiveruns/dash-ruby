@@ -49,7 +49,7 @@ class MetricTest < Test::Unit::TestCase
       end
     end
     
-    context "should parse arguments for name, description and help_text using defaults" do
+    context "should parse arguments for name, description using defaults" do
       setup do
         @options = Hash.new
         @options[:method] = time_method
@@ -64,8 +64,8 @@ class MetricTest < Test::Unit::TestCase
         assert_equal "Name", @metric.description
       end
 
-      should "default help text to class and description" do
-        assert_equal "TimeMetric: Name", @metric.help_text
+      should "default help text to nil" do
+        assert_nil @metric.help_text
       end
 
       should "interpret options" do

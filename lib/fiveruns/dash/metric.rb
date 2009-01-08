@@ -12,7 +12,7 @@ module Fiveruns::Dash
       @name = name.to_s
       @options = args.extract_options!
       @description = args.shift || @name.titleize
-      @help_text = args.shift || "#{self.class.name.demodulize}: #{@description}"
+      @help_text = args.shift
       @operation = block
       @virtual = !!options[:sources]
       @abstract = options[:abstract]
