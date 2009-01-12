@@ -14,7 +14,12 @@ module Fiveruns::Dash
       winning_path = best_match(scm_hash.keys)
       return nil if winning_path.nil?
       Fiveruns::Dash.logger.info "SCM: Using #{scm_hash[winning_path].name} in #{winning_path}" 
-      scm_hash[winning_path].new(winning_path)
+      begin
+        scm_hash[winning_path].new(winning_path)
+      rescue Exception => e
+        Fiveruns::Dash.logger.warn "WARNING: #{e.message}"
+        nil
+      end
     end
     
     def self.best_match( scm_paths )
@@ -83,7 +88,7 @@ module Fiveruns::Dash
     def require_binding
       require 'git'
     rescue LoadError
-      raise LoadError, "Requires the 'git' gem"
+      raise LoadError, "Dash deployment tracking for Git apps requires the 'git' gem"
     end
     
   end
