@@ -56,7 +56,7 @@ module Fiveruns
         matching
       else
         data[:total] = 1
-        data[:sample] = sample
+        data[:sample] = flatten_sample sample
         exceptions << data
         data
       end
@@ -75,6 +75,17 @@ module Fiveruns
     #######
     private
     #######
+    
+    def flatten_sample(sample)
+      case sample
+      when Hash
+        Hash[*sample.to_a.flatten.map { |v| v.to_s }]
+      when nil
+        {}
+      else
+        raise ArgumentError, "Exception sample must be a Hash instance"
+      end
+    end
 
     def existing_exception_for(data)
       # We detect exception dupes based on the same class name and backtrace.

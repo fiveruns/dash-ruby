@@ -36,8 +36,8 @@ class ExceptionRecorderTest < Test::Unit::TestCase
       should "normalize a backtrace" do
         assert(recorder.data.first[:backtrace] =~ /\[FOO\]/)
       end      
-      should "serialize sample" do
-        assert_equal YAML::dump(:key=>:value), recorder.data.first[:serialized_sample]
+      should "not serialize sample" do
+        assert_equal({'key' => 'value'}, recorder.data.first[:sample])
       end      
     end
     
@@ -53,7 +53,7 @@ class ExceptionRecorderTest < Test::Unit::TestCase
         assert_equal [2], recorder.data.map { |exc| exc[:total] }
       end
       should "store only the first sample" do
-        assert_equal YAML::dump(:key1=>:value1), recorder.data.first[:serialized_sample]
+        assert_equal({'key1' => 'value1'}, recorder.data.first[:sample])
       end
     end
     
