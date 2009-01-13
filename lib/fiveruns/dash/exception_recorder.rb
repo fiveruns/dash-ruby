@@ -90,7 +90,7 @@ module Fiveruns
     end
 
     def serialize(sample)
-      YAML::dump(sample)
+      sample.to_json
     end
 
     def exceptions
