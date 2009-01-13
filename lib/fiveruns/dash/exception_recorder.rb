@@ -56,7 +56,7 @@ module Fiveruns
         matching
       else
         data[:total] = 1
-        data[:serialized_sample] = serialize( sample ) unless sample.nil?
+        data[:sample] = sample
         exceptions << data
         data
       end
@@ -87,10 +87,6 @@ module Fiveruns
         :message => e.message,
         :backtrace => sanitize(e.backtrace)
       }
-    end
-
-    def serialize(sample)
-      sample.to_json
     end
 
     def exceptions
