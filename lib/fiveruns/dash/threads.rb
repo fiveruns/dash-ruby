@@ -10,14 +10,13 @@ module Fiveruns::Dash
     
     module ClassMethods
       
-      def mutex
-        @mutex ||= Mutex.new
+      def monitor
+        @monitor ||= Monitor.new
       end
       
       def sync(&block)
-        mutex.synchronize(&block)
+        monitor.synchronize(&block)
       end
-      
     end
     
   end
