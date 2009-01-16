@@ -1,4 +1,5 @@
 require 'rubygems'
+# TODO remove ActiveSupport dependency
 require 'activesupport'
 require 'json'
 

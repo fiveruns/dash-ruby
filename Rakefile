@@ -23,7 +23,8 @@ spec = Gem::Specification.new do |s|
   s.author = AUTHOR
   s.email = EMAIL
   s.homepage = HOMEPAGE
-  s.add_dependency('json_pure')
+  # a bug in json_pure 1.1.3 prevents us from using the pure Ruby version.
+  s.add_dependency('json')
   s.require_path = 'lib'
   s.files = %w(Rakefile) + FileList["{lib,test,recipes,examples}/**/*"]
 end
