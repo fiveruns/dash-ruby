@@ -55,9 +55,12 @@ module Fiveruns::Dash
     
     def self.timing(offset, this, args)
       start = Time.now
-      result = yield
-      time = Time.now - start
-      ::Fiveruns::Dash::Instrument.handlers[offset].call(this, time, *args)
+      begin
+        result = yield
+      ensure
+        time = Time.now - start
+        ::Fiveruns::Dash::Instrument.handlers[offset].call(this, time, *args)
+      end
       result
     end
     
