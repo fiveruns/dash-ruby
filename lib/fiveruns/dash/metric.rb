@@ -202,6 +202,7 @@ module Fiveruns::Dash
       ::Fiveruns::Dash.sync do
         container = @data[ctx]
         new_container = yield container
+        #Fiveruns::Dash.logger.info "#{name}/#{context.inspect}/#{new_container.inspect}"
         @data[ctx] = new_container # For hash defaults
       end
     end
