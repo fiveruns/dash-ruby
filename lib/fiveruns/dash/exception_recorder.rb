@@ -4,6 +4,8 @@ module Fiveruns
   module Dash
   
   class ExceptionRecorder
+
+    RULES = []
     
     class << self
       def replacements
@@ -40,13 +42,25 @@ module Fiveruns
       def esc(path_prefixes)
         path_prefixes.collect{|path|Regexp.escape(path)}.join('|')
       end
+
+      def add_ignore_rule(&rule)
+        RULES << rule
+      end
     end
 
     def initialize(session)
       @session = session
     end
     
+    def ignore_exception?(exception)
+      RULES.any? do |rule|
+        rule.call(exception)
+      end
+    end
+
     def record(exception, sample=nil)
+      return if ignore_exception? exception
+
       data = extract_data_from_exception(exception)
       # Allow the sample data to override the exception's display name.
       data[:name] = sample.delete(:name) if sample and sample[:name]

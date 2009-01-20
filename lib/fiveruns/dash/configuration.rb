@@ -49,6 +49,10 @@ module Fiveruns::Dash
       @recipes ||= []
     end
     
+    def ignore_exceptions(&rule)
+      Fiveruns::Dash::ExceptionRecorder.add_ignore_rule(&rule)
+    end
+
     def add_exceptions_from(*meths, &block)
       block = block ? block : lambda { }
       meths.push :exceptions => true
