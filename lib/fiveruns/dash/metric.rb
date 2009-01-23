@@ -108,8 +108,10 @@ module Fiveruns::Dash
     
     def optional_info
       returning({}) do |optional|
-        optional.merge(@options[:unit] ? {:unit => @options[:unit].to_s} : {})
-        optional.merge(abstract? ? {:abstract => true} : {})
+        copy = optional.merge(@options[:unit] ? {:unit => @options[:unit].to_s} : {})
+        copy = copy.merge(@options[:scope] ? {:scope => @options[:scope].to_s} : {})        
+        copy = copy.merge(abstract? ? {:abstract => true} : {})
+        optional.merge!(copy)
       end
     end
 
