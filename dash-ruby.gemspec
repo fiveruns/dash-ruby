@@ -3,6 +3,8 @@ AUTHOR = "FiveRuns Development Team"
 EMAIL = "dev@fiveruns.com"
 HOMEPAGE = "http://dash.fiveruns.com/"
 SUMMARY = "Communication to the FiveRuns Dash service"
+
+# Important: Make sure you modify this in version.rb, too
 GEM_VERSION = '0.6.7'
 
 Gem::Specification.new do |s|
