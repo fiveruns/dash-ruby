@@ -1,4 +1,4 @@
-NAME = "dash"
+NAME = "dash-ruby"
 AUTHOR = "FiveRuns Development Team"
 EMAIL = "dev@fiveruns.com"
 HOMEPAGE = "http://dash.fiveruns.com/"
