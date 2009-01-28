@@ -21,7 +21,6 @@ Gem::Specification.new do |s|
   s.homepage = HOMEPAGE
   # a bug in json_pure 1.1.3 prevents us from using the pure Ruby version.
   s.add_dependency('json')
-  s.add_development_dependency('shoulda')
   s.require_path = 'lib'
   s.files = %w(Rakefile) + Dir.glob("{lib,test,recipes,examples}/**/*")
 end
