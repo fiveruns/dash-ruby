@@ -7,6 +7,25 @@ end
 
 task :default => :test
 
+begin 
+  require 'jeweler' 
+
+  Jeweler::Tasks.new do |s| 
+    s.name = "dash-ruby" 
+    s.rubyforge_project = 'fiveruns'
+    s.summary = "FiveRuns Dash core library for Ruby" 
+    s.email = "dev@fiveruns.com" 
+    s.homepage = "http://github.com/fiveruns/dash-ruby" 
+    s.description = "Provides an API to send metrics to the FiveRuns Dash service" 
+    s.authors = ["FiveRuns Development Team"] 
+    s.files =  FileList['README.rdoc', 'Rakefile', 'version.yml', "{lib,test,recipes,examples}/**/*", ] 
+    s.add_dependency 'json' 
+    s.add_development_dependency 'shoulda'
+  end 
+rescue LoadError 
+  puts "Jeweler, or one of its dependencies, is not available. Install it with: sudo gem install technicalpickles-jeweler -s http://gems.github.com" 
+end
+
 task :coverage do
   rm_f "coverage"
   rm_f "coverage.data"

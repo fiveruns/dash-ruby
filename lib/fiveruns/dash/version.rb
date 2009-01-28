@@ -1,3 +1,5 @@
+require 'yaml'
+
 # (The MIT License)
 # 
 # Copyright (c) 2008 Jamis Buck <jamis@37signals.com>,
@@ -65,10 +67,12 @@ module Fiveruns
       def to_a
         [@major, @minor, @tiny]
       end
+      
+      PARSED = YAML.load(File.read(File.dirname(__FILE__) << "/../../../version.yml"))
 
-      MAJOR = 0
-      MINOR = 7
-      TINY  = 0
+      MAJOR = PARSED['major']
+      MINOR = PARSED['minor']
+      TINY  = PARSED['patch']
 
       # The current version as a Version instance
       CURRENT = new(MAJOR, MINOR, TINY)
