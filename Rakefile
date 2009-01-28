@@ -20,7 +20,6 @@ begin
     s.authors = ["FiveRuns Development Team"] 
     s.files =  FileList['README.rdoc', 'Rakefile', 'version.yml', "{lib,test,recipes,examples}/**/*", ] 
     s.add_dependency 'json' 
-    s.add_development_dependency 'shoulda'
   end 
 rescue LoadError 
   puts "Jeweler, or one of its dependencies, is not available. Install it with: sudo gem install technicalpickles-jeweler -s http://gems.github.com" 
