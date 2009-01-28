@@ -71,7 +71,7 @@ module Fiveruns::Dash
     def self.instrument(obj, meth, options = {}, &handler)
       handlers << handler unless handlers.include?(handler)
       offset = handlers.size - 1
-      identifier = "instrument_#{handler.hash}"
+      identifier = "instrument_#{handler.hash.abs}"
       code = wrapping meth, identifier do |without|
         if options[:exceptions]
           <<-EXCEPTIONS
