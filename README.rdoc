@@ -16,6 +16,14 @@ See the Ruby Language Guide http://dash.fiveruns.com/help/ruby.html for informat
 
 The FiveRuns Development Team & Dash community
 
+== Dependencies
+
+* The json gem
+
+== Platforms
+
+This library has only been tested on OSX and Linux.  The `ruby' recipe (which collects metrics on the Ruby process) currently relies on `ps' -- so will not work on Windows.  We're actively looking for contributions to widen the number of platforms we support; please help!
+
 == Contributing
 
 As an open source project, we welcome community contributions!
