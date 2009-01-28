@@ -2,6 +2,8 @@
 
 Provides a Ruby API to push metrics to the FiveRuns Dash service, http://dash.fiveruns.com, currently in beta.
 
+You'll need a Dash account before using this library.
+
 == Installation
 
 This library is released as a gem from the official repository at http://github.com/fiveruns/dash-ruby
