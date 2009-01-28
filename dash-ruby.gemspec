@@ -5,7 +5,7 @@ HOMEPAGE = "http://dash.fiveruns.com/"
 SUMMARY = "Communication to the FiveRuns Dash service"
 
 # Important: Make sure you modify this in version.rb, too
-GEM_VERSION = '0.6.7'
+GEM_VERSION = '0.7.0'
 
 Gem::Specification.new do |s|
   s.rubyforge_project = 'fiveruns'
