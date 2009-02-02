@@ -267,7 +267,7 @@ module Fiveruns::Dash
     
     def instrument_options
       returning({}) do |options|
-        options[:reentrant_token] = self.object_id if @options[:reentrant]
+        options[:reentrant_token] = self.object_id.abs if @options[:reentrant]
       end
     end
 
