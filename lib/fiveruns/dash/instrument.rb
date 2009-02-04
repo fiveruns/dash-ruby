@@ -36,7 +36,7 @@ module Fiveruns::Dash
       end
     end
 
-    def self.reentrant_timing(token, offset, this, args)
+    def self.reentrant_timing(token, offset, this, limit_to_within, args)
       # token allows us to handle re-entrant timing, see e.g. ar_time
       Thread.current[token] = 0 if Thread.current[token].nil?
       Thread.current[token] = Thread.current[token] + 1
@@ -47,19 +47,29 @@ module Fiveruns::Dash
         time = Time.now - start
         Thread.current[token] = Thread.current[token] - 1
         if Thread.current[token] == 0
-          ::Fiveruns::Dash::Instrument.handlers[offset].call(this, time, *args)
+          if !limit_to_within || (Thread.current[:dash_markers] || []).include?(limit_to_within)
+            ::Fiveruns::Dash::Instrument.handlers[offset].call(this, time, *args)
+          end
         end
       end
       result
     end
     
-    def self.timing(offset, this, args)
+    def self.timing(offset, this, args, mark, limit_to_within)
+      if mark
+        Thread.current[:dash_markers] ||= []
+        Thread.current[:dash_markers].push mark
+      end
       start = Time.now
       begin
         result = yield
       ensure
         time = Time.now - start
-        ::Fiveruns::Dash::Instrument.handlers[offset].call(this, time, *args)
+        Thread.current[:dash_markers].pop if mark
+
+        if !limit_to_within || (Thread.current[:dash_markers] || []).include?(limit_to_within)
+          ::Fiveruns::Dash::Instrument.handlers[offset].call(this, time, *args)
+        end
       end
       result
     end
@@ -85,13 +95,13 @@ module Fiveruns::Dash
           EXCEPTIONS
         elsif options[:reentrant_token]
           <<-REENTRANT
-            ::Fiveruns::Dash::Instrument.reentrant_timing(:id#{options[:reentrant_token]}, #{offset}, self, args) do
+            ::Fiveruns::Dash::Instrument.reentrant_timing(:id#{options[:reentrant_token]}, #{offset}, self, #{options[:only_within] ? ":#{options[:only_within]}" : 'nil'}, args) do
               #{without}(*args, &block)
             end
           REENTRANT
         else
           <<-PERFORMANCE
-            ::Fiveruns::Dash::Instrument.timing(#{offset}, self, args) do
+            ::Fiveruns::Dash::Instrument.timing(#{offset}, self, args, #{options[:mark_as] ? ":#{options[:mark_as]}" : 'nil'}, #{options[:only_within] ? ":#{options[:only_within]}" : 'nil'}) do
               #{without}(*args, &block)
             end
           PERFORMANCE
