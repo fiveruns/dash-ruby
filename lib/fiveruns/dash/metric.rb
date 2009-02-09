@@ -164,12 +164,12 @@ module Fiveruns::Dash
               bad_value! "Contexts must have an even number of items"
             end
           else
-            bad_value! "Unknown context type"
+            bad_value! "Unknown context type: #{key.class.name}"
           end
           all
         end
       else
-        bad_value! "Unknown value type"
+        bad_value! "Unknown value type: #{value.class.name}"
       end
     end
     
