@@ -57,38 +57,39 @@ module Fiveruns::Dash
   end
   
   class GitSCM < SCM
-    
+
     def revision
-      commit.sha
+      head.id
     end
-    
+
     def time
-      commit.date
+      head.committed_date
     end
-    
+
     def url
-      @url ||= begin
-        origin = repo.remotes.detect { |r| r.name == 'origin' }
-        origin.url if origin
-      end
+      repo.config.fetch('remote.origin.url', '')
     end
-    
+
     #######
     private
     #######
-    
-    def commit
-      @commit ||= repo.object('HEAD')
+
+    def head
+      @head ||= begin
+        sha = repo.head.commit
+        repo.commits(sha)[0]
+      end
     end
-    
+
     def repo
-      @repo ||= Git.open(@path)
+      @repo ||= Grit::Repo.new(@path)
     end
 
     def require_binding
-      require 'git'
+      require 'grit'
+      Fiveruns::Dash.logger.info "GIT: #{revision} / #{time} / #{url}"
     rescue LoadError
-      raise LoadError, "Dash deployment tracking for Git apps requires the 'git' gem"
+      raise LoadError, "Dash deployment tracking for Git apps requires the 'grit' gem"
     end
     
   end
