@@ -62,7 +62,9 @@ module Fiveruns::Dash
     # Merge in an existing recipe
     # call-seq:
     #   add_recipe :ruby
-    def add_recipe(name, options = {})
+    def add_recipe(name, options = {}, &block)
+      Fiveruns::Dash.register_recipe(name, options, &block) if block_given?
+
       if Fiveruns::Dash.recipes[name]
         Fiveruns::Dash.recipes[name].each do |recipe|
           if !recipes.include?(recipe) && recipe.matches?(options)
