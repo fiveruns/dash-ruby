@@ -133,17 +133,27 @@ module Fiveruns::Dash
           values.detect { |value| value[:context] == context }[:value]
         end
 
-        { :value => @operation.call(*args), :context => context }
+        { :value => metric_callback(*args), :context => context }
       end
 
       {:values => values}
     end
 
     def value_hash
-      current_value = ::Fiveruns::Dash.sync { @operation.call }
+      current_value = ::Fiveruns::Dash.sync { metric_callback }
       {:values => parse_value(current_value)}
     end
     
+    def metric_callback(*args)
+      begin
+        @operation.call(*args)
+      rescue Exception => ex
+        Fiveruns::Dash.logger.error("Metric #{recipe ? "#{recipe.name}/" : ''}#{@name} raised #{ex.class.name}: #{ex.message}")
+        Fiveruns::Dash.logger.error(ex.backtrace.join("\n"))
+        0
+      end
+    end
+
     # Verifies value matches one of the following patterns:
     # * A numeric value (indicates no namespace)
     # * A hash of [namespace_kind, namespace_name, ...] => value pairs, eg:

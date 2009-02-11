@@ -46,6 +46,7 @@ class Test::Unit::TestCase
     @recipes << Fiveruns::Dash::Recipe.new(:foo, :url => 'http://foo.com')
     @recipes << Fiveruns::Dash::Recipe.new(:foo2, :url => 'http://foo2.com')
     @metrics << @metric_class.new("NonCustomMetric") { 2 }
+    @metrics << @metric_class.new("BadMetric") { raise ArgumentError }
     @configuration = flexmock(:configuration) do |mock|
       mock.should_receive(:metrics).and_return(@metrics)
       mock.should_receive(:recipes).and_return(@recipes)
