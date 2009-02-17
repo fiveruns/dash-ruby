@@ -102,14 +102,11 @@ module Fiveruns::Dash
     #######
     
     def validate!
-      if virtual? && Util.blank?(options[:sources])
-        raise ArgumentError,
-              "#{name} - Virtual metrics should have source metrics"
-      end
-      if !virtual? && options[:sources]
-        raise ArgumentError,
-              "#{name} - metrics should not have source metrics" 
-      end
+      raise ArgumentError, "'#{name}' should be between 3 and 32 characters" unless (3..32).include?(name.size)
+      raise ArgumentError, "'#{name}' should only contain letters, numbers and underscore" if name !~ /\A\w+\Z/
+
+      raise ArgumentError, "#{name} - Virtual metrics should have source metrics" if virtual? && Util.blank?(options[:sources])
+      raise ArgumentError, "#{name} - metrics should not have source metrics" if !virtual? && options[:sources]
     end
     
     def optional_info

@@ -67,6 +67,10 @@ module Fiveruns::Dash
       @thread && @thread.alive? && @thread.raise(ShutdownSignal.new)
     end
 
+    def secure!
+      @update_locations = %w(https://dash-collector.fiveruns.com https://dash-collector02.fiveruns.com)
+    end
+
     #######
     private
     #######
@@ -200,7 +204,7 @@ module Fiveruns::Dash
     end
     
     def default_update_locations
-      %w(https://dash-collector.fiveruns.com https://dash-collector02.fiveruns.com)
+      %w(http://dash-collector.fiveruns.com http://dash-collector02.fiveruns.com)
     end
 
   end

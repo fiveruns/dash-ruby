@@ -130,7 +130,7 @@ module Fiveruns::Dash::Store
 
     class Multipart
 
-      BOUNDARY_ROOT = 'B0UND~F0R~UPL0AD'
+      BOUNDARY_ROOT = 'B0UND'
 
       attr_reader :file, :params
       def initialize(file, params={})

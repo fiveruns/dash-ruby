@@ -25,7 +25,7 @@ class ConfigurationTest < Test::Unit::TestCase
       setup do
         @configuration = Configuration.new do |config|
           metric_types.each do |type|
-            config.__send__(type, "Metric: #{type}") do
+            config.__send__(type, "#{type}") do
               # Empty block for metric types that require it
             end
           end
