@@ -8,11 +8,11 @@ You'll need a Dash account before using this library.
 
 This library is released as a gem from the official repository at http://github.com/fiveruns/dash-ruby
 
-  sudo gem install fiveruns-dash-ruby --source 'http://gems.github.com'
+  sudo gem install fiveruns-dash-ruby --source http://gems.github.com
 
 == Usage
 
-See the Ruby Language Guide http://dash.fiveruns.com/help/ruby.html for information on how to use this library. 
+See the Ruby support pages, http://support.fiveruns.com/faqs/dash/ruby, for information on how to use this library. 
 
 == Authors
 
@@ -38,7 +38,7 @@ The best way to contribute is by sending pull requests via GitHub.  The official
 
 Please join the dash-users Google group, http://groups.google.com/group/dash-users
 
-You can also contact us via Twitter, Campfire, or email; see the main help page, http://dash.fiveruns.com/help, for details.
+You can also contact us via Twitter, Campfire, or email; see the main help page, http://support.fiveruns.com, for details.
 
 == License
 
