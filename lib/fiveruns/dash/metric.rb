@@ -10,8 +10,8 @@ module Fiveruns::Dash
     def initialize(name, *args, &block)
       @@warned = false
       @name = name.to_s
-      @options = args.extract_options!
-      @description = args.shift || @name.titleize
+      @options = args.last.is_a?(Hash) ? args.pop : {}
+      @description = args.shift || Util.titleize(@name)
       @help_text = args.shift
       @operation = block
       @virtual = !!options[:sources]
@@ -102,17 +102,23 @@ module Fiveruns::Dash
     #######
     
     def validate!
-      raise ArgumentError, "#{name} - Virtual metrics should have source metrics" if virtual? && options[:sources].blank?
-      raise ArgumentError, "#{name} - metrics should not have source metrics" if !virtual? && options[:sources]
+      if virtual? && Util.blank?(options[:sources])
+        raise ArgumentError,
+              "#{name} - Virtual metrics should have source metrics"
+      end
+      if !virtual? && options[:sources]
+        raise ArgumentError,
+              "#{name} - metrics should not have source metrics" 
+      end
     end
     
     def optional_info
-      returning({}) do |optional|
-        copy = optional.merge(@options[:unit] ? {:unit => @options[:unit].to_s} : {})
-        copy = copy.merge(@options[:scope] ? {:scope => @options[:scope].to_s} : {})        
-        copy = copy.merge(abstract? ? {:abstract => true} : {})
-        optional.merge!(copy)
-      end
+      optional = {}
+      copy = optional.merge(@options[:unit] ? {:unit => @options[:unit].to_s} : {})
+      copy = copy.merge(@options[:scope] ? {:scope => @options[:scope].to_s} : {})        
+      copy = copy.merge(abstract? ? {:abstract => true} : {})
+      optional.merge!(copy)
+      optional
     end
 
     def combine(source_values)
@@ -257,9 +263,9 @@ module Fiveruns::Dash
     end
     
     def value_hash
-      returning(:values => current_value) do
-        reset
-      end
+      values = {:values => current_value}
+      reset
+      values
     end
 
     def install_hook
@@ -276,22 +282,26 @@ module Fiveruns::Dash
     end
     
     def instrument_options
-      returning({}) do |options|
-        options[:reentrant_token] = self.object_id.abs if @options[:reentrant]
-        options[:only_within] = @options[:only_within] if @options[:only_within]
-        options[:mark_as] = @name if @options[:mark]
-      end
+      options = {}
+      options[:reentrant_token] = self.object_id.abs if @options[:reentrant]
+      options[:only_within] = @options[:only_within] if @options[:only_within]
+      options[:mark_as] = @name if @options[:mark]
+      options
     end
 
     def methods_to_instrument
-      @methods_to_instrument ||= Array(@options[:method]) + Array(@options[:methods])
+      @methods_to_instrument ||= begin
+        Array(@options[:method]) + Array(@options[:methods])
+      end
     end
     
     def validate!
       super
-      raise ArgumentError, "Can not set :unit for `#{@name}' time metric" if @options[:unit]
-      if methods_to_instrument.blank?
-        raise ArgumentError, "Must set :method or :methods option for `#{@name}` time metric"
+      raise ArgumentError,
+            "Can not set :unit for `#{@name}' time metric" if @options[:unit]
+      if Util.blank?(methods_to_instrument)
+        raise ArgumentError,
+              "Must set :method or :methods option for `#{@name}` time metric"
       end
     end
     
@@ -319,17 +329,18 @@ module Fiveruns::Dash
     
     def value_hash
       if incrementing_methods.any?
-        returning(:values => current_value) do
-          reset
-        end
+        values = {:values => current_value}
+        reset
+        values
       else
         super
       end
     end
     
     def install_hook
-      if incrementing_methods.blank?
-        raise RuntimeError, "Bad configuration for `#{@name}` counter metric"
+      if Util.blank?(incrementing_methods)
+        raise RuntimeError,
+              "Bad configuration for `#{@name}` counter metric"
       end
       @operation ||= lambda { nil }
       incrementing_methods.each do |meth|

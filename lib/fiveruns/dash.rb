@@ -1,8 +1,7 @@
 require 'rubygems'
-# TODO remove ActiveSupport dependency
-require 'activesupport'
 require 'json'
 
+require 'pathname'
 require 'thread'
 require 'logger'
 
@@ -14,6 +13,7 @@ $:.unshift(File.dirname(__FILE__))
 module Fiveruns; end
 
 require 'dash/version'
+require 'dash/util'
 require 'dash/configuration'
 require 'dash/typable'
 require 'dash/metric'

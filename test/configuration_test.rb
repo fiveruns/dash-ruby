@@ -34,7 +34,7 @@ class ConfigurationTest < Test::Unit::TestCase
       should "assign all metrics" do
         assert_equal 3, @configuration.metrics.size
         types = @configuration.metrics.map { |metric| metric.class.metric_type }
-        assert_equal metric_types.map(&:to_s).sort, types.map(&:to_s).sort
+        assert_equal metric_types.map { |i| i.to_s }.sort, types.map { |i| i.to_s }.sort
       end
       should "not allow invalid types" do
         assert_raises NoMethodError do
@@ -76,7 +76,7 @@ class ConfigurationTest < Test::Unit::TestCase
       end
       should "execute if correct version" do
         assert_equal 2, @config.metrics.size
-        assert_equal %w(bar foo), @config.metrics.map(&:name).map(&:to_s).sort
+        assert_equal %w(bar foo), @config.metrics.map { |m| m.name }.map { |i| i.to_s }.sort
       end
     end
 

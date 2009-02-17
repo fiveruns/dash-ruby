@@ -5,8 +5,13 @@ begin
   require 'shoulda'
   require 'flexmock/test_unit'
   require 'fake_web'
-rescue
+rescue LoadError
   puts "Please install the Shoulda, FakeWeb and flexmock gems to run the Dash plugin tests."
+end
+
+begin
+  require 'redgreen'
+rescue LoadError
 end
 
 $:.unshift(File.dirname(__FILE__) << '/../lib')

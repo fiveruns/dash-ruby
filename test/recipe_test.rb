@@ -136,7 +136,8 @@ class RecipeTest < Test::Unit::TestCase
   #######
   
   def assert_metrics(*names)
-    assert_equal names.sort, config.metrics.map(&:name).map(&:to_s).sort
+    assert_equal names.sort,
+                 config.metrics.map { |m| m.name }.map { |m| m.to_s }.sort
   end
   
   def recipe(name = :test, options = {:url => 'http://test.com'}, &block)

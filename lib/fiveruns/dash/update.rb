@@ -97,7 +97,12 @@ module Fiveruns::Dash
     end
     
     def uris_by_scheme(urls)
-      urls.map { |url| safe_parse(url) }.group_by(&:scheme)
+      safe = urls.map { |url| safe_parse(url) }
+      safe.inject({}) do |mapping, url|
+        mapping[url.scheme] ||= []
+        mapping[url.scheme] << url
+        mapping
+      end
     end
     
     def storage_method_for(scheme)
@@ -118,10 +123,10 @@ module Fiveruns::Dash
     end
 
     def io
-      returning StringIO.new do |io|
-        io.write compressed
-        io.rewind
-      end
+      io = StringIO.new
+      io.write compressed
+      io.rewind
+      io
     end
     
     def params

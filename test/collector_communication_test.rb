@@ -238,7 +238,7 @@ class CollectorCommunicationTest < Test::Unit::TestCase
   #######
   
   def full_urls(service)
-    full_uris(service).map(&:to_s)
+    full_uris(service).map { |u| u.to_s }
   end
   
   def full_uris(service)

@@ -77,9 +77,9 @@ module Fiveruns
     end
     
     def data
-      returning exceptions.dup do
-        reset
-      end
+      duped = exceptions.dup
+      reset
+      duped
     end
 
     def reset

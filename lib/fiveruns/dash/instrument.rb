@@ -20,9 +20,9 @@ module Fiveruns::Dash
         begin
           obj, meth = case raw_target
           when /^(.+)#(.+)$/
-            [$1.constantize, $2]
+            [Fiveruns::Dash::Util.constantize($1), $2]
           when /^(.+)(?:\.|::)(.+)$/
-            [(class << $1.constantize; self; end), $2]
+            [(class << Fiveruns::Dash::Util.constantize($1); self; end), $2]
           else
             raise Error, "Bad target format: #{raw_target}"
           end
@@ -129,7 +129,7 @@ module Fiveruns::Dash
             #{yield(format % :without)}
           end
         end
-        alias_method_chain :#{meth}, :#{feature}
+        Fiveruns::Dash::Util.chain(self, :#{meth}, :#{feature})
       DYNAMIC
     end
       

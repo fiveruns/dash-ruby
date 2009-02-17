@@ -8,7 +8,7 @@ module Fiveruns::Dash
     
     attr_accessor :interval
     attr_reader :started_at
-    def initialize(session, interval = 60.seconds.to_i)
+    def initialize(session, interval = 60)
       @session = session
       @interval = interval
     end

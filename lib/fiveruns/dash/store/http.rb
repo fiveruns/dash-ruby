@@ -20,7 +20,7 @@ module Fiveruns::Dash::Store
         ip = resolved_hostnames[hostname].ip
       else
         ip = hostname == 'localhost' ? '127.0.0.1' : IPSocket.getaddress(hostname)
-        ip_struct = OpenStruct.new(:ip => ip, :next_update => Time.now + 23.hours + rand(60).minutes)
+        ip_struct = OpenStruct.new(:ip => ip, :next_update => Time.now + (23 * 60 * 60) + (rand(60) * 60))
         resolved_hostnames[hostname] = ip_struct
       end
       ip
@@ -92,23 +92,23 @@ module Fiveruns::Dash::Store
     end
     
     def add_path_to(uri)
-      returning uri.dup do |new_uri|
-        path = case payload
-        when Fiveruns::Dash::PingPayload
-          ::File.join('/apps', app_token, "ping")
-        when Fiveruns::Dash::InfoPayload
-          ::File.join('/apps', app_token, "processes.json")
-        when Fiveruns::Dash::DataPayload
-          ::File.join('/apps', app_token, "metrics.json")
-        when Fiveruns::Dash::TracePayload
-          ::File.join('/apps', app_token, "traces.json")
-        when Fiveruns::Dash::ExceptionsPayload
-          ::File.join('/apps', app_token, "exceptions.json")
-        else
-          raise ArgumentError, 'Unknown payload type: #{payload.class}'
-        end
-        new_uri.path = path
+      new_uri = uri.dup
+      path = case payload
+      when Fiveruns::Dash::PingPayload
+        ::File.join('/apps', app_token, "ping")
+      when Fiveruns::Dash::InfoPayload
+        ::File.join('/apps', app_token, "processes.json")
+      when Fiveruns::Dash::DataPayload
+        ::File.join('/apps', app_token, "metrics.json")
+      when Fiveruns::Dash::TracePayload
+        ::File.join('/apps', app_token, "traces.json")
+      when Fiveruns::Dash::ExceptionsPayload
+        ::File.join('/apps', app_token, "exceptions.json")
+      else
+        raise ArgumentError, 'Unknown payload type: #{payload.class}'
       end
+      new_uri.path = path
+      new_uri
     end
     
     def extra_params_for(payload)
@@ -121,7 +121,7 @@ module Fiveruns::Dash::Store
     end
     
     def normalize_key(key)
-      key.to_a.flatten.map(&:to_s).sort
+      key.to_a.flatten.map { |k| k.to_s }.sort
     end
     
     def app_token

@@ -4,7 +4,9 @@ module Fiveruns::Dash
     
     class ConflictError < ::ArgumentError; end
     
-    delegate :each, :to => :metrics
+    def each(&block)
+      metrics.each(&block)
+    end
     
     def self.default_options
       ::Fiveruns::Dash.logger.info "CWD::#{Dir.pwd.inspect}"

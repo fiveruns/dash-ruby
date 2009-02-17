@@ -42,7 +42,7 @@ class HTTPStoreTest < Test::Unit::TestCase
         new_uri = @update.resolved_hostname(uris.first.host)        
         assert_equal new_uri, "1.1.1.1"
         assert_equal @update.resolved_hostnames.keys.size, 1
-        assert @update.resolved_hostnames[uris.first.host].next_update > (Time.now + 23.hours)
+        assert @update.resolved_hostnames[uris.first.host].next_update > (Time.now + (23 * 60 * 60))
         assert_equal @update.resolved_hostname(uris.first.host), "1.1.1.1"
         junk = @update.resolved_hostname(uris.first.host)        
         
@@ -54,14 +54,14 @@ class HTTPStoreTest < Test::Unit::TestCase
         assert_equal @update.resolved_hostnames.keys.size, 0
         new_uri = @update.resolved_hostname(uris.first.host)   
         assert_equal new_uri, "1.1.1.1"
-        @update.resolved_hostnames[uris.first.host].next_update = 10.hours.ago
+        @update.resolved_hostnames[uris.first.host].next_update = Time.now - (10 * 60 * 60)
         first_expire = @update.resolved_hostnames[uris.first.host].next_update
         
         new_uri = @update.resolved_hostname(uris.first.host)   
         second_expire = @update.resolved_hostnames[uris.first.host].next_update
         assert_equal new_uri, "2.2.2.2"
-        assert second_expire < (Time.now + 25.hours)
-        assert second_expire > (Time.now + 23.hours)
+        assert second_expire < (Time.now + (25 * 60 * 60))
+        assert second_expire > (Time.now + (23 * 60 * 60))
       end
     end
     
@@ -83,9 +83,8 @@ class HTTPStoreTest < Test::Unit::TestCase
           end
         end
         should "fallback to working URL" do
-          returning @update.store_http(*uris) do |pass_uri|
-            assert_equal uris[1], pass_uri
-          end
+          pass_uri = @update.store_http(*uris)
+          assert_equal uris[1], pass_uri
         end
       end
       context "on non-201 response" do
@@ -117,9 +116,8 @@ class HTTPStoreTest < Test::Unit::TestCase
             end
           end
           should "fallback to working URL" do
-            returning @update.store_http(*uris) do |pass_uri|
-              assert_equal uris[1], pass_uri
-            end
+            pass_uri = @update.store_http(*uris)
+            assert_equal uris[1], pass_uri
           end
         end
         context "on non-201 response" do
@@ -166,9 +164,8 @@ class HTTPStoreTest < Test::Unit::TestCase
             end
           end
           should "fallback to working URL" do
-            returning @update.store_http(*uris) do |pass_uri|
-              assert_equal uris[1], pass_uri
-            end
+            pass_uri = @update.store_http(*uris)
+            assert_equal uris[1], pass_uri
           end
         end
         context "on non-201 response" do
@@ -192,7 +189,7 @@ class HTTPStoreTest < Test::Unit::TestCase
   #######
   
   def full_urls(service)
-    full_uris(service).map(&:to_s)
+    full_uris(service).map { |u| u.to_s }
   end
   
   def full_uris(service)
