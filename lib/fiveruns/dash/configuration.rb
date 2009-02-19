@@ -66,12 +66,13 @@ module Fiveruns::Dash
     #   add_recipe :ruby
     def add_recipe(name, options = {}, &block)
       Fiveruns::Dash.register_recipe(name, options, &block) if block_given?
-
       if Fiveruns::Dash.recipes[name]
         Fiveruns::Dash.recipes[name].each do |recipe|
           if !recipes.include?(recipe) && recipe.matches?(options)
             recipes << recipe
-            recipe.add_to(self) 
+            with_recipe_settings(options.reject { |k, _| k == :url }) do
+              recipe.add_to(self) 
+            end
           end
         end
       else
@@ -90,12 +91,26 @@ module Fiveruns::Dash
     
     # Optionally fired by recipes when included
     def added
-      yield
+      yield current_recipe_settings
     end
     
     #######
     private
     #######
+    
+    def with_recipe_settings(settings = {})
+      recipe_settings_stack << settings
+      yield 
+      recipe_settings_stack.pop
+    end
+    
+    def current_recipe_settings
+      recipe_settings_stack.last
+    end
+    
+    def recipe_settings_stack
+      @recipe_settings_stack ||= []
+    end
     
     def normalize_version_comparator(comparator)
       comparator.to_s == '=' ? '==' : comparator

@@ -79,6 +79,20 @@ class RecipeTest < Test::Unit::TestCase
           assert_metrics(*%w(test2))
         end
       end
+      context "and passing settings" do
+        setup do
+          recipe :settings1, :url => 'http://example.com' do |r|
+            r.added do |settings|
+              r.counter(settings[:metric]) { }
+            end
+          end
+          config.add_recipe :settings1, :metric => :bar
+        end
+        should "pass them to the `added' block" do
+          assert_equal 1, config.metrics.size
+          assert_equal 'bar', config.metrics.first.name
+        end
+      end
     end
     
     context "when added" do

@@ -28,13 +28,21 @@ module Fiveruns::Dash
     end
     
     def add_to(configuration)
-      self.class.in_scope self do
+      self.class.in_scope(self) do
         @block.call(configuration)
       end
     end
     
+    # Currently :url is the only criteria; all other parts
+    # of the hash are settings to be passed on to the recipe
     def matches?(criteria)
-      criteria.all? { |k, v| options[k] == v }
+      criteria.all? do |k, v|
+        if [:url].include?(k)
+          options[k] == v
+        else
+          true
+        end
+      end
     end
     
     def ==(other)
