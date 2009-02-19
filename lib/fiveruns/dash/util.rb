@@ -65,6 +65,13 @@ module Fiveruns::Dash
       end
     end
     
+    def self.version_info
+      if defined?(Gem)
+        "with gems #{Gem.loaded_specs.values.find_all {|spec| spec.name =~ /fiveruns-dash/ }.map {|spec| "#{spec.name}-#{spec.version}"}.inspect}"
+      else
+        Fiveruns::Dash::Version::STRING
+      end
+    end
   end
   
 end

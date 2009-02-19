@@ -11,6 +11,7 @@ module Fiveruns::Dash
     end
     
     def start(background = true, &block)
+      Fiveruns::Dash.logger.info "Starting Dash #{Fiveruns::Dash::Util.version_info}"
       reporter.start(background, &block)
     end
     
