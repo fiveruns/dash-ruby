@@ -22,7 +22,7 @@ class MetricTest < Test::Unit::TestCase
           remove_method :time_me_without_instrument_#{handler.hash}
         EOCE
       end
-      ::Fiveruns::Dash::Instrument.handlers.clear
+      ::Fiveruns::Dash::Instrument.clear
     end
     
     context "should parse arguments for name, description and help_text" do
@@ -87,7 +87,7 @@ class MetricTest < Test::Unit::TestCase
             remove_method :time_me_without_instrument_#{handler.hash}
           EOCE
         end
-        ::Fiveruns::Dash::Instrument.handlers.clear
+        ::Fiveruns::Dash::Instrument.clear
       end
       should "get correct number of invocations" do
         invoke 4
@@ -111,7 +111,7 @@ class MetricTest < Test::Unit::TestCase
             remove_method :time_me_without_instrument_#{handler.hash}
           EOCE
         end
-        ::Fiveruns::Dash::Instrument.handlers.clear
+        ::Fiveruns::Dash::Instrument.clear
       end
       should "raise exception without :on option" do
         assert_raises ArgumentError do

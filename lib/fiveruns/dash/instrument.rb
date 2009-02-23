@@ -8,6 +8,18 @@ module Fiveruns::Dash
       @handlers ||= []
     end
     
+    # We hold onto the metrics themselves so we can dynamically call their
+    # context_finders (which may be changed after instrumentation)
+    def self.metrics
+      @metrics ||= []
+    end
+    
+    # Important: This does not de-instrument
+    def self.clear
+      handlers.clear
+      metrics.clear
+    end
+        
     # call-seq:
     #  Instrument.add("ClassName#instance_method", ...) { |instance, time, *args| ... }
     #  Instrument.add("ClassName::class_method", ...) { |klass, time, *args| ... }
@@ -36,7 +48,7 @@ module Fiveruns::Dash
       end
     end
 
-    def self.reentrant_timing(token, offset, this, limit_to_within, args)
+    def self.reentrant_timing(token, offset, context, obj, args, limit_to_within)
       # token allows us to handle re-entrant timing, see e.g. ar_time
       Thread.current[token] = 0 if Thread.current[token].nil?
       Thread.current[token] = Thread.current[token] + 1
@@ -48,14 +60,14 @@ module Fiveruns::Dash
         Thread.current[token] = Thread.current[token] - 1
         if Thread.current[token] == 0
           if !limit_to_within || (Thread.current[:dash_markers] || []).include?(limit_to_within)
-            ::Fiveruns::Dash::Instrument.handlers[offset].call(this, time, *args)
+            ::Fiveruns::Dash::Instrument.handlers[offset].call(context, obj, time, *args)
           end
         end
       end
       result
     end
     
-    def self.timing(offset, this, args, mark, limit_to_within)
+    def self.timing(offset, context, mark, obj, args, limit_to_within)
       if mark
         Thread.current[:dash_markers] ||= []
         Thread.current[:dash_markers].push mark
@@ -68,7 +80,7 @@ module Fiveruns::Dash
         Thread.current[:dash_markers].pop if mark
 
         if !limit_to_within || (Thread.current[:dash_markers] || []).include?(limit_to_within)
-          ::Fiveruns::Dash::Instrument.handlers[offset].call(this, time, *args)
+          ::Fiveruns::Dash::Instrument.handlers[offset].call(context, obj, time, *args)
         end
       end
       result
@@ -79,29 +91,35 @@ module Fiveruns::Dash
     #######
 
     def self.instrument(obj, meth, options = {}, &handler)
-      handlers << handler unless handlers.include?(handler)
-      offset = handlers.size - 1
+      handlers << handler
+      handler_offset = handlers.size - 1
       identifier = "instrument_#{handler.hash.abs}"
+      if options[:metric]
+        metrics << options[:metric]
+        context_find = "::Fiveruns::Dash.sync { ::Fiveruns::Dash::Instrument.metrics[#{metrics.size - 1}].context_finder.call(self, *args) }"
+      else
+        context_find = '[]'
+      end
       code = wrapping meth, identifier do |without|
         if options[:exceptions]
           <<-EXCEPTIONS
             begin
               #{without}(*args, &block)
             rescue Exception => _e
-              _sample = ::Fiveruns::Dash::Instrument.handlers[#{offset}].call(_e, self, *args)
+              _sample = ::Fiveruns::Dash::Instrument.handlers[#{handler_offset}].call(_e, self, *args)
               ::Fiveruns::Dash.session.add_exception(_e, _sample)
               raise
             end
           EXCEPTIONS
         elsif options[:reentrant_token]
           <<-REENTRANT
-            ::Fiveruns::Dash::Instrument.reentrant_timing(:id#{options[:reentrant_token]}, #{offset}, self, #{options[:only_within] ? ":#{options[:only_within]}" : 'nil'}, args) do
+            ::Fiveruns::Dash::Instrument.reentrant_timing(:id#{options[:reentrant_token]}, #{handler_offset}, #{context_find}, self, args, #{options[:only_within] ? ":#{options[:only_within]}" : 'nil'}) do
               #{without}(*args, &block)
             end
           REENTRANT
         else
           <<-PERFORMANCE
-            ::Fiveruns::Dash::Instrument.timing(#{offset}, self, args, #{options[:mark_as] ? ":#{options[:mark_as]}" : 'nil'}, #{options[:only_within] ? ":#{options[:only_within]}" : 'nil'}) do
+            ::Fiveruns::Dash::Instrument.timing(#{handler_offset}, #{context_find}, self, args, #{options[:mark_as] ? ":#{options[:mark_as]}" : 'nil'}, #{options[:only_within] ? ":#{options[:only_within]}" : 'nil'}) do
               #{without}(*args, &block)
             end
           PERFORMANCE

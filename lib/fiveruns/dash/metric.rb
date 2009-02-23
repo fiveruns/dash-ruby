@@ -97,6 +97,13 @@ module Fiveruns::Dash
       @context_finder = block
     end
     
+    def context_finder
+      @context_finder ||= begin
+        context_setting = @options[:context] || @options[:contexts]
+        context_setting.is_a?(Proc) ? context_setting : lambda { |*args| Array(context_setting) } 
+      end
+    end
+    
     #######
     private
     #######
@@ -192,8 +199,7 @@ module Fiveruns::Dash
     
     # Note: only to be used when the +@operation+
     #       block is used to set contexts
-    def find_containers(*args, &block) #:nodoc:
-      contexts = Array(current_context_for(*args))
+    def find_containers(contexts, &block) #:nodoc:
       if contexts.empty? || contexts == [[]]
         contexts = [[]]
       elsif contexts.all? { |item| !item.is_a?(Array) }
@@ -222,17 +228,15 @@ module Fiveruns::Dash
       end
     end
     
-    def context_finder
-      @context_finder ||= begin
-        context_setting = @options[:context] || @options[:contexts]
-        context_setting.is_a?(Proc) ? context_setting : lambda { |*args| Array(context_setting) } 
+    def instrument_options(support_reentrant = true)
+      options = {}
+      if support_reentrant
+        options[:reentrant_token] = self.object_id.abs if @options[:reentrant]
+        options[:only_within] = @options[:only_within] if @options[:only_within]
+        options[:mark_as] = @name if @options[:mark]
       end
-    end
-    
-    # Retrieve the context for the given arguments
-    # * Note: We need to sync here (and wherever the context is modified)
-    def current_context_for(*args)
-      ::Fiveruns::Dash.sync { context_finder.call(*args) }
+      options[:metric] = self
+      options
     end
     
   end
@@ -268,8 +272,8 @@ module Fiveruns::Dash
     def install_hook
       @operation ||= lambda { nil }
       methods_to_instrument.each do |meth|
-        Instrument.add meth, instrument_options do |obj, time, *args|
-          find_containers(obj, *args) do |container|
+        Instrument.add meth, instrument_options do |contexts, obj, time, *args|
+          find_containers(contexts) do |container|
             container[:invocations] += 1
             container[:value] += time
             container
@@ -278,14 +282,6 @@ module Fiveruns::Dash
       end
     end
     
-    def instrument_options
-      options = {}
-      options[:reentrant_token] = self.object_id.abs if @options[:reentrant]
-      options[:only_within] = @options[:only_within] if @options[:only_within]
-      options[:mark_as] = @name if @options[:mark]
-      options
-    end
-
     def methods_to_instrument
       @methods_to_instrument ||= begin
         Array(@options[:method]) + Array(@options[:methods])
@@ -341,8 +337,8 @@ module Fiveruns::Dash
       end
       @operation ||= lambda { nil }
       incrementing_methods.each do |meth|
-        Instrument.add meth do |obj, time, *args|
-          find_containers(obj, *args) do |container|
+        Instrument.add meth, instrument_options(false) do |contexts, *args|
+          find_containers(contexts) do |container|
             container += 1
             container
           end
