@@ -15,14 +15,44 @@ class ExceptionRecorderTest < Test::Unit::TestCase
     end
     
     context "when recording an exception" do
-      setup do
-        recorder.record(build("Message", "foo/bar/baz"))
+      context "when not ignored" do
+        setup do
+          recorder.record(build("Message", "foo/bar/baz"))
+        end
+        should "record an exception" do
+          assert_equal 1, recorder.data.size
+        end
+        should "normalize a backtrace" do
+          assert(recorder.data.first[:backtrace] =~ /\[FOO\]/)
+        end
       end
-      should "record an exception" do
-        assert_equal 1, recorder.data.size
-      end
-      should "normalize a backtrace" do
-        assert(recorder.data.first[:backtrace] =~ /\[FOO\]/)
+      context "when ignored" do
+        context "checking in the right order" do
+          setup do
+            mock_ignore!(true)
+            Fiveruns::Dash::ExceptionRecorder.add_ignore_rule do |e|
+              e.message == 'Message'
+            end
+            recorder.record(build("Message", "foo/bar/baz"))
+          end
+          teardown { Fiveruns::Dash::ExceptionRecorder::RULES.clear }
+          should "not extract data from exception" do
+            assert_equal [:check], @steps
+          end
+        end
+        context "recording" do
+          setup do
+            Fiveruns::Dash::ExceptionRecorder.add_ignore_rule do |e|
+              e.message == 'Message'
+            end
+            recorder.record(build("Message", "foo/bar/baz"))
+          end
+          teardown { Fiveruns::Dash::ExceptionRecorder::RULES.clear }
+          should "not record" do
+            assert_equal 0, recorder.data.size
+          end
+        end
+        
       end
     end
 
@@ -102,6 +132,21 @@ class ExceptionRecorderTest < Test::Unit::TestCase
   #######
   private
   #######
+  
+  def mock_ignore!(ignore)
+    @steps = []  
+    flexmock(@recorder) do |mock|
+      mock.should_receive(:ignore_exception?).and_return do |mock|
+        @steps << :check
+        ignore
+      end
+      mock.should_receive(:extract_data_from_exception).and_return do
+        @steps << :extracted
+        {}
+      end
+    end
+    
+  end
 
   def build(message = 'This is a message', line = 'backtrace line')
     flexmock(:exception) do |mock|
