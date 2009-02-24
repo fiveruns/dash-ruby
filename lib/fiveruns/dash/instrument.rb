@@ -47,43 +47,43 @@ module Fiveruns::Dash
         end
       end
     end
-
-    def self.reentrant_timing(token, offset, context, obj, args, limit_to_within)
-      # token allows us to handle re-entrant timing, see e.g. ar_time
-      Thread.current[token] = 0 if Thread.current[token].nil?
-      Thread.current[token] = Thread.current[token] + 1
-      begin
+    
+    def self.timing(offset, context, obj, args, mark = nil, limit_to_within = nil, token = nil)
+      if token
+        # token allows us to handle re-entrant timing, see e.g. ar_time
+        Thread.current[token] = 0 if Thread.current[token].nil?
+        Thread.current[token] = Thread.current[token] + 1
         start = Time.now
-        result = yield
-      ensure
-        time = Time.now - start
-        Thread.current[token] = Thread.current[token] - 1
-        if Thread.current[token] == 0
+        begin
+          result = yield
+        ensure
+          time = Time.now - start
+          Thread.current[token] = Thread.current[token] - 1
+          if Thread.current[token] == 0
+            if !limit_to_within || (Thread.current[:dash_markers] || []).include?(limit_to_within)
+              ::Fiveruns::Dash::Instrument.handlers[offset].call(context, obj, time, *args)
+            end
+          end
+        end
+        result
+      else
+        if mark
+          Thread.current[:dash_markers] ||= []
+          Thread.current[:dash_markers].push mark
+        end
+        start = Time.now
+        begin
+          result = yield
+        ensure
+          time = Time.now - start
+          Thread.current[:dash_markers].pop if mark
+
           if !limit_to_within || (Thread.current[:dash_markers] || []).include?(limit_to_within)
             ::Fiveruns::Dash::Instrument.handlers[offset].call(context, obj, time, *args)
           end
         end
+        result
       end
-      result
-    end
-    
-    def self.timing(offset, context, mark, obj, args, limit_to_within)
-      if mark
-        Thread.current[:dash_markers] ||= []
-        Thread.current[:dash_markers].push mark
-      end
-      start = Time.now
-      begin
-        result = yield
-      ensure
-        time = Time.now - start
-        Thread.current[:dash_markers].pop if mark
-
-        if !limit_to_within || (Thread.current[:dash_markers] || []).include?(limit_to_within)
-          ::Fiveruns::Dash::Instrument.handlers[offset].call(context, obj, time, *args)
-        end
-      end
-      result
     end
     
     #######
@@ -102,7 +102,7 @@ module Fiveruns::Dash
       end
       code = wrapping meth, identifier do |without|
         if options[:exceptions]
-          <<-EXCEPTIONS
+          %(
             begin
               #{without}(*args, &block)
             rescue Exception => _e
@@ -110,19 +110,20 @@ module Fiveruns::Dash
               ::Fiveruns::Dash.session.add_exception(_e, _sample)
               raise
             end
-          EXCEPTIONS
-        elsif options[:reentrant_token]
-          <<-REENTRANT
-            ::Fiveruns::Dash::Instrument.reentrant_timing(:id#{options[:reentrant_token]}, #{handler_offset}, #{context_find}, self, args, #{options[:only_within] ? ":#{options[:only_within]}" : 'nil'}) do
-              #{without}(*args, &block)
-            end
-          REENTRANT
+          )
         else
-          <<-PERFORMANCE
-            ::Fiveruns::Dash::Instrument.timing(#{handler_offset}, #{context_find}, self, args, #{options[:mark_as] ? ":#{options[:mark_as]}" : 'nil'}, #{options[:only_within] ? ":#{options[:only_within]}" : 'nil'}) do
+          %(
+            ::Fiveruns::Dash::Instrument.timing(
+              #{handler_offset},
+              #{context_find},
+              self, args,
+              #{options[:mark_as] ? ":#{options[:mark_as]}" : 'nil'},
+              #{options[:only_within] ? ":#{options[:only_within]}" : 'nil'},
+              #{options[:reentrant_token] ? ":id#{options[:reentrant_token]}" : 'nil'}
+            ) do
               #{without}(*args, &block)
             end
-          PERFORMANCE
+          )
         end
       end
       obj.module_eval code, __FILE__, __LINE__
@@ -136,7 +137,7 @@ module Fiveruns::Dash
 
     def self.wrapping(meth, feature)
       format = meth =~ /^(.*?)(\?|!|=)$/ ? "#{$1}_%s_#{feature}#{$2}" : "#{meth}_%s_#{feature}" 
-      <<-DYNAMIC
+      %(
         def #{format % :with}(*args, &block)
           _trace = Thread.current[:trace]
           if _trace
@@ -148,7 +149,7 @@ module Fiveruns::Dash
           end
         end
         Fiveruns::Dash::Util.chain(self, :#{meth}, :#{feature})
-      DYNAMIC
+      )
     end
       
   end
