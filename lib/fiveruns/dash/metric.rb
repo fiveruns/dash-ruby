@@ -100,7 +100,12 @@ module Fiveruns::Dash
     def context_finder
       @context_finder ||= begin
         context_setting = @options[:context] || @options[:contexts]
-        context_setting.is_a?(Proc) ? context_setting : lambda { |*args| Array(context_setting) } 
+        case context_setting
+        when Proc
+          context_setting
+        else
+          lambda { |*args| Array(context_setting) } 
+        end
       end
     end
     
