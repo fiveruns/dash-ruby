@@ -48,7 +48,9 @@ module Fiveruns::Dash
       end
     end
     
-    def self.timing(offset, context, obj, args, mark = nil, limit_to_within = nil, token = nil)
+    def self.timing(handler, metric, obj, args, mark = nil, limit_to_within = nil, token = nil)
+      original_context = Fiveruns::Dash::Context.context.dup
+      contexts = ::Fiveruns::Dash.sync { metric.context_finder.call(obj, *args) }
       if token
         # token allows us to handle re-entrant timing, see e.g. ar_time
         Thread.current[token] = 0 if Thread.current[token].nil?
@@ -61,7 +63,7 @@ module Fiveruns::Dash
           Thread.current[token] = Thread.current[token] - 1
           if Thread.current[token] == 0
             if !limit_to_within || (Thread.current[:dash_markers] || []).include?(limit_to_within)
-              ::Fiveruns::Dash::Instrument.handlers[offset].call(context, obj, time, *args)
+              handler.call(contexts, obj, time, *args)
             end
           end
         end
@@ -77,13 +79,14 @@ module Fiveruns::Dash
         ensure
           time = Time.now - start
           Thread.current[:dash_markers].pop if mark
-
           if !limit_to_within || (Thread.current[:dash_markers] || []).include?(limit_to_within)
-            ::Fiveruns::Dash::Instrument.handlers[offset].call(context, obj, time, *args)
+            handler.call(contexts, obj, time, *args)
           end
         end
         result
       end
+    ensure
+      Fiveruns::Dash::Context.set original_context
     end
     
     #######
@@ -96,9 +99,7 @@ module Fiveruns::Dash
       identifier = "instrument_#{handler.hash.abs}"
       if options[:metric]
         metrics << options[:metric]
-        context_find = "::Fiveruns::Dash.sync { ::Fiveruns::Dash::Instrument.metrics[#{metrics.size - 1}].context_finder.call(self, *args) }"
-      else
-        context_find = '[]'
+        metric_offset = metrics.size - 1
       end
       code = wrapping meth, identifier do |without|
         if options[:exceptions]
@@ -114,8 +115,8 @@ module Fiveruns::Dash
         else
           %(
             ::Fiveruns::Dash::Instrument.timing(
-              #{handler_offset},
-              #{context_find},
+              ::Fiveruns::Dash.handlers[#{handler_offset}],
+              ::Fiveruns::Dash.metrics[#{metric_offset}],
               self, args,
               #{options[:mark_as] ? ":#{options[:mark_as]}" : 'nil'},
               #{options[:only_within] ? ":#{options[:only_within]}" : 'nil'},
