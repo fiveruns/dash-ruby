@@ -3,6 +3,7 @@ require 'json'
 
 require 'pathname'
 require 'thread'
+require 'time'
 require 'logger'
 
 $:.unshift(File.dirname(__FILE__))
