@@ -81,7 +81,9 @@ module Fiveruns::Dash
       %w(INT TERM).each do |sym|
         TRAPS[sym] = Signal.trap(sym) do
           stop
-          TRAPS[sym].call if TRAPS[sym]
+          if TRAPS[sym] and TRAPS[sym].respond_to?(:call)
+            TRAPS[sym].call
+          end
         end
       end
     end
