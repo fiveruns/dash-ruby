@@ -17,6 +17,7 @@ end
 $:.unshift(File.dirname(__FILE__) << '/../lib')
 # Require library files
 require 'fiveruns/dash'
+require 'json'
 
 class Test::Unit::TestCase
   

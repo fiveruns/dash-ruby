@@ -133,6 +133,9 @@ module Fiveruns::Dash
     
     def send_info_update
       @info_update_sent ||= begin
+        # Pull in JSON at the last minute, to work around Rails incompatabilities
+        # http://groups.google.com/group/rubyonrails-core/browse_thread/thread/54e5453eaac6687b#
+        require 'json'
         payload = InfoPayload.new(@session.info, @started_at)
         Fiveruns::Dash.logger.debug "Sending info: #{payload.to_json}"
         result = Update.new(payload).store(*update_locations)
