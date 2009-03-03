@@ -47,8 +47,9 @@ module Fiveruns::Dash
           Please set the :ar_total_time option when configuring Dash:
 
           # Define an application-specific metric cooresponding to the total processing time for this app.
+          # You must mark this time so Dash can ignore any AR activity outside of the call stack.
           Fiveruns::Dash.register_recipe :loader, :url => 'http://dash.fiveruns.com' do |recipe|
-            recipe.time :total_time, 'Load Time', :method => 'Loader::Engine#load'
+            recipe.time :total_time, 'Load Time', :method => 'Loader::Engine#load', :mark => true
           end
 
           # Pass the name of this custom metric to Dash so it will be used in the AR metric calculations.
