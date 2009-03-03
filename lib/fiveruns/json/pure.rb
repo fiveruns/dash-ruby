@@ -1,6 +1,3 @@
-require 'fiveruns/json/common'
-require 'fiveruns/json/pure/parser'
-require 'fiveruns/json/pure/generator'
 
 module Fiveruns::JSON
   begin
@@ -28,7 +25,7 @@ module Fiveruns::JSON
 
           def iconv(string) # :nodoc:
             result = @iconv.iconv(string)
-            FiverunsJSON.swap!(result)
+            ::Fiveruns::JSON.swap!(result)
           end
         end
         UTF8toUTF16 = swapper.new(UTF8toUTF16) # :nodoc:
@@ -40,7 +37,7 @@ module Fiveruns::JSON
           end
 
           def iconv(string) # :nodoc:
-            string = FiverunsJSON.swap!(string.dup)
+            string = ::Fiveruns::JSON.swap!(string.dup)
             @iconv.iconv(string)
           end
         end

@@ -1,5 +1,3 @@
-require 'fiveruns/json/version'
-
 module Fiveruns::JSON
   class << self
     # If _object_ is string-like parse the string and return the parsed result
@@ -312,7 +310,7 @@ end
 module ::Kernel
   # Outputs _objs_ to STDOUT as FiverunsJSON strings in the shortest form, that is in
   # one line.
-  def j(*objs)
+  def fj(*objs)
     objs.each do |obj|
       puts ::Fiveruns::JSON::generate(obj, :allow_nan => true, :max_nesting => false)
     end
@@ -321,7 +319,7 @@ module ::Kernel
 
   # Ouputs _objs_ to STDOUT as FiverunsJSON strings in a pretty format, with
   # indentation and over many lines.
-  def jj(*objs)
+  def fjj(*objs)
     objs.each do |obj|
       puts ::Fiveruns::JSON::pretty_generate(obj, :allow_nan => true, :max_nesting => false)
     end
@@ -334,7 +332,7 @@ module ::Kernel
   #
   # The _opts_ argument is passed through to generate/parse respectively, see
   # generate and parse for their documentation.
-  def JSON(object, opts = {})
+  def FJSON(object, opts = {})
     if object.respond_to? :to_str
       ::Fiveruns::JSON.parse(object.to_str, opts)
     else

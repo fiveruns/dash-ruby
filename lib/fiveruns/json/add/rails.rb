@@ -1,9 +1,7 @@
 # This file contains implementations of rails custom objects for
 # serialisation/deserialisation.
 
-unless Fiveruns.const_defined?(:JSON) and ::Fiveruns::JSON.const_defined?(:JSON_LOADED) and ::Fiveruns::JSON::JSON_LOADED
-  require 'fiveruns/json'
-end
+require 'fiveruns/json'
 
 class Object
   def self.fjson_create(object)
