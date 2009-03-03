@@ -10,7 +10,7 @@ module Fiveruns::Dash::Store
     end
     
     def write_to(path)
-      ::File.open(path, 'w') { |f| f.write @payload.to_json }
+      ::File.open(path, 'w') { |f| f.write @payload.to_fjson }
     end
     
     def filename(directory)

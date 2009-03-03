@@ -37,7 +37,7 @@ module Fiveruns::Dash::Store::HTTP
       Fiveruns::Dash.logger.debug "Received unknown response from Dash service (#{response.inspect})"
       false
     end
-  rescue JSON::ParserError => e
+  rescue ::Fiveruns::JSON::ParserError => e
     puts response.body
     Fiveruns::Dash.logger.error "Received non-JSON response (#{response.inspect})"
     false

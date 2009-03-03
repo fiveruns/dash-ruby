@@ -68,7 +68,7 @@ module Fiveruns::Dash::Store
       end
       case response.code.to_i
       when 201
-        data = JSON.load(response.body)
+        data = FiverunsJSON.load(response.body)
         set_trace_contexts(data)
         true
       when 400..499
@@ -78,9 +78,9 @@ module Fiveruns::Dash::Store
         Fiveruns::Dash.logger.debug "Received unknown response from Dash service (#{response.inspect})"
         false
       end
-    rescue JSON::ParserError => e
+    rescue FiverunsJSON::ParserError => e
       puts response.body
-      Fiveruns::Dash.logger.error "Received non-JSON response (#{response.inspect})"
+      Fiveruns::Dash.logger.error "Received non-FiverunsJSON response (#{response.inspect})"
       false
     end
     

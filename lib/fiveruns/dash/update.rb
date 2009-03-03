@@ -27,7 +27,7 @@ module Fiveruns::Dash
         response = http.post("/apps/#{token}/ping", multipart.to_s, "Content-Type" => multipart.content_type)
         case response.code.to_i
         when 201
-          data = JSON.load(response.body)
+          data = ::Fiveruns::JSON.load(response.body)
           [:success, "Found application '#{data['name']}'"]
         else
           # Error message
@@ -133,8 +133,8 @@ module Fiveruns::Dash
       {}
     end
     
-    def to_json
-      @data.to_json
+    def to_fjson
+      @data.to_fjson
     end
     
     #######
@@ -146,7 +146,7 @@ module Fiveruns::Dash
     end
 
     def compressed
-      Zlib::Deflate.deflate(to_json)
+      Zlib::Deflate.deflate(to_fjson)
     end
 
   end

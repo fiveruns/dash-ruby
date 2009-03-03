@@ -27,10 +27,10 @@ module Fiveruns::Dash
       end
     end
         
-    def to_json
+    def to_fjson
       { :context => context,
         :data => (@data || {})
-      }.to_json
+      }.to_fjson
     end
     
     private
@@ -51,11 +51,11 @@ module Fiveruns::Dash
         @children ||= []
       end
             
-      def to_json
+      def to_fjson
         {
           :metrics => metrics,
           :children => children,
-        }.to_json
+        }.to_fjson
       end
       
     end

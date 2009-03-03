@@ -1,5 +1,10 @@
 require 'rubygems'
 
+module Fiveruns; end
+
+# Pull in our forked copy of the pure JSON gem
+require 'fiveruns/json'
+
 require 'pathname'
 require 'thread'
 require 'time'
@@ -9,9 +14,6 @@ $:.unshift(File.dirname(__FILE__))
 
 # NB: Pre-load ALL Dash files here so we do not accidentally
 # use ActiveSupport's autoloading.
-
-module Fiveruns; end
-
 require 'dash/version'
 require 'dash/util'
 require 'dash/configuration'
