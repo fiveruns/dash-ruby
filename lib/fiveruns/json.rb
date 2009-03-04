@@ -2,6 +2,11 @@
 # nightmarish for library authors.  ActiveSupport and JSON have incompatability
 # issues and supporting/fixing them is not worth it.
 #
+# == Authors
+#
+# Florian Frank <mailto:flori@ping.de>
+# FiveRuns Development Team
+
 require 'fiveruns/json/version'
 require 'fiveruns/json/common'
 require 'fiveruns/json/generator'

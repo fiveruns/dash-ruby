@@ -18,10 +18,6 @@ See the Ruby support pages, http://support.fiveruns.com/faqs/dash/ruby, for info
 
 The FiveRuns Development Team & Dash community
 
-== Dependencies
-
-* The json gem
-
 == Platforms
 
 This library has only been tested on OSX and Linux.  The `ruby' recipe (which collects metrics on the Ruby process) currently relies on `ps' -- so will not work on Windows.  We're actively looking for contributions to widen the number of platforms we support; please help!
@@ -39,6 +35,11 @@ The best way to contribute is by sending pull requests via GitHub.  The official
 Please join the dash-users Google group, http://groups.google.com/group/dash-users
 
 You can also contact us via Twitter, Campfire, or email; see the main help page, http://support.fiveruns.com, for details.
+
+== Note
+
+This project contains a modified copy of the json_pure gem source code, which is distributed under
+the Ruby license <http://www.ruby-lang.org/en/LICENSE.txt> by Florian Frank <flori@ping.de>.
 
 == License
 
