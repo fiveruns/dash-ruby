@@ -68,8 +68,8 @@ module Fiveruns::Dash::Store
       end
       case response.code.to_i
       when 201
-        data = Fiveruns::JSON.load(response.body)
-        set_trace_contexts(data)
+        # data = Fiveruns::JSON.load(response.body)
+        # set_trace_contexts(data)
         true
       when 400..499
         Fiveruns::Dash.logger.warn "Could not access Dash service (#{response.code.to_i}, #{response.body.inspect})"
