@@ -4,8 +4,7 @@
 #
 require 'fiveruns/json/version'
 require 'fiveruns/json/common'
-require 'fiveruns/json/pure/parser'
-require 'fiveruns/json/pure/generator'
+require 'fiveruns/json/generator'
 require 'fiveruns/json/pure'
 require 'fiveruns/json/add/core'
 require 'fiveruns/json/add/rails'

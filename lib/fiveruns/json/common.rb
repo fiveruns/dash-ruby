@@ -19,11 +19,11 @@ module Fiveruns::JSON
     attr_reader :parser
 
     # Set the FiverunsJSON parser class _parser_ to be used by FiverunsJSON.
-    def parser=(parser) # :nodoc:
-      @parser = parser
-      remove_const :Parser if const_defined? :Parser
-      const_set :Parser, parser
-    end
+    # def parser=(parser) # :nodoc:
+    #   @parser = parser
+    #   remove_const :Parser if const_defined? :Parser
+    #   const_set :Parser, parser
+    # end
 
     # Return the constant located at _path_. The format of _path_ has to be
     # either ::A::B::C or A::B::C. In any case A has to be located at the top
@@ -116,9 +116,9 @@ module Fiveruns::JSON
   # * *create_additions*: If set to false, the Parser doesn't create
   #   additions even if a matchin class and create_id was found. This option
   #   defaults to true.
-  def parse(source, opts = {})
-    ::Fiveruns::JSON.parser.new(source, opts).parse
-  end
+  # def parse(source, opts = {})
+  #   ::Fiveruns::JSON.parser.new(source, opts).parse
+  # end
 
   # Parse the FiverunsJSON string _source_ into a Ruby data structure and return it.
   # The bang version of the parse method, defaults to the more dangerous values
@@ -135,13 +135,13 @@ module Fiveruns::JSON
   # * *create_additions*: If set to false, the Parser doesn't create
   #   additions even if a matchin class and create_id was found. This option
   #   defaults to true.
-  def parse!(source, opts = {})
-    opts = {
-      :max_nesting => false,
-      :allow_nan => true
-    }.update(opts)
-    ::Fiveruns::JSON.parser.new(source, opts).parse
-  end
+  # def parse!(source, opts = {})
+  #   opts = {
+  #     :max_nesting => false,
+  #     :allow_nan => true
+  #   }.update(opts)
+  #   ::Fiveruns::JSON.parser.new(source, opts).parse
+  # end
 
   # Unparse the Ruby data structure _obj_ into a single line FiverunsJSON string and
   # return it. _state_ is
@@ -333,11 +333,11 @@ module ::Kernel
   # The _opts_ argument is passed through to generate/parse respectively, see
   # generate and parse for their documentation.
   def FJSON(object, opts = {})
-    if object.respond_to? :to_str
-      ::Fiveruns::JSON.parse(object.to_str, opts)
-    else
+    # if object.respond_to? :to_str
+    #   ::Fiveruns::JSON.parse(object.to_str, opts)
+    # else
       ::Fiveruns::JSON.generate(object, opts)
-    end
+    # end
   end
 end
 

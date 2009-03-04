@@ -65,8 +65,7 @@ module Fiveruns::JSON
   # This module holds all the modules/classes that implement FiverunsJSON's
   # functionality in pure ruby.
   module Pure
-    $DEBUG and warn "Using pure library for FiverunsJSON."
-    ::Fiveruns::JSON.parser = Parser
+    $DEBUG and warn "Using pure library for Fiveruns::JSON."
     ::Fiveruns::JSON.generator = Generator
   end
 end
