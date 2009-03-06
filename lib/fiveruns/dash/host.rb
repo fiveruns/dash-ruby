@@ -94,17 +94,18 @@ module Fiveruns::Dash
           @architecture = `uname -p`.strip
           @os_version = `uname -r`.strip
         end
-      when /win32|i386-mingw32/
-        require "dl/win32"
-        getVersionEx = Win32API.new("kernel32", "GetVersionExA", ['P'], 'L')
-    
-        lpVersionInfo = [148, 0, 0, 0, 0].pack("LLLLL") + "�0" * 128 
-        getVersionEx.Call lpVersionInfo
-  
-        dwOSVersionInfoSize, dwMajorVersion, dwMinorVersion, dwBuildNumber, dwPlatformId, szCSDVersion = lpVersionInfo.unpack("LLLLLC128")
-        @os_name = ['Windows 3.1/3.11', 'Windows 95/98', 'Windows NT/XP'][dwPlatformId]
-        @os_version = "#{dwMajorVersion}.#{dwMinorVersion}"
-        @architecture = ENV['PROCESSOR_ARCHITECTURE']
+      # when /win32|i386-mingw32/
+      #   require "dl/win32"
+      #   getVersionEx = Win32API.new("kernel32", "GetVersionExA", ['P'], 'L')
+      #     
+      # This line done broke on Ruby 1.9.1:
+      #   lpVersionInfo = [148, 0, 0, 0, 0].pack("LLLLL") + "�0" * 128 
+      #   getVersionEx.Call lpVersionInfo
+      #   
+      #   dwOSVersionInfoSize, dwMajorVersion, dwMinorVersion, dwBuildNumber, dwPlatformId, szCSDVersion = lpVersionInfo.unpack("LLLLLC128")
+      #   @os_name = ['Windows 3.1/3.11', 'Windows 95/98', 'Windows NT/XP'][dwPlatformId]
+      #   @os_version = "#{dwMajorVersion}.#{dwMinorVersion}"
+      #   @architecture = ENV['PROCESSOR_ARCHITECTURE']
       end
 
       @ip_addresses = []
