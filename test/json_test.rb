@@ -22,12 +22,18 @@ class JsonTest < Test::Unit::TestCase
     end
   end
 
-	def test_serialization
-		xprofile('fjson') do
-			@data.to_fjson
-		end
-		a = Time.now
-		fjson = @data.to_fjson
-#		puts "FJSON: #{Time.now - a}"
-	end
+  def test_parser
+    json = '{"token":"abcxyz","name":"Foo","owner":"John Smith"}'
+    hash = Fiveruns::JSON.load(json)
+    assert_equal 'abcxyz', hash['token']
+  end
+
+  def test_generator
+    xprofile('fjson') do
+      @data.to_fjson
+    end
+    a = Time.now
+    fjson = @data.to_fjson
+#   puts "FJSON: #{Time.now - a}"
+  end
 end

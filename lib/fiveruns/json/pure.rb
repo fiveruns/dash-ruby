@@ -66,6 +66,7 @@ module Fiveruns::JSON
   # functionality in pure ruby.
   module Pure
     $DEBUG and warn "Using pure library for Fiveruns::JSON."
+    ::Fiveruns::JSON.parser = Parser
     ::Fiveruns::JSON.generator = Generator
   end
 end
