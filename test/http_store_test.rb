@@ -7,6 +7,7 @@ class HTTPStoreTest < Test::Unit::TestCase
   context "HTTPStore" do
     
     setup do
+      mock!
       Thread.current[:resolved_hostnames] = nil
       @urls = %w(http://metrics.foo.com http://metrics02.bar.com http://metrics03.bar.com)
       @klass = Class.new { include Write::Store::HTTP }
@@ -15,18 +16,15 @@ class HTTPStoreTest < Test::Unit::TestCase
         mock.should_receive(:key).and_return(:name => 'MetricTest.time_me', :recipe_name => nil, :recipe_url => nil)
         mock.should_receive(:info_id=)
       end
-      @configuration = flexmock(:config) do |mock|
-        mock.should_receive(:options).and_return(:app => '123')
+      flexmock(Fiveruns::Dash.application.configuration) do |mock|
+        mock.should_receive(:options).and_return(:token => '123')
         mock.should_receive(:metrics).and_return([@metric])
       end
-      flexmock(Fiveruns::Dash).should_receive(:configuration).and_return(@configuration)
       flexmock(@klass).new_instances do |mock|
         mock.should_receive(:payload).and_return { payload }
         mock.should_receive(:params).and_return(@params)
       end
       @update = @klass.new
-      no_recipe_loading!
-      write_application
    #   mock_streams!
     end
     
