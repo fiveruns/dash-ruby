@@ -37,7 +37,7 @@ end
 module Fiveruns::Dash
   extend Logging
   
-  # Add some class methods
+  # Add helpers as needed
   include Write::Helpers
   include Read::Helpers
       
@@ -48,6 +48,20 @@ module Fiveruns::Dash
   START_TIME = Time.now.utc
   def process_age
     Time.now.utc - START_TIME
+  end
+  
+  # ==============================================
+  # = Singleton application (use only if needed) =
+  # ==============================================
+  
+  class << self; attr_accessor :application; end
+  
+  def session
+    application.session
+  end
+  
+  def configuration
+    application.configuration
   end
 
 end

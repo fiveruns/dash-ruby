@@ -3,10 +3,7 @@ module Fiveruns::Dash::Write
   module Helpers
     
     def self.included(base)
-      base.instance_eval { 
-        class << self; attr_accessor :application; end
-        extend ClassMethods
-      }
+      base.extend ClassMethods
     end
       
     module ClassMethods
@@ -41,14 +38,13 @@ module Fiveruns::Dash::Write
         application.validate!
         application.session.start
       end
-    
+        
       # ===========
       # = RECIPES =
       # ===========
     
-      # DEPRECATED: Once all official gems use `recipe`, enable the logging.
       def register_recipe(*args, &block)
-        # Fiveruns::Dash.logger.warn "DEPRECATED: Use Fiveruns::Dash.recipe instead of Fiveruns::Dash.register_recipe"
+        Fiveruns::Dash.logger.debug "DEPRECATED Fiveruns::Dash.register_recipe. Use Fiveruns::Dash.recipe"
         recipe(*args, &block)
       end
 
@@ -65,10 +61,6 @@ module Fiveruns::Dash::Write
       def recipes
         @recipes ||= {}
       end
-    
-      # ========
-      # = MISC =
-      # ========
 
       #######
       private
