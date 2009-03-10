@@ -115,7 +115,7 @@ module Fiveruns::Dash::Write::Store
     end
     
     def app_token
-      Fiveruns::Dash.configuration.options[:app]
+      Fiveruns::Dash.application.token
     end
 
     class Multipart

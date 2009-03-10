@@ -22,7 +22,7 @@ To access metric data from the Dash service, use your application's API Read Tok
 
   data = Fiveruns::Dash::Data.new('YOUR-API-TOKEN')
   data.metric('foos')
-
+  
 ## Authors
 
 The FiveRuns Development Team & Dash community

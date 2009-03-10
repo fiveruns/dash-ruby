@@ -1,8 +1,9 @@
 class Fiveruns::Dash::Write::Session
     
-  attr_reader :configuration, :reporter
-  def initialize(configuration)
-    @configuration = configuration
+  attr_reader :application, :configuration, :reporter
+  def initialize(application)
+    @application = application
+    @configuration = Fiveruns::Dash::Write::Configuration.new
     # eager create the host data in the main thread
     # as it is dangerous to load in the reporter thread
     Fiveruns::Dash.host
@@ -19,6 +20,12 @@ class Fiveruns::Dash::Write::Session
   
   def add_exception(exception, sample=nil)
     exception_recorder.record(exception, sample)
+  end
+  
+  def scm
+    @scm ||= unless configuration.options[:scm] == false
+      Fiveruns::Dash::Write::SCM.matching(configuration.options[:scm_repo])
+    end
   end
   
   def info

@@ -87,7 +87,7 @@ module Fiveruns::Dash::Write::Instrument
             #{without}(*args, &block)
           rescue Exception => _e
             _sample = Fiveruns::Dash::Write::Instrument.handlers[#{offset}].call(_e, self, *args)
-            Fiveruns::Dash.session.add_exception(_e, _sample)
+            Fiveruns::Dash.application.session.add_exception(_e, _sample)
             raise
           end
         EXCEPTIONS

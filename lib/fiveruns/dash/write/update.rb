@@ -39,7 +39,7 @@ module Fiveruns::Dash::Write
     end
 
     def token
-      Fiveruns::Dash.configuration.options[:app]
+      Fiveruns::Dash.application.token
     end
 
     def try_urls(urls)
@@ -170,7 +170,7 @@ module Fiveruns::Dash::Write
           :ruby_version => RUBY_VERSION,
           :started_at => @started_at
         }
-        if (scm = Fiveruns::Dash.scm)
+        if (scm = Fiveruns::Dash.application.session.scm)
           params.update(
             :scm_revision => scm.revision,
             :scm_time => scm.time,

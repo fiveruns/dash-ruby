@@ -13,13 +13,6 @@ class ConfigurationTest < Test::Unit::TestCase
       restore_streams!
       Fiveruns::Dash.class_eval { @configuration = nil }
     end
-
-    should "update options passed by Fiveruns::Dash.configure convenience method" do
-      assert_nil config.options[:app]
-      token = 'foo-bar'
-      Fiveruns::Dash.configure :app => token
-      assert_equal token, config.options[:app]
-    end
     
     context "metric definitions" do
       setup do
@@ -54,7 +47,7 @@ class ConfigurationTest < Test::Unit::TestCase
   end
 
   def config
-    Fiveruns::Dash.configuration
+    write_application.session.configuration
   end
 
 end

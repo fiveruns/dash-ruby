@@ -26,6 +26,7 @@ class HTTPStoreTest < Test::Unit::TestCase
       end
       @update = @klass.new
       no_recipe_loading!
+      write_application
    #   mock_streams!
     end
     

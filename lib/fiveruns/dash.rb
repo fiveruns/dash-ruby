@@ -38,9 +38,9 @@ module Fiveruns::Dash
   extend Logging
   
   # Add some class methods
-  extend Write::Helpers
-  extend Read::Helpers
-    
+  include Write::Helpers
+  include Read::Helpers
+      
   def self.host
     @host ||= Host.new
   end

@@ -64,7 +64,7 @@ if RUBY_PLATFORM[/java/]
     end
   end
 
-  Fiveruns::Dash.register_recipe :jruby, :url => 'http://dash.fiveruns.com' do |metrics|
+  Fiveruns::Dash.recipe :jruby, :url => 'http://dash.fiveruns.com' do |metrics|
 
     # ############
     # Class Cache MBean

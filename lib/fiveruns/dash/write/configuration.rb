@@ -12,12 +12,9 @@ class Fiveruns::Dash::Write::Configuration
   
   attr_reader :options
   def initialize(options = {})
+    load_recipes
     @options = self.class.default_options.merge(options)
     yield self if block_given?
-  end
-  
-  def ready?
-    options[:app]
   end
   
   def metrics #:nodoc:
@@ -74,6 +71,12 @@ class Fiveruns::Dash::Write::Configuration
   #######
   private
   #######
+  
+  def load_recipes
+    Dir[File.join(File.dirname(__FILE__), '..', '..', '..', '..', 'recipes', '**', '*.rb')].each do |core_recipe|
+      require core_recipe
+    end
+  end
   
   def with_recipe_settings(settings = {})
     recipe_settings_stack << settings

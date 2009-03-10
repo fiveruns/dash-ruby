@@ -98,5 +98,9 @@ class Test::Unit::TestCase
       Fiveruns::Dash.logger.instance_eval { @logdev = @original_logdev }
     end
   end
+  
+  def write_application
+    @write_application ||= Fiveruns::Dash.application = Fiveruns::Dash::Application.new('TEST-TOKEN-HERE', 'w')
+  end
     
 end

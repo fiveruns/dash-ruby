@@ -1,4 +1,4 @@
-Fiveruns::Dash.register_recipe :ruby, :url => 'http://dash.fiveruns.com' do |metrics|
+Fiveruns::Dash.recipe :ruby, :url => 'http://dash.fiveruns.com' do |metrics|
   metrics.absolute :vsz, 
     "Virtual Memory Usage", "The amount of virtual memory used by this process", 
     :unit => 'kbytes', :scope => :host do 
