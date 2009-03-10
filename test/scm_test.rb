@@ -2,25 +2,21 @@ require File.dirname(__FILE__) << "/test_helper"
 require 'date'
 
 #weird problems with flexmock resulted in this
-module Fiveruns
-  module Dash
-    class SvnSCM
-      private
-      def svn_info
-        <<-EOF
-        Path: .
-        URL: http://me.svnrepository.com/svn/dash/trunk
-        Repository Root: http://me.svnrepository.com/svn/dash/trunk
-        Repository UUID: f206d12c-05cc-4c44-99a1-426015a0eef1
-        Revision: 123
-        Node Kind: directory
-        Schedule: normal
-        Last Changed Author: acf
-        Last Changed Rev: 123
-        Last Changed Date: 2008-07-27 18:44:52 +0100 (Sun, 27 Jul 2008)
-        EOF
-      end
-    end
+class Fiveruns::Dash::Write::SvnSCM
+  private
+  def svn_info
+    <<-EOF
+    Path: .
+    URL: http://me.svnrepository.com/svn/dash/trunk
+    Repository Root: http://me.svnrepository.com/svn/dash/trunk
+    Repository UUID: f206d12c-05cc-4c44-99a1-426015a0eef1
+    Revision: 123
+    Node Kind: directory
+    Schedule: normal
+    Last Changed Author: acf
+    Last Changed Rev: 123
+    Last Changed Date: 2008-07-27 18:44:52 +0100 (Sun, 27 Jul 2008)
+    EOF
   end
 end
 
