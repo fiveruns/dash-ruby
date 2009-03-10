@@ -3,13 +3,17 @@ class Fiveruns::Dash::Write::Session
   attr_reader :application, :configuration, :reporter
   def initialize(application)
     @application = application
-    @configuration = Fiveruns::Dash::Write::Configuration.new
     # eager create the host data in the main thread
     # as it is dangerous to load in the reporter thread
     Fiveruns::Dash.host
   end
   
+  def configuration
+    application.configuration
+  end
+  
   def start(background = true, &block)
+    application.validate!
     Fiveruns::Dash.logger.info "Starting Dash #{Fiveruns::Dash::Util.version_info}"
     reporter.start(background, &block)
   end
@@ -72,5 +76,5 @@ class Fiveruns::Dash::Write::Session
   def reporter
     @reporter ||= Fiveruns::Dash::Write::Reporter.new(self)
   end
-          
+            
 end

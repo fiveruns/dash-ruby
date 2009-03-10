@@ -2,31 +2,40 @@ class Fiveruns::Dash::Application
   
   MODES = {'r' => :read, 'w' => :write}
   
-  attr_reader :token, :mode
-  def initialize(token, mode = 'w')
-    @token = token
+  attr_reader :mode
+  def initialize(mode, options = {})
     @mode = MODES[mode.to_s[0,1]]
-    validate!
+    configure(options) unless options.empty?
+  end
+  
+  def configuration
+    @configuration ||= mode_class(:configuration).new(self)
+  end
+  
+  def configure(options = {}, &block)
+    configuration.update(options)
+    yield configuration if block_given?
+  end
+  
+  def token
+    configuration.token
   end
   
   def session
-    @session ||= session_class.new(self)
+    @session ||= mode_class(:session).new(self)
+  end
+  
+  def validate!
+    unless token
+      raise ArgumentError, "Dash has not been configured with a #{@mode.to_s.capitalize} Token" 
+    end
   end
   
   private
   
-  def session_class
-    name = "Fiveruns::Dash::#{@mode.to_s.capitalize}::Session"
+  def mode_class(name)
+    name = "Fiveruns::Dash::#{@mode.to_s.capitalize}::#{name.to_s.capitalize}"
     Fiveruns::Dash::Util.constantize(name)
-  end
-  
-  def validate!
-    unless @mode
-      raise ArgumentError, "Invalid mode; must be one of #{MODES.values.inspect}"
-    end
-    unless @token
-      raise ArgumentError, "#{@mode.to_s.capitalize} Token required"
-    end
   end
 
 end

@@ -12,6 +12,8 @@ class ReliabilityTest < Test::Unit::TestCase
   
   context "FiveRuns Dash" do
     
+    setup { write_application }
+    
     should 'not swallow user-created exceptions' do
       dash do |metrics|
         metrics.time(:oops, 'Time spent messing up', 'Ooops!', 
@@ -42,7 +44,7 @@ class ReliabilityTest < Test::Unit::TestCase
         end
       rescue Fiveruns::Dash::Write::Instrument::Error
       end
-      assert_equal 0, Fiveruns::Dash.application.session.configuration.metrics.length
+      assert_equal 0, Fiveruns::Dash.application.configuration.metrics.length
     end
     
     should 'not modify Thread.abort_on_exception if the user has set it' do
@@ -52,7 +54,7 @@ class ReliabilityTest < Test::Unit::TestCase
   end
   
   def dash(&block)
-    Fiveruns::Dash.configure({:app => ENV['DASH_APP']}, &block)
+    Fiveruns::Dash.configure({:app => 'TEST'}, &block)
     Fiveruns::Dash.application.session.reporter.interval = 10
     Fiveruns::Dash.application.session.start
   end

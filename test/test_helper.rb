@@ -23,14 +23,10 @@ class Test::Unit::TestCase
   include Fiveruns::Dash
   
   def mock!
+    write_application(true)
     no_recipe_loading!
     mock_configuration!
-    create_session!
     mock_reporter!
-  end
-  
-  def create_session!
-    @session = Write::Session.new(@configuration)
   end
   
   def mock_configuration!
@@ -52,7 +48,7 @@ class Test::Unit::TestCase
     @recipes << Fiveruns::Dash::Write::Recipe.new(:foo2, :url => 'http://foo2.com')
     @metrics << @metric_class.new("NonCustomMetric") { 2 }
     @metrics << @metric_class.new("BadMetric") { raise ArgumentError }
-    @configuration = flexmock(:configuration) do |mock|
+    flexmock(Fiveruns::Dash.application.configuration) do |mock|
       mock.should_receive(:metrics).and_return(@metrics)
       mock.should_receive(:recipes).and_return(@recipes)
     end
@@ -99,8 +95,12 @@ class Test::Unit::TestCase
     end
   end
   
-  def write_application
-    @write_application ||= Fiveruns::Dash.application = Fiveruns::Dash::Application.new('TEST-TOKEN-HERE', 'w')
+  def write_application(force_reload = false)
+    Fiveruns::Dash.application = if force_reload
+      Fiveruns::Dash::Application.new(:write, :token => 'TEST-TOKEN')
+    else
+      Fiveruns::Dash.application || Fiveruns::Dash::Application.new(:write, :token => 'TEST-TOKEN')
+    end
   end
     
 end

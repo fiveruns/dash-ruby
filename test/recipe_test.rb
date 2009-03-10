@@ -9,7 +9,7 @@ class RecipeTest < Test::Unit::TestCase
     setup do
       mock_streams!
       Fiveruns::Dash.recipes.clear
-      @config = Fiveruns::Dash::Write::Configuration.new
+      @config = write_application(true).configuration
     end
     
     teardown do

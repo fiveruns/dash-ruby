@@ -2,13 +2,10 @@ require File.dirname(__FILE__) << "/test_helper"
 
 class SessionTest < Test::Unit::TestCase
   
-  attr_reader :session
-
   context "Session" do
 
     setup do
       mock!
-      @session = Write::Session.new(@configuration)
     end
 
     should "start reporter in background by default" do
@@ -44,6 +41,10 @@ class SessionTest < Test::Unit::TestCase
       
     end
 
+  end
+  
+  def session
+    Fiveruns::Dash.application.session
   end
 
 end

@@ -16,11 +16,10 @@ class ConfigurationTest < Test::Unit::TestCase
     
     context "metric definitions" do
       setup do
-        @configuration = Write::Configuration.new do |config|
-          metric_types.each do |type|
-            config.__send__(type, "#{type}") do
-              # Empty block for metric types that require it
-            end
+        @configuration = write_application(true).configuration
+        metric_types.each do |type|
+          @configuration.__send__(type, "#{type}") do
+            # Empty block for metric types that require it
           end
         end
       end
@@ -47,7 +46,7 @@ class ConfigurationTest < Test::Unit::TestCase
   end
 
   def config
-    write_application.session.configuration
+    write_application.configuration
   end
 
 end

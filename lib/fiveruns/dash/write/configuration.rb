@@ -10,11 +10,31 @@ class Fiveruns::Dash::Write::Configuration
     {:scm_repo => Dir.pwd}
   end
   
-  attr_reader :options
-  def initialize(options = {})
+  attr_reader :application, :options
+  def initialize(application, options = {})
+    @application = application
     load_recipes
     @options = self.class.default_options.merge(options)
     yield self if block_given?
+  end
+  
+  def update(opts={})
+    if opts[:app]
+      opts[:token] = opts.delete(:app)
+    end
+    options.update(opts)
+  end
+  
+  def token
+    options[:token]
+  end
+  
+  def ready?
+    options[:token]
+  end
+  
+  def session
+    application.session
   end
   
   def metrics #:nodoc:

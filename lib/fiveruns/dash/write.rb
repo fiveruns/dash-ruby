@@ -27,19 +27,18 @@ module Fiveruns::Dash::Write
       # = CONFIGURATION/STARTUP =
       # =========================
 
-      def configure(options = {})
-        token = options.delete(:app)
-        self.application = Fiveruns::Dash::Application.new(token, 'w')
+      def configure(options = {}, &block)
+        self.application ||= Fiveruns::Dash::Application.new(:write)
         if Dir.pwd == '/'
           guessed_pwd = guess_pwd(caller[0])
-          options[:scm_repo] = guessed_pwd if guessed_pwd
+          options[:scm_repo] ||= guessed_pwd if guessed_pwd
         end
-        application.session.configuration.options.update(options)
-        yield application.session.configuration if block_given?
+        application.configure(options, &block)
       end
 
       def start(options = {}, &block)
-        configure(options, &block) if block_given?
+        configure(options, &block)
+        application.validate!
         application.session.start
       end
     
