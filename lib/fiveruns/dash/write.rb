@@ -46,8 +46,9 @@ module Fiveruns::Dash::Write
       # = RECIPES =
       # ===========
     
+      # DEPRECATED: Once all official gems use `recipe`, enable the logging.
       def register_recipe(*args, &block)
-        Fiveruns::Dash.logger.warn "DEPRECATED: Use Fiveruns::Dash.recipe instead of Fiveruns::Dash.register_recipe"
+        # Fiveruns::Dash.logger.warn "DEPRECATED: Use Fiveruns::Dash.recipe instead of Fiveruns::Dash.register_recipe"
         recipe(*args, &block)
       end
 
