@@ -18,10 +18,7 @@ See the [Ruby support pages](http://support.fiveruns.com/faqs/dash/ruby), for in
 
 ### Retrieving data
 
-To access metric data from the Dash service, use your application's API Read Token.  For more information on tokens and how to find yours, see the [related support page](http://support.fiveruns.com/faqs/dash/tokens).
-
-  data = Fiveruns::Dash::Data.new('YOUR-API-TOKEN')
-  data.metric('foos')
+TODO
   
 ## Authors
 
