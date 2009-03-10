@@ -18,6 +18,10 @@ class Fiveruns::Dash::Write::Session
     reporter.start(background, &block)
   end
   
+  def started?
+    reporter.started?
+  end
+  
   def exceptions
     @exceptions ||= []
   end
