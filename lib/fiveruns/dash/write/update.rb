@@ -1,9 +1,9 @@
 require 'zlib'
 
-require 'dash/store/http'
-require 'dash/store/file'
+require 'dash/write/store/http'
+require 'dash/write/store/file'
 
-module Fiveruns::Dash
+module Fiveruns::Dash::Write
 
   class Pinger
 
@@ -23,11 +23,11 @@ module Fiveruns::Dash
         http = Net::HTTP.new(url.host, url.port)
         http.use_ssl = true if url.scheme == 'https'
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-        multipart = Fiveruns::Dash::Store::HTTP::Multipart.new(payload.io, payload.params)
+        multipart = Fiveruns::Dash::Write::Store::HTTP::Multipart.new(payload.io, payload.params)
         response = http.post("/apps/#{token}/ping", multipart.to_s, "Content-Type" => multipart.content_type)
         case response.code.to_i
         when 201
-          data = ::Fiveruns::JSON.load(response.body)
+          data = Fiveruns::JSON.load(response.body)
           [:success, "Found application '#{data['name']}'"]
         else
           # Error message
@@ -39,7 +39,7 @@ module Fiveruns::Dash
     end
 
     def token
-      ::Fiveruns::Dash.configuration.options[:app]
+      Fiveruns::Dash.configuration.options[:app]
     end
 
     def try_urls(urls)
@@ -201,16 +201,6 @@ module Fiveruns::Dash
     def params
       @params ||= {
         :type => 'data',
-        :collected_at => timestamp,
-        :hostname => Fiveruns::Dash.host.hostname,
-      }
-    end
-  end
-  
-  class TracePayload < Payload
-    def params
-      @params ||= {
-        :type => 'trace',
         :collected_at => timestamp,
         :hostname => Fiveruns::Dash.host.hostname,
       }

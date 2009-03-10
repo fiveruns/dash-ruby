@@ -73,7 +73,7 @@ module Fiveruns::JSON
         @allow_nan = !!opts[:allow_nan]
         ca = true
         ca = opts[:create_additions] if opts.key?(:create_additions)
-        @create_id = ca ? ::Fiveruns::JSON.create_id : nil
+        @create_id = ca ? Fiveruns::JSON.create_id : nil
       end
 
       alias source string
@@ -132,7 +132,7 @@ module Fiveruns::JSON
                 bytes << c[6 * i + 2, 2].to_i(16) << c[6 * i + 4, 2].to_i(16)
                 i += 1
               end
-              ::Fiveruns::JSON::UTF16toUTF8.iconv(bytes)
+              Fiveruns::JSON::UTF16toUTF8.iconv(bytes)
             end
           end
         else
@@ -241,7 +241,7 @@ module Fiveruns::JSON
               raise ParserError, "expected next name, value pair in object at '#{peek(20)}'!"
             end
             if @create_id and klassname = result[@create_id]
-              klass = ::Fiveruns::JSON.deep_const_get klassname
+              klass = Fiveruns::JSON.deep_const_get klassname
               break unless klass and klass.fjson_creatable?
               result = klass.fjson_create(result)
             end

@@ -1,4 +1,4 @@
-module Fiveruns::Dash::Store
+module Fiveruns::Dash::Write::Store
   
   module File
     

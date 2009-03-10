@@ -6,7 +6,7 @@ if defined?(Socket)
   Socket.do_not_reverse_lookup=true
 end
 
-module Fiveruns::Dash::Store
+module Fiveruns::Dash::Write::Store
   
   module HTTP
     
@@ -69,7 +69,6 @@ module Fiveruns::Dash::Store
       case response.code.to_i
       when 201
         # data = Fiveruns::JSON.load(response.body)
-        # set_trace_contexts(data)
         true
       when 400..499
         Fiveruns::Dash.logger.warn "Could not access Dash service (#{response.code.to_i}, #{response.body.inspect})"
@@ -84,25 +83,16 @@ module Fiveruns::Dash::Store
       false
     end
     
-    def set_trace_contexts(data)
-      trace_contexts = data['traces']
-      if trace_contexts.is_a?(Array)
-        Fiveruns::Dash.trace_contexts = trace_contexts
-      end
-    end
-    
     def add_path_to(uri)
       new_uri = uri.dup
       path = case payload
-      when Fiveruns::Dash::PingPayload
+      when Fiveruns::Dash::Write::PingPayload
         ::File.join('/apps', app_token, "ping")
-      when Fiveruns::Dash::InfoPayload
+      when Fiveruns::Dash::Write::InfoPayload
         ::File.join('/apps', app_token, "processes.json")
-      when Fiveruns::Dash::DataPayload
+      when Fiveruns::Dash::Write::DataPayload
         ::File.join('/apps', app_token, "metrics.json")
-      when Fiveruns::Dash::TracePayload
-        ::File.join('/apps', app_token, "traces.json")
-      when Fiveruns::Dash::ExceptionsPayload
+      when Fiveruns::Dash::Write::ExceptionsPayload
         ::File.join('/apps', app_token, "exceptions.json")
       else
         raise ArgumentError, 'Unknown payload type: #{payload.class}'
@@ -113,7 +103,7 @@ module Fiveruns::Dash::Store
     
     def extra_params_for(payload)
       case payload
-      when Fiveruns::Dash::ExceptionsPayload
+      when Fiveruns::Dash::Write::ExceptionsPayload
         {:app_id => app_token}
       else
         Hash.new
@@ -125,17 +115,16 @@ module Fiveruns::Dash::Store
     end
     
     def app_token
-      ::Fiveruns::Dash.configuration.options[:app]
+      Fiveruns::Dash.configuration.options[:app]
     end
 
     class Multipart
-
-      BOUNDARY_ROOT = 'B0UND'
 
       attr_reader :file, :params
       def initialize(file, params={})
         @file = file
         @params = params
+        @boundary = 'B0UND'
       end
 
       def content_type
@@ -151,7 +140,7 @@ module Fiveruns::Dash::Store
       #######
 
       def boundary
-        "#{BOUNDARY_ROOT}*#{nonce}"
+        "#{@boundary}*#{nonce}"
       end
 
       def parts

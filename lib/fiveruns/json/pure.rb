@@ -25,7 +25,7 @@ module Fiveruns::JSON
 
           def iconv(string) # :nodoc:
             result = @iconv.iconv(string)
-            ::Fiveruns::JSON.swap!(result)
+            Fiveruns::JSON.swap!(result)
           end
         end
         UTF8toUTF16 = swapper.new(UTF8toUTF16) # :nodoc:
@@ -37,7 +37,7 @@ module Fiveruns::JSON
           end
 
           def iconv(string) # :nodoc:
-            string = ::Fiveruns::JSON.swap!(string.dup)
+            string = Fiveruns::JSON.swap!(string.dup)
             @iconv.iconv(string)
           end
         end
@@ -66,7 +66,7 @@ module Fiveruns::JSON
   # functionality in pure ruby.
   module Pure
     $DEBUG and warn "Using pure library for Fiveruns::JSON."
-    ::Fiveruns::JSON.parser = Parser
-    ::Fiveruns::JSON.generator = Generator
+    Fiveruns::JSON.parser = Parser
+    Fiveruns::JSON.generator = Generator
   end
 end

@@ -22,7 +22,7 @@ class ReliabilityTest < Test::Unit::TestCase
     end
     
     should 'report an exception if instrumentation cannot proceed' do
-      assert_raises(Fiveruns::Dash::Instrument::Error) do
+      assert_raises(Fiveruns::Dash::Write::Instrument::Error) do
         dash do |metrics|
           metrics.time(:wheee, 'Time spent having fun', 'Wheeee!',
                        :method => 'Gizmo.wheeeeeeee!')
@@ -40,7 +40,7 @@ class ReliabilityTest < Test::Unit::TestCase
           metrics.time(:oops, 'Time spent messing up', 'Ooops!', 
                        :method => 'Gizmo#oops!')
         end
-      rescue Fiveruns::Dash::Instrument::Error
+      rescue Fiveruns::Dash::Write::Instrument::Error
       end
       assert_equal 0, Fiveruns::Dash.configuration.metrics.length
     end

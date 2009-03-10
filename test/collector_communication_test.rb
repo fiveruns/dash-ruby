@@ -21,7 +21,7 @@ class Integer
   end
 end
 
-module Fiveruns::Dash::Store::HTTP
+module Fiveruns::Dash::Write::Store::HTTP
   def check_response_of(response)
     unless response
       Fiveruns::Dash.logger.debug "Received no response from Dash service"
@@ -37,7 +37,7 @@ module Fiveruns::Dash::Store::HTTP
       Fiveruns::Dash.logger.debug "Received unknown response from Dash service (#{response.inspect})"
       false
     end
-  rescue ::Fiveruns::JSON::ParserError => e
+  rescue Fiveruns::JSON::ParserError => e
     puts response.body
     Fiveruns::Dash.logger.error "Received non-JSON response (#{response.inspect})"
     false
@@ -94,7 +94,7 @@ class CollectorCommunicationTest < Test::Unit::TestCase
       
       ##mock_configuration!
       @metrics = []
-      @metric_class = Class.new(Metric) do
+      @metric_class = Class.new(Write::Metric) do
         def self.metric_type
           :test
         end
@@ -106,8 +106,8 @@ class CollectorCommunicationTest < Test::Unit::TestCase
         @metrics << @metric_class.new("Metric#{i}") { 1 }
       end
       @recipes = []
-      @recipes << Fiveruns::Dash::Recipe.new(:foo, :url => 'http://foo.com')
-      @recipes << Fiveruns::Dash::Recipe.new(:foo2, :url => 'http://foo2.com')
+      @recipes << Write::Recipe.new(:foo, :url => 'http://foo.com')
+      @recipes << Write::Recipe.new(:foo2, :url => 'http://foo2.com')
       @metrics << @metric_class.new("NonCustomMetric") { 2 }
       @configuration = flexmock(:configuration) do |mock|
         mock.should_receive(:metrics).and_return(@metrics)
@@ -116,11 +116,11 @@ class CollectorCommunicationTest < Test::Unit::TestCase
       
       
       ##create_session!
-      @session = Session.new(@configuration)
+      @session = Write::Session.new(@configuration)
       
       # other stuff
       flexmock(@configuration).should_receive(:options).and_return(:app => '123')
-      flexmock(::Fiveruns::Dash).should_receive(:configuration).and_return(@configuration)
+      flexmock(Fiveruns::Dash).should_receive(:configuration).and_return(@configuration)
       flexmock(@session.reporter).should_receive(:update_locations).returns(["http://localhost:9999"])
       
       @collector = DummyCollector.new()

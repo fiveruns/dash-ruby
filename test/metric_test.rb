@@ -15,21 +15,21 @@ class MetricTest < Test::Unit::TestCase
     
     teardown do
       # Hacked 'uninstrument' until it's built-in
-      ::Fiveruns::Dash::Instrument.handlers.each do |handler|
+      Write::Instrument.handlers.each do |handler|
         (class << MetricTest; self; end).class_eval <<-EOCE
           remove_method :time_me_with_instrument_#{handler.hash}
           alias_method :time_me, :time_me_without_instrument_#{handler.hash}
           remove_method :time_me_without_instrument_#{handler.hash}
         EOCE
       end
-      ::Fiveruns::Dash::Instrument.handlers.clear
+      Write::Instrument.handlers.clear
     end
     
     context "should parse arguments for name, description and help_text" do
       setup do
         @options = Hash.new
         @options[:method] = time_method
-        @metric = TimeMetric.new(:name, "Description", "HelpText", :method => time_method)
+        @metric = Write::TimeMetric.new(:name, "Description", "HelpText", :method => time_method)
       end
       
       should "interpret name" do
@@ -53,7 +53,7 @@ class MetricTest < Test::Unit::TestCase
       setup do
         @options = Hash.new
         @options[:method] = time_method
-        @metric = TimeMetric.new(:name, :method => time_method)
+        @metric = Write::TimeMetric.new(:name, :method => time_method)
       end
       
       should "interpret name" do
@@ -75,19 +75,19 @@ class MetricTest < Test::Unit::TestCase
 
     context "using reentrant time" do
       setup do
-        @metric = TimeMetric.new(:time_mes, :method => time_method, :reentrant => true)
+        @metric = Write::TimeMetric.new(:time_mes, :method => time_method, :reentrant => true)
         flexmock(@metric).should_receive(:info_id).and_return(1)
       end
       teardown do
         # Hacked 'uninstrument' until it's built-in
-        ::Fiveruns::Dash::Instrument.handlers.each do |handler|
+        Write::Instrument.handlers.each do |handler|
           (class << MetricTest; self; end).class_eval <<-EOCE
             remove_method :time_me_with_instrument_#{handler.hash}
             alias_method :time_me, :time_me_without_instrument_#{handler.hash}
             remove_method :time_me_without_instrument_#{handler.hash}
           EOCE
         end
-        ::Fiveruns::Dash::Instrument.handlers.clear
+        Write::Instrument.handlers.clear
       end
       should "get correct number of invocations" do
         invoke 4
@@ -99,23 +99,23 @@ class MetricTest < Test::Unit::TestCase
     
     context "using time" do
       setup do
-        @metric = TimeMetric.new(:time_mes, :method => time_method)
+        @metric = Write::TimeMetric.new(:time_mes, :method => time_method)
         flexmock(@metric).should_receive(:info_id).and_return(1)
       end
       teardown do
         # Hacked 'uninstrument' until it's built-in
-        ::Fiveruns::Dash::Instrument.handlers.each do |handler|
+        Write::Instrument.handlers.each do |handler|
           (class << MetricTest; self; end).class_eval <<-EOCE
             remove_method :time_me_with_instrument_#{handler.hash}
             alias_method :time_me, :time_me_without_instrument_#{handler.hash}
             remove_method :time_me_without_instrument_#{handler.hash}
           EOCE
         end
-        ::Fiveruns::Dash::Instrument.handlers.clear
+        Write::Instrument.handlers.clear
       end
       should "raise exception without :on option" do
         assert_raises ArgumentError do
-          TimeMetric.new(:time_mes, 'A Name')
+          Write::TimeMetric.new(:time_mes, 'A Name')
         end
       end
       should "get correct number of invocations" do
@@ -150,7 +150,7 @@ class MetricTest < Test::Unit::TestCase
 
     context "using incremented counter" do
       setup do
-        @metric = CounterMetric.new(:time_mes_counter, :incremented_by => time_method)
+        @metric = Write::CounterMetric.new(:time_mes_counter, :incremented_by => time_method)
         flexmock(@metric).should_receive(:info_id).and_return(1)
       end
       should "default to 0 before being incremented, and after reset" do

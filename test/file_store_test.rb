@@ -36,7 +36,7 @@ class FileStoreTest < Test::Unit::TestCase
   end
   
   def mock_storage!
-    @klass = Class.new { include Store::File }
+    @klass = Class.new { include Write::Store::File }
     flexmock(@klass).new_instances do |mock|
       mock.should_receive(:payload).and_return(:foo => 1, :bar => 2)
       mock.should_receive(:guid).and_return('GUID')

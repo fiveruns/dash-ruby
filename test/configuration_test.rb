@@ -23,7 +23,7 @@ class ConfigurationTest < Test::Unit::TestCase
     
     context "metric definitions" do
       setup do
-        @configuration = Configuration.new do |config|
+        @configuration = Write::Configuration.new do |config|
           metric_types.each do |type|
             config.__send__(type, "#{type}") do
               # Empty block for metric types that require it
@@ -40,43 +40,6 @@ class ConfigurationTest < Test::Unit::TestCase
         assert_raises NoMethodError do
           @configuration.__send__(:bad_type, 'My Horrible Metric')
         end
-      end
-    end
-    
-    context "setting by version" do
-      setup do
-        @version = '0.1.6'
-        @config = Configuration.new do |config|
-          config.for_version @version, '0.1.6' do
-            config.counter :foo do
-              1
-            end
-          end
-          config.for_version @version, ['=', '0.1.6'] do
-            config.counter :bar do
-              1
-            end
-          end
-          config.for_version @version, ['==', '0.1.5'] do
-            config.counter :spam do
-              1
-            end
-          end
-          config.for_version @version, ['>', '0.1.6'] do
-            config.counter :baz do
-              1
-            end
-          end
-          config.for_version nil, ['>', '0.1.6'] do
-            config.counter :quux do
-              1
-            end
-          end
-        end
-      end
-      should "execute if correct version" do
-        assert_equal 2, @config.metrics.size
-        assert_equal %w(bar foo), @config.metrics.map { |m| m.name }.map { |i| i.to_s }.sort
       end
     end
 

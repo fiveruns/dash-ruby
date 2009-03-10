@@ -31,19 +31,19 @@ class ScmTest < Test::Unit::TestCase
   context "All SCMs" do
     should "find .git in gems/fiveruns_dash on locate_upwards" do
       assert_match File.expand_path(File.join(File.dirname(__FILE__), '..')), 
-                   SCM.send(:locate_upwards, File.dirname(__FILE__), ".git" )
+                   Write::SCM.send(:locate_upwards, File.dirname(__FILE__), ".git" )
     end
 
     should "return nil from locate_upwards when no .git" do
-      assert_nil SCM.send(:locate_upwards, '/tmp', ".git" )
+      assert_nil Write::SCM.send(:locate_upwards, '/tmp', ".git" )
     end
   
     should "return nil from locate_upwards when root on posix" do
-      assert_nil SCM.send(:locate_upwards, "/", ".git" )
+      assert_nil Write::SCM.send(:locate_upwards, "/", ".git" )
     end
     
     should "select the longest path when two available" do
-      assert_equal( "/Users/acf/foo/bar/baz" , SCM.send(:best_match, ["/Users/acf/foo/bar/baz", "/Users/acf/foo/bar/baz", "/Users/acf"]) )
+      assert_equal( "/Users/acf/foo/bar/baz" , Write::SCM.send(:best_match, ["/Users/acf/foo/bar/baz", "/Users/acf/foo/bar/baz", "/Users/acf"]) )
     end
     
   end
@@ -51,7 +51,7 @@ class ScmTest < Test::Unit::TestCase
   
   context "Subversion SCM" do
     setup do
-      @scm = SvnSCM.new( File.dirname(__FILE__) )
+      @scm = Write::SvnSCM.new( File.dirname(__FILE__) )
     end
     
     should "extract revision properly from svn info" do

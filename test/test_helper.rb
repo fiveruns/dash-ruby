@@ -30,13 +30,13 @@ class Test::Unit::TestCase
   end
   
   def create_session!
-    @session = Session.new(@configuration)
+    @session = Write::Session.new(@configuration)
   end
   
   def mock_configuration!
     # Mock Configuration
     @metrics = []
-    @metric_class = Class.new(Metric) do
+    @metric_class = Class.new(Write::Metric) do
       def self.metric_type
         :test
       end
@@ -48,8 +48,8 @@ class Test::Unit::TestCase
       @metrics << @metric_class.new("Metric#{i}") { 1 }
     end
     @recipes = []
-    @recipes << Fiveruns::Dash::Recipe.new(:foo, :url => 'http://foo.com')
-    @recipes << Fiveruns::Dash::Recipe.new(:foo2, :url => 'http://foo2.com')
+    @recipes << Fiveruns::Dash::Write::Recipe.new(:foo, :url => 'http://foo.com')
+    @recipes << Fiveruns::Dash::Write::Recipe.new(:foo2, :url => 'http://foo2.com')
     @metrics << @metric_class.new("NonCustomMetric") { 2 }
     @metrics << @metric_class.new("BadMetric") { raise ArgumentError }
     @configuration = flexmock(:configuration) do |mock|
@@ -60,7 +60,7 @@ class Test::Unit::TestCase
   
   def mock_reporter!
     @restarted = false
-    flexmock(Reporter).new_instances do |mock|
+    flexmock(Write::Reporter).new_instances do |mock|
       mock.should_receive(:run).and_return do |restarted|
         @restarted = restarted
       end

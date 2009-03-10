@@ -50,7 +50,7 @@ module Fiveruns::JSON
                     [\x80-\xc1\xf5-\xff]       # invalid
                   )/nx) { |c|
       c.size == 1 and raise GeneratorError, "invalid utf8 byte: '#{c}'"
-      s = ::Fiveruns::JSON::UTF8toUTF16.iconv(c).unpack('H*')[0]
+      s = Fiveruns::JSON::UTF8toUTF16.iconv(c).unpack('H*')[0]
       s.gsub!(/.{4}/n, '\\\\u\&')
     }
     string
@@ -211,7 +211,7 @@ module Fiveruns::JSON
           # _depth_ is used to find out nesting depth, to indent accordingly.
           def to_fjson(state = nil, depth = 0, *)
             if state
-              state = ::Fiveruns::JSON.state.from_state(state)
+              state = Fiveruns::JSON.state.from_state(state)
               state.check_max_nesting(depth)
               fjson_check_circular(state) { fjson_transform(state, depth) }
             else
@@ -223,7 +223,7 @@ module Fiveruns::JSON
 
           def fjson_check_circular(state)
             if state and state.check_circular?
-              state.seen?(self) and raise ::Fiveruns::JSON::CircularDatastructure,
+              state.seen?(self) and raise Fiveruns::JSON::CircularDatastructure,
                   "circular data structures not supported!"
               state.remember self
             end
@@ -265,7 +265,7 @@ module Fiveruns::JSON
           # _depth_ is used to find out nesting depth, to indent accordingly.
           def to_fjson(state = nil, depth = 0, *)
             if state
-              state = ::Fiveruns::JSON.state.from_state(state)
+              state = Fiveruns::JSON.state.from_state(state)
               state.check_max_nesting(depth)
               fjson_check_circular(state) { fjson_transform(state, depth) }
             else
@@ -277,7 +277,7 @@ module Fiveruns::JSON
 
           def fjson_check_circular(state)
             if state and state.check_circular?
-              state.seen?(self) and raise ::Fiveruns::JSON::CircularDatastructure,
+              state.seen?(self) and raise Fiveruns::JSON::CircularDatastructure,
                 "circular data structures not supported!"
               state.remember self
             end
@@ -338,7 +338,7 @@ module Fiveruns::JSON
           # returns a FiverunsJSON string encoded with UTF16 big endian characters as
           # \u????.
           def to_fjson(*)
-            '"' << ::Fiveruns::JSON.utf8_to_json(self) << '"'
+            '"' << Fiveruns::JSON.utf8_to_json(self) << '"'
           end
 
           # Module that holds the extinding methods if, the String module is
@@ -362,7 +362,7 @@ module Fiveruns::JSON
           # instead of UTF-8 strings, e. g. binary data.
           def to_fjson_raw_object
             {
-              ::Fiveruns::JSON.create_id  => self.class.name,
+              Fiveruns::JSON.create_id  => self.class.name,
               'raw'           => self.unpack('C*'),
             }
           end

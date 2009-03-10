@@ -5,7 +5,7 @@ class UpdateTest < Test::Unit::TestCase
   context "Update" do
 
     setup do
-      @update = Update.new(DataPayload.new({}))
+      @update = Write::Update.new(Write::DataPayload.new({}))
     end
     
     context "an instance" do

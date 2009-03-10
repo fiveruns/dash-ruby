@@ -9,7 +9,7 @@ class RecipeTest < Test::Unit::TestCase
     setup do
       mock_streams!
       Fiveruns::Dash.recipes.clear
-      @config = Fiveruns::Dash::Configuration.new
+      @config = Fiveruns::Dash::Write::Configuration.new
     end
     
     teardown do
@@ -30,12 +30,12 @@ class RecipeTest < Test::Unit::TestCase
         should "is added to available recipes" do
           assert_equal 1, Fiveruns::Dash.recipes.size
           assert_kind_of Array, Fiveruns::Dash.recipes[:test]
-          assert_kind_of Fiveruns::Dash::Recipe, Fiveruns::Dash.recipes[:test].first
+          assert_kind_of Fiveruns::Dash::Write::Recipe, Fiveruns::Dash.recipes[:test].first
         end
       end
       context "without url" do
         should "raise error" do
-          assert_raises Fiveruns::Dash::Recipe::ConfigurationError do
+          assert_raises Fiveruns::Dash::Write::Recipe::ConfigurationError do
             recipe(:test, {}) do |metrics|
               metrics.counter :foo do
                 1

@@ -8,9 +8,9 @@ module Fiveruns::JSON
     # generate and parse for their documentation.
     def [](object, opts = {})
       if object.respond_to? :to_str
-        ::Fiveruns::JSON.parse(object.to_str, opts => {})
+        Fiveruns::JSON.parse(object.to_str, opts => {})
       else
-        ::Fiveruns::JSON.generate(object, opts => {})
+        Fiveruns::JSON.generate(object, opts => {})
       end
     end
 
@@ -82,14 +82,14 @@ module Fiveruns::JSON
   class JSONError < StandardError; end
 
   # This exception is raised, if a parser error occurs.
-  class ParserError < ::Fiveruns::JSON::JSONError; end
+  class ParserError < Fiveruns::JSON::JSONError; end
 
   # This exception is raised, if the nesting of parsed datastructures is too
   # deep.
   class NestingError < ParserError; end
 
   # This exception is raised, if a generator or unparser error occurs.
-  class GeneratorError < ::Fiveruns::JSON::JSONError; end
+  class GeneratorError < Fiveruns::JSON::JSONError; end
   # For backwards compatibility
   UnparserError = GeneratorError
 
@@ -99,7 +99,7 @@ module Fiveruns::JSON
 
   # This exception is raised, if the required unicode support is missing on the
   # system. Usually this means, that the iconv library is not installed.
-  class MissingUnicodeSupport < ::Fiveruns::JSON::JSONError; end
+  class MissingUnicodeSupport < Fiveruns::JSON::JSONError; end
 
   module_function
 
@@ -117,7 +117,7 @@ module Fiveruns::JSON
   #   additions even if a matchin class and create_id was found. This option
   #   defaults to true.
   def parse(source, opts = {})
-    ::Fiveruns::JSON.parser.new(source, opts).parse
+    Fiveruns::JSON.parser.new(source, opts).parse
   end
 
   # Parse the FiverunsJSON string _source_ into a Ruby data structure and return it.
@@ -140,7 +140,7 @@ module Fiveruns::JSON
       :max_nesting => false,
       :allow_nan => true
     }.update(opts)
-    ::Fiveruns::JSON.parser.new(source, opts).parse
+    Fiveruns::JSON.parser.new(source, opts).parse
   end
 
   # Unparse the Ruby data structure _obj_ into a single line FiverunsJSON string and
@@ -210,7 +210,7 @@ module Fiveruns::JSON
   # The _opts_ argument can be used to configure the generator, see the
   # generate method for a more detailed explanation.
   def pretty_generate(obj, opts = nil)
-    state = ::Fiveruns::JSON.state.new(
+    state = Fiveruns::JSON.state.new(
       :indent     => '  ',
       :space      => ' ',
       :object_nl  => "\n",
@@ -302,7 +302,7 @@ module Fiveruns::JSON
     else
       result
     end
-  rescue ::Fiveruns::JSON::NestingError
+  rescue Fiveruns::JSON::NestingError
     raise ArgumentError, "exceed depth limit"
   end
 end
@@ -312,7 +312,7 @@ module ::Kernel
   # one line.
   def fj(*objs)
     objs.each do |obj|
-      puts ::Fiveruns::JSON::generate(obj, :allow_nan => true, :max_nesting => false)
+      puts Fiveruns::JSON::generate(obj, :allow_nan => true, :max_nesting => false)
     end
     nil
   end
@@ -321,7 +321,7 @@ module ::Kernel
   # indentation and over many lines.
   def fjj(*objs)
     objs.each do |obj|
-      puts ::Fiveruns::JSON::pretty_generate(obj, :allow_nan => true, :max_nesting => false)
+      puts Fiveruns::JSON::pretty_generate(obj, :allow_nan => true, :max_nesting => false)
     end
     nil
   end
@@ -334,9 +334,9 @@ module ::Kernel
   # generate and parse for their documentation.
   def FJSON(object, opts = {})
     if object.respond_to? :to_str
-      ::Fiveruns::JSON.parse(object.to_str, opts)
+      Fiveruns::JSON.parse(object.to_str, opts)
     else
-      ::Fiveruns::JSON.generate(object, opts)
+      Fiveruns::JSON.generate(object, opts)
     end
   end
 end

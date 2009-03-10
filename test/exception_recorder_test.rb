@@ -8,8 +8,8 @@ class ExceptionRecorderTest < Test::Unit::TestCase
   context "ExceptionRecorder" do
     
     setup do
-      @recorder = Fiveruns::Dash::ExceptionRecorder.new(flexmock(:session))
-      flexmock(ExceptionRecorder).should_receive(:replacements).and_return({
+      @recorder = Write::ExceptionRecorder.new(flexmock(:session))
+      flexmock(Write::ExceptionRecorder).should_receive(:replacements).and_return({
         :foo => /^foo\b/
       })
     end
@@ -30,24 +30,24 @@ class ExceptionRecorderTest < Test::Unit::TestCase
         context "checking in the right order" do
           setup do
             mock_ignore!(true)
-            Fiveruns::Dash::ExceptionRecorder.add_ignore_rule do |e|
+            Write::ExceptionRecorder.add_ignore_rule do |e|
               e.message == 'Message'
             end
             recorder.record(build("Message", "foo/bar/baz"))
           end
-          teardown { Fiveruns::Dash::ExceptionRecorder::RULES.clear }
+          teardown { Write::ExceptionRecorder::RULES.clear }
           should "not extract data from exception" do
             assert_equal [:check], @steps
           end
         end
         context "recording" do
           setup do
-            Fiveruns::Dash::ExceptionRecorder.add_ignore_rule do |e|
+            Write::ExceptionRecorder.add_ignore_rule do |e|
               e.message == 'Message'
             end
             recorder.record(build("Message", "foo/bar/baz"))
           end
-          teardown { Fiveruns::Dash::ExceptionRecorder::RULES.clear }
+          teardown { Write::ExceptionRecorder::RULES.clear }
           should "not record" do
             assert_equal 0, recorder.data.size
           end

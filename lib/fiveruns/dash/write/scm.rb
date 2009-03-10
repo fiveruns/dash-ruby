@@ -1,7 +1,7 @@
-require 'date'
-module Fiveruns::Dash
+module Fiveruns::Dash::Write
+  
   class SCM
-    include Typable
+    include Fiveruns::Dash::Typable
     
     def self.matching(startpath)
       scm_hash = {}
@@ -21,28 +21,28 @@ module Fiveruns::Dash
         nil
       end
     end
-    
+  
     def self.best_match( scm_paths )
       scm_paths.max{|a,b| a.split("/").length <=> b.split("/").length}
     end
-    
+  
     def initialize(path)
       @path = path
       require_binding
     end
-    
+  
     def time
       raise NotImplementedError, 'Abstract'
     end
-    
+  
     def revision
       raise NotImplementedError, 'Abstract'
     end
-    
+  
     #######
     private
     #######
-    
+  
     def self.locate_upwards(startpath, target)
       return nil unless startpath
       startpath = File.expand_path(startpath)
@@ -53,9 +53,9 @@ module Fiveruns::Dash
 
     def require_binding
     end
-    
-  end
   
+  end
+
   class GitSCM < SCM
 
     def revision
@@ -91,28 +91,28 @@ module Fiveruns::Dash
     rescue LoadError
       raise LoadError, "Dash deployment tracking for Git apps requires the 'grit' gem"
     end
-    
+  
   end
 
   class SvnSCM < SCM
-    
+  
     def revision
         @yaml['Last Changed Rev'] || @yaml['Revision']
     end
-    
+  
     def time
       datestring = @yaml['Last Changed Date']
       datestring.nil? ? nil : DateTime.parse(datestring.split("(").first.strip)
     end
-    
+  
     def url
       @url ||= @yaml['URL']
     end
-    
+  
     #######
     private
     #######
-    
+  
     def require_binding
       @yaml = YAML.load(svn_info)
       @yaml = {} unless Hash === @yaml
@@ -121,7 +121,7 @@ module Fiveruns::Dash
     def svn_info
       `svn info #{@path}`
     end
-    
+      
   end
   
 end

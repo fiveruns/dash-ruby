@@ -9,7 +9,7 @@ class HTTPStoreTest < Test::Unit::TestCase
     setup do
       Thread.current[:resolved_hostnames] = nil
       @urls = %w(http://metrics.foo.com http://metrics02.bar.com http://metrics03.bar.com)
-      @klass = Class.new { include Store::HTTP }
+      @klass = Class.new { include Write::Store::HTTP }
       @params = {:this_is_a_param => 'value'}
       @metric = flexmock(:metric) do |mock|
         mock.should_receive(:key).and_return(:name => 'MetricTest.time_me', :recipe_name => nil, :recipe_url => nil)
@@ -19,7 +19,7 @@ class HTTPStoreTest < Test::Unit::TestCase
         mock.should_receive(:options).and_return(:app => '123')
         mock.should_receive(:metrics).and_return([@metric])
       end
-      flexmock(::Fiveruns::Dash).should_receive(:configuration).and_return(@configuration)
+      flexmock(Fiveruns::Dash).should_receive(:configuration).and_return(@configuration)
       flexmock(@klass).new_instances do |mock|
         mock.should_receive(:payload).and_return { payload }
         mock.should_receive(:params).and_return(@params)
@@ -67,7 +67,7 @@ class HTTPStoreTest < Test::Unit::TestCase
     
     context "with info payload" do
       setup do
-        @payload = InfoPayload.new({:pid => 987}, Time.now.utc)
+        @payload = Write::InfoPayload.new({:pid => 987}, Time.now.utc)
         @update#TODO
         flexmock(@update).should_receive(:resolved_hostname).and_return {|c| c }
    #     restore_streams!
@@ -102,7 +102,7 @@ class HTTPStoreTest < Test::Unit::TestCase
     context "with data payload" do
 
       setup do
-        @payload = DataPayload.new([{:metric_info_id => 123, :name => 'bar'}])
+        @payload = Write::DataPayload.new([{:metric_info_id => 123, :name => 'bar'}])
         flexmock(@update).should_receive(:resolved_hostname).and_return {|c| c}
         
       end
@@ -137,7 +137,7 @@ class HTTPStoreTest < Test::Unit::TestCase
     context "with exceptions payload" do
 
       setup do
-        @payload = ExceptionsPayload.new([
+        @payload = Write::ExceptionsPayload.new([
           {
             :name => 'FooError',
             :message => 'Fake Foo Error',

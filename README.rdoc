@@ -1,69 +1,75 @@
-= FiveRuns Dash core library for Ruby
+# FiveRuns Dash core library for Ruby
 
-Provides a Ruby API to push metrics to the FiveRuns Dash service, http://dash.fiveruns.com, currently in beta.
+Provides a Ruby API to push metrics to the [FiveRuns Dash service](http://dash.fiveruns.com, currently in beta.
 
 You'll need a Dash account before using this library.
 
-== Installation
+## Installation
 
 This library is released as a gem from the official repository at http://github.com/fiveruns/dash-ruby
 
-  sudo gem install fiveruns-dash-ruby --source http://gems.github.com
+    sudo gem install fiveruns-dash-ruby --source http://gems.github.com
 
-== Usage
+## Usage
 
-See the Ruby support pages, http://support.fiveruns.com/faqs/dash/ruby, for information on how to use this library. 
+### Monitoring Ruby Processes
 
-== Authors
+See the [Ruby support pages](http://support.fiveruns.com/faqs/dash/ruby), for information on how to use this library. 
+
+### Retrieving data
+
+To access metric data from the Dash service, use your application's API Read Token.  For more information on tokens and how to find yours, see the [related support page](http://support.fiveruns.com/faqs/dash/tokens).
+
+  data = Fiveruns::Dash::Data.new('YOUR-API-TOKEN')
+  data.metric('foos')
+
+## Authors
 
 The FiveRuns Development Team & Dash community
 
-== Platforms
+## Platforms
 
-This library has only been tested on OSX and Linux.  The `ruby' recipe (which collects metrics on the Ruby process) currently relies on `ps' -- so will not work on Windows.  We're actively looking for contributions to widen the number of platforms we support; please help!
+This library has only been tested on OSX and Linux.  The `ruby` recipe (which collects metrics on the Ruby process) currently relies on `ps` -- so will not work on Windows.  We're actively looking for contributions to widen the number of platforms we support; please help!
 
-== Contributing
+## Contributing
 
 As an open source project, we welcome community contributions!
 
-The best way to contribute is by sending pull requests via GitHub.  The official repository for this project is:
+The best way to contribute is by sending pull requests via GitHub.  The official repository for this project is: http://github.com/fiveruns/dash-ruby
 
-  http://github.com/fiveruns/dash-ruby
+## Support
 
-== Support
+Please join the [dash-users Google group](http://groups.google.com/group/dash-users).
 
-Please join the dash-users Google group, http://groups.google.com/group/dash-users
+You can also contact us via Twitter, Campfire, or email; see the [main help page](http://support.fiveruns.com), for details.
 
-You can also contact us via Twitter, Campfire, or email; see the main help page, http://support.fiveruns.com, for details.
+## Note
 
-== Note
+This project contains a modified copy of the json_pure gem source code, which is distributed under the [Ruby license](http://www.ruby-lang.org/en/LICENSE.txt) by [Florian Frank](mailto:flori@ping.de).
 
-This project contains a modified copy of the json_pure gem source code, which is distributed under
-the Ruby license <http://www.ruby-lang.org/en/LICENSE.txt> by Florian Frank <flori@ping.de>.
+## License
 
-== License
+    (The FiveRuns License)
 
-  # (The FiveRuns License)
-  #
-  # Copyright (c) 2006-2008 FiveRuns Corporation
-  # 
-  # Permission is hereby granted, free of charge, to any person obtaining
-  # a copy of this software and associated documentation files (the
-  # 'Software'), to deal in the Software without restriction, including
-  # without limitation the rights to use, copy, modify, merge, publish,
-  # distribute, sublicense, and/or sell copies of the Software, and to
-  # permit persons to whom the Software is furnished to do so, subject to
-  # the following conditions:
-  # 
-  # The above copyright notice and this permission notice shall be
-  # included in all copies or substantial portions of the Software.
-  # 
-  # THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
-  # EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-  # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-  # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-  # CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-  # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-  # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    Copyright (c) 2006-2008 FiveRuns Corporation
+
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files (the
+    'Software'), to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to
+    the following conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 

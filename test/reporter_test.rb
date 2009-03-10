@@ -14,7 +14,7 @@ class ReporterTest < Test::Unit::TestCase
     
     context "instance" do
       setup do
-        @reporter = Reporter.new(@session)
+        @reporter = Write::Reporter.new(@session)
       end
       should "start normally" do
         assert !@reporter.started?
@@ -37,10 +37,5 @@ class ReporterTest < Test::Unit::TestCase
     end
 
   end
-  
-  #######
-  private
-  #######
-  
 
 end

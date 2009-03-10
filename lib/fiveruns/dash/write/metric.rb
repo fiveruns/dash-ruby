@@ -1,9 +1,9 @@
 require 'dash/typable'
 
-module Fiveruns::Dash
+module Fiveruns::Dash::Write
           
   class Metric
-    include Typable
+    include Fiveruns::Dash::Typable
     
     attr_reader :name, :description, :help_text, :options
     attr_accessor :recipe
@@ -11,7 +11,7 @@ module Fiveruns::Dash
       @@warned = false
       @name = name.to_s
       @options = args.last.is_a?(Hash) ? args.pop : {}
-      @description = args.shift || Util.titleize(@name)
+      @description = args.shift || Fiveruns::Dash::Util.titleize(@name)
       @help_text = args.shift
       @operation = block
       @virtual = !!options[:sources]
@@ -106,7 +106,7 @@ module Fiveruns::Dash
       raise ArgumentError, "'#{name}' should be between 3 and 32 characters" unless (3..32).include?(name.size)
       raise ArgumentError, "'#{name}' should only contain letters, numbers and underscore" if name !~ /\A\w+\Z/
 
-      raise ArgumentError, "#{name} - Virtual metrics should have source metrics" if virtual? && Util.blank?(options[:sources])
+      raise ArgumentError, "#{name} - Virtual metrics should have source metrics" if virtual? && Fiveruns::Dash::Util.blank?(options[:sources])
       raise ArgumentError, "#{name} - metrics should not have source metrics" if !virtual? && options[:sources]
     end
     
@@ -144,7 +144,7 @@ module Fiveruns::Dash
     end
 
     def value_hash
-      current_value = ::Fiveruns::Dash.sync { metric_callback }
+      current_value = Fiveruns::Dash.sync { metric_callback }
       {:values => parse_value(current_value)}
     end
     
@@ -200,10 +200,6 @@ module Fiveruns::Dash
       elsif contexts.all? { |item| !item.is_a?(Array) }
         contexts = [contexts]
       end
-      if Thread.current[:trace]
-        result = yield blank_data[[]]
-        Thread.current[:trace].add_data(self, contexts, result)
-      end
       contexts.each do |context|
         with_container_for_context(context, &block)
       end
@@ -215,7 +211,7 @@ module Fiveruns::Dash
     #         the block is being executed, and when it is stored
     def with_container_for_context(context)
       ctx = (context || []).dup # normalize nil context to empty
-      ::Fiveruns::Dash.sync do
+      Fiveruns::Dash.sync do
         container = @data[ctx]
         new_container = yield container
         #Fiveruns::Dash.logger.info "#{name}/#{context.inspect}/#{new_container.inspect}"
@@ -233,7 +229,7 @@ module Fiveruns::Dash
     # Retrieve the context for the given arguments
     # * Note: We need to sync here (and wherever the context is modified)
     def current_context_for(*args)
-      ::Fiveruns::Dash.sync { context_finder.call(*args) }
+      Fiveruns::Dash.sync { context_finder.call(*args) }
     end
     
   end
@@ -247,7 +243,7 @@ module Fiveruns::Dash
     end
     
     def reset
-      ::Fiveruns::Dash.sync do
+      Fiveruns::Dash.sync do
         @data = blank_data
       end
     end
@@ -297,7 +293,7 @@ module Fiveruns::Dash
       super
       raise ArgumentError,
             "Can not set :unit for `#{@name}' time metric" if @options[:unit]
-      if Util.blank?(methods_to_instrument)
+      if Fiveruns::Dash::Util.blank?(methods_to_instrument)
         raise ArgumentError,
               "Must set :method or :methods option for `#{@name}` time metric"
       end
@@ -306,7 +302,7 @@ module Fiveruns::Dash
     # Get the current value
     # * Note: We sync here (and wherever @data is being written)
     def current_value
-      ::Fiveruns::Dash.sync do
+      Fiveruns::Dash.sync do
         @data.inject([]) do |all, (context, data)|
           all.push(data.merge(:context => context))
         end
@@ -336,7 +332,7 @@ module Fiveruns::Dash
     end
     
     def install_hook
-      if Util.blank?(incrementing_methods)
+      if Fiveruns::Dash::Util.blank?(incrementing_methods)
         raise RuntimeError,
               "Bad configuration for `#{@name}` counter metric"
       end
@@ -354,7 +350,7 @@ module Fiveruns::Dash
     # Reset the current value
     # * Note: We sync here (and wherever @data is being written)
     def reset
-      ::Fiveruns::Dash.sync { @data = blank_data }
+      Fiveruns::Dash.sync { @data = blank_data }
     end
     
     def blank_data
@@ -375,7 +371,7 @@ module Fiveruns::Dash
     # Get the current value
     # * Note: We sync here (and wherever @data is being written)
     def current_value
-      result = ::Fiveruns::Dash.sync do
+      result = Fiveruns::Dash.sync do
         # Ensure the empty context is stored with a default of 0
         @data[[]] = @data.fetch([], 0)
         @data

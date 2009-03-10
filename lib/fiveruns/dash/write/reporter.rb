@@ -1,6 +1,6 @@
 require 'thread'
 
-module Fiveruns::Dash
+module Fiveruns::Dash::Write
 
   class ShutdownSignal < ::Exception; end
     
@@ -25,7 +25,7 @@ module Fiveruns::Dash
     def start(run_in_background = true)
       restarted = @started_at ? true : false
       unless defined?(@started_at)
-        @started_at = ::Fiveruns::Dash::START_TIME
+        @started_at = Fiveruns::Dash::START_TIME
       end
       setup_for run_in_background
       if @background
@@ -46,16 +46,6 @@ module Fiveruns::Dash
     
     def background?
       started? && @background
-    end
-    
-    def send_trace(trace)
-      if trace.data
-        payload = TracePayload.new(trace)
-        Fiveruns::Dash.logger.debug "Sending trace: #{payload.to_fjson}"
-        Thread.new { Update.new(payload).store(*update_locations) }
-      else
-        Fiveruns::Dash.logger.debug "No trace to send"      
-      end
     end
     
     def ping
@@ -110,7 +100,7 @@ module Fiveruns::Dash
     def error_barrier
       begin
         yield
-      rescue Fiveruns::Dash::ShutdownSignal => me
+      rescue Fiveruns::Dash::Write::ShutdownSignal => me
         return
       rescue Exception => e
         Fiveruns::Dash.logger.error "#{e.class.name}: #{e.message}"

@@ -8,7 +8,7 @@ class SessionTest < Test::Unit::TestCase
 
     setup do
       mock!
-      @session = Session.new(@configuration)
+      @session = Write::Session.new(@configuration)
     end
 
     should "start reporter in background by default" do
