@@ -46,7 +46,7 @@ module Fiveruns::Dash
   end
   
   START_TIME = Time.now.utc
-  def process_age
+  def self.process_age
     Time.now.utc - START_TIME
   end
   
@@ -56,11 +56,11 @@ module Fiveruns::Dash
   
   class << self; attr_accessor :application; end
   
-  def session
+  def self.session
     application.session
   end
   
-  def configuration
+  def self.configuration
     application.configuration
   end
 
