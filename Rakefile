@@ -18,7 +18,7 @@ begin
     s.homepage = "http://github.com/fiveruns/dash-ruby" 
     s.description = "Provides an API to send metrics to the FiveRuns Dash service" 
     s.authors = ["FiveRuns Development Team"] 
-    s.files =  FileList['README.rdoc', 'Rakefile', 'version.yml', "{lib,test,recipes,examples}/**/*", ] 
+    s.files =  FileList['README.markdown', 'Rakefile', 'version.yml', "{lib,test,recipes,examples}/**/*", ] 
   end 
 rescue LoadError 
   puts "Jeweler, or one of its dependencies, is not available. Install it with: sudo gem install technicalpickles-jeweler -s http://gems.github.com" 
