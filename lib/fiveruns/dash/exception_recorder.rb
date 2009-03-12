@@ -52,7 +52,7 @@ module Fiveruns
       @session = session
     end
     
-    def exception_annotaters
+    def exception_annotations
       @exception_annotaters ||= []
     end
     
@@ -93,7 +93,7 @@ module Fiveruns
     end
     
     def add_annotation(&annotation)
-      exception_annotaters << annotation
+      exception_annotations << annotation
     end
     
     #######
@@ -101,7 +101,7 @@ module Fiveruns
     #######
     
     def run_annotations(sample)
-      exception_annotaters.each do |annotation|
+      exception_annotations.each do |annotation|
         annotation.call(sample)
       end
       

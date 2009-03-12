@@ -60,6 +60,10 @@ module Fiveruns::Dash
       Instrument.add(*meths, &block)
     end
     
+    def annotate_exceptions(&block)
+      ::Fiveruns::Dash.session.exception_recorder.add_annotation(&block)
+    end
+    
     # Merge in an existing recipe
     # call-seq:
     #   add_recipe :ruby
