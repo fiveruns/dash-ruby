@@ -58,15 +58,21 @@ module Fiveruns
       @session = session
     end
     
+    def exception_annotaters
+      @exception_annotaters ||= []
+    end
+    
     def ignore_exception?(exception)
       RULES.any? do |rule|
         rule.call(exception)
       end
     end
-
+    
     def record(exception, sample=nil)
       return if ignore_exception? exception
-
+      
+      run_annotations(sample)
+      
       data = extract_data_from_exception(exception)
       # Allow the sample data to override the exception's display name.
       data[:name] = sample.delete(:name) if sample and sample[:name]
@@ -91,10 +97,22 @@ module Fiveruns
     def reset
       exceptions.clear
     end
-
+    
+    def add_annotation(&annotation)
+      exception_annotaters << annotation
+    end
+    
     #######
     private
     #######
+    
+    def run_annotations(sample)
+      exception_annotaters.each do |annotation|
+        annotation.call(sample)
+      end
+      
+      return sample
+    end
     
     def flatten_sample(sample)
       case sample

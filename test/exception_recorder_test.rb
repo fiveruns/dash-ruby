@@ -69,6 +69,17 @@ class ExceptionRecorderTest < Test::Unit::TestCase
       should "not serialize sample" do
         assert_equal({'key' => 'value'}, recorder.data.first[:sample])
       end      
+      should 'run annotations on exception samples' do
+        recorder.reset
+        recorder.add_annotation do |metadata|
+          metadata.delete :key
+          metadata[:foo] = 1
+          'flop'
+        end
+        recorder.record(build('Some exception'), {:key => 1})
+        
+        assert_equal({'foo' => '1'}, recorder.data.first[:sample])
+      end
     end
     
     context "when recording exceptions with the same message and backtrace" do
