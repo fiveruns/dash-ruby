@@ -29,14 +29,20 @@ module Fiveruns::Dash
     end
     
     def add_exception(exception, sample=nil)
-      exception_annotaters.inject(sample) do |metadata, annotation|
-        annotation.call(metadata)
-      end
-      exception_recorder.record(exception, sample)
+      exception_recorder.record(exception, run_annotations(sample))
     end
     
+    # Move annotation stuff to ExceptionRecorder
     def add_annotater(&annotation)
       exception_annotaters << annotation
+    end
+    
+    def run_annotations(sample)
+      exception_annotaters.each do |annotation|
+        annotation.call(sample)
+      end
+      
+      return sample
     end
     
     def info
@@ -71,7 +77,7 @@ module Fiveruns::Dash
       #puts "Sending #{metric_payload.map { |met| [met[:name], met[:values].size] }.inspect} metrics"
       metric_payload
     end
-
+    
     def exception_data
       exception_recorder.data
     end

@@ -46,23 +46,26 @@ class SessionTest < Test::Unit::TestCase
     
     context "exceptions" do
       
-      should 'add exceptions to the exception recorder' do
-        ex = generate_exception
-        @session.add_exception(ex)
-        
-        assert_exception_matches ex, @session.exception_recorder.data.first
+      setup do
+        @ex = generate_exception
       end
       
-      context 'annotations' do
+      should 'add exceptions to the exception recorder' do
+        @session.add_exception(@ex)
         
-        should 'run on exception samples' do
-          ex = generate_exception
-          sample = {:key => 1}
+        assert_exception_matches @ex, @session.exception_recorder.data.first
+      end
+      
+      context 'with sample data' do
+        
+        should 'run annotations on exception samples' do
           @session.add_annotater do |metadata|
             metadata.delete :key
             metadata[:foo] = 1
+            'flop'
           end
-          @session.add_exception(ex, sample)
+          sample = {:key => 1}
+          @session.add_exception(@ex, sample)
           
           assert_equal({'foo' => '1'}, 
                        @session.exception_recorder.data.first[:sample])
