@@ -43,7 +43,50 @@ class SessionTest < Test::Unit::TestCase
       end
       
     end
-
+    
+    context "exceptions" do
+      
+      should 'add exceptions to the exception recorder' do
+        ex = generate_exception
+        @session.add_exception(ex)
+        
+        assert_exception_matches ex, @session.exception_recorder.data.first
+      end
+      
+      context 'annotations' do
+        
+        should 'run on exception samples' do
+          ex = generate_exception
+          sample = {:key => 1}
+          @session.add_annotater do |metadata|
+            metadata.delete :key
+            metadata[:foo] = 1
+          end
+          @session.add_exception(ex, sample)
+          
+          assert_equal({'foo' => '1'}, 
+                       @session.exception_recorder.data.first[:sample])
+        end
+        
+      end
+      
+    end
+    
+  end
+  
+  protected
+  
+  def assert_exception_matches(exception, hash)
+    assert_equal exception.class.to_s, hash[:name]
+    assert_equal exception.message, hash[:message]
+  end
+  
+  def generate_exception
+    begin
+      raise Exception.new("OHS NOES")
+    rescue Exception => e
+      e
+    end
   end
 
 end
