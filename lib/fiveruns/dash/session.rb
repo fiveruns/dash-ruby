@@ -29,20 +29,7 @@ module Fiveruns::Dash
     end
     
     def add_exception(exception, sample=nil)
-      exception_recorder.record(exception, run_annotations(sample))
-    end
-    
-    # Move annotation stuff to ExceptionRecorder
-    def add_annotater(&annotation)
-      exception_annotaters << annotation
-    end
-    
-    def run_annotations(sample)
-      exception_annotaters.each do |annotation|
-        annotation.call(sample)
-      end
-      
-      return sample
+      exception_recorder.record(exception, sample)
     end
     
     def info
@@ -88,10 +75,6 @@ module Fiveruns::Dash
     
     def reporter
       @reporter ||= Reporter.new(self)
-    end
-    
-    def exception_annotaters
-      @exception_annotaters ||= []
     end
     
   end
