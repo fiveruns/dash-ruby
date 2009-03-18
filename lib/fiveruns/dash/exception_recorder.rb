@@ -8,6 +8,11 @@ module Fiveruns
     RULES = []
     
     class << self
+      
+      def host
+        ::Fiveruns::Dash.host
+      end
+      
       def replacements
         @replacements ||= begin
           paths = {
@@ -24,11 +29,11 @@ module Fiveruns
       end
 
       def system_gempaths
-        `gem environment gempath`
+        host.result :gem, 'environment gempath', :bat
       end
-    
+
       def system_paths
-        `ruby -e 'puts $:.reject{|p|p=="."}.join(":")'`
+        host.result :ruby, %(-e 'puts $:.reject { |p| p == "." }.join(":")'), :exe
       end
 
       def regexp_for_path(path)
@@ -46,6 +51,7 @@ module Fiveruns
       def add_ignore_rule(&rule)
         RULES << rule
       end
+      
     end
 
     def initialize(session)

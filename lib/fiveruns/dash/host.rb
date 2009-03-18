@@ -65,6 +65,15 @@ module Fiveruns::Dash
     def execute_on_windows(&block)
       block.call if RUBY_PLATFORM =~ /win32|i386-mingw32/
     end
+    
+    def result(command, args, windows_ext=nil)
+      name = if windows_ext && os_name_match?(:windows)
+        "#{command}.#{windows_ext}"
+      else
+        command.to_s
+      end
+      `#{name} #{args}`
+    end
 
     def hostname
       @hostname
