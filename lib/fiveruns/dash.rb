@@ -2,6 +2,16 @@ require 'rubygems'
 
 module Fiveruns; end
 
+# Attempt to load the 'json' gem first
+# We do this because, under some curcumstances,
+# the json/ext complains if loaded after our forked
+# copy.
+begin
+  require 'json'
+rescue  
+  # Skip
+end
+
 # Pull in our forked copy of the pure JSON gem
 require 'fiveruns/json'
 
