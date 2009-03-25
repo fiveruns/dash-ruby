@@ -8,7 +8,7 @@ module Fiveruns; end
 # copy.
 begin
   require 'json'
-rescue  
+rescue LoadError
   # Skip
 end
 
