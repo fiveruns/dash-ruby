@@ -79,7 +79,19 @@ class ConfigurationTest < Test::Unit::TestCase
         assert_equal %w(bar foo), @config.metrics.map { |m| m.name }.map { |i| i.to_s }.sort
       end
     end
-
+    
+    context 'for exception annotations' do
+      should 'add a block to the list of annotations' do
+        config.annotate_exceptions do |metadata|
+          metadata[:foo] = 'flop!'
+        end
+        
+        assert_equal 1, 
+          ::Fiveruns::Dash.session.
+            exception_recorder.exception_annotations.length
+      end
+    end
+    
   end
   
   #######

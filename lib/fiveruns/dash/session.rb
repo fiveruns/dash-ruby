@@ -64,7 +64,7 @@ module Fiveruns::Dash
       #puts "Sending #{metric_payload.map { |met| [met[:name], met[:values].size] }.inspect} metrics"
       metric_payload
     end
-
+    
     def exception_data
       exception_recorder.data
     end
